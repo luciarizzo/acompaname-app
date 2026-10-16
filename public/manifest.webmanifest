@@ -1,0 +1,11 @@
+{
+  "name": "Acompáñame",
+  "short_name": "Acompáñame",
+  "description": "Una forma más sencilla de resolver tus gestiones digitales.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8f3",
+  "theme_color": "#17645d",
+  "lang": "es-AR",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
