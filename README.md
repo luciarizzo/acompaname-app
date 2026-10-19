@@ -27,25 +27,24 @@ La primera visita incluye una configuración de uso de cuatro pasos: para quién
 
 ## Proveedores de datos
 
-La UI usa interfaces en `src/services/` y, al activar `VITE_ENABLE_LIVE_APIS=true`, llama funciones serverless en `netlify/functions/`. Las llaves solo se leen en esas funciones. `npm run dev` sin Netlify Functions usa demo; para probar las funciones localmente, luego de configurar `.env` se puede usar `npx netlify dev`.
+La búsqueda de salidas usa una interfaz en `src/services/events/` y, al activar `VITE_ENABLE_LIVE_APIS=true`, consulta una Netlify Function. Los turnos médicos son siempre una simulación local: nunca consultan agendas ni reservan una visita. Los viajes y la búsqueda de lugares no forman parte de esta versión.
 
-Copiá `.env.example` a `.env` para activar integraciones. No guardes claves reales en archivos versionados y no uses prefijo `VITE_` para secretos.
+Copiá `.env.example` a `.env` si querés configurar la búsqueda real de salidas. No guardes claves reales en archivos versionados ni uses prefijo `VITE_` para secretos.
 
-- **Duffel** (`DUFFEL_API_KEY`): crear una cuenta de desarrollador y un token en modo de prueba desde su panel. La búsqueda real devuelve ofertas del proveedor; el modo de prueba puede tener horarios/precios no representativos. V1 solo consulta y muestra ofertas, no crea órdenes ni compra.
-- **Google Places API (New)** (`GOOGLE_PLACES_API_KEY`): requiere proyecto de Google Cloud, Places API habilitada, facturación y una clave restringida. El adapter pide campos básicos y solicita ubicación solo al elegir “Buscar cerca de mí”. La distancia se calcula aproximadamente desde las coordenadas compartidas. La disponibilidad horaria no se solicita en esta etapa.
-- **Ticketmaster Discovery API** (`TICKETMASTER_API_KEY`): requiere una API key del portal de desarrolladores. Los eventos se abren en su página oficial; Acompáñame no procesa entradas.
+- **Ticketmaster Discovery API** (`TICKETMASTER_API_KEY`): requiere una API key del portal de desarrolladores. Los eventos reales se abren en su página oficial; Acompáñame no procesa entradas. Sin clave, se muestran eventos ficticios identificados como demostración.
+- **Turnos médicos**: muestra profesionales, horarios y consultorios ficticios. OSDE, PAMI y prestadores médicos se consideran integraciones futuras; no hay conexión ni reserva real.
 
-Netlify Functions evita exponer las llaves al navegador. `netlify.toml` configura build, funciones y fallback de rutas SPA para un deploy futuro. No hay ningún despliegue configurado ni ejecutado.
+Netlify Functions evita exponer las llaves al navegador. `netlify.toml` configura build, funciones y fallback de rutas SPA.
 
 ## Estructura
 
 - `src/components`: piezas de UI reutilizables
 - `src/pages`: inicio, flujos de tarea y Mis gestiones
-- `src/services`: contratos/adapters de viajes, lugares y eventos
+- `src/services`: contratos/adapters de eventos
 - `src/utils`: almacenamiento local
 - `netlify/functions`: proxy serverless para servicios externos
 - `public`: manifest PWA, ícono y service worker para abrir el shell previamente visitado sin conexión
 
 ## Accesibilidad
 
-Tipografía grande, contraste alto opcional, lectura de pantalla con SpeechSynthesis, dictado cuando Web Speech está disponible, controles táctiles amplios, foco visible, navegación obvia y mensajes de carga/error con texto. La ubicación solo se solicita en el flujo de búsqueda cercana.
+Tipografía grande, contraste alto opcional, lectura de pantalla con SpeechSynthesis, dictado cuando Web Speech está disponible, controles táctiles amplios, foco visible, navegación obvia y mensajes de carga/error con texto. La app no solicita ubicación.
