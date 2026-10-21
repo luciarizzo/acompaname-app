@@ -42,3 +42,144 @@
 @media(max-width:650px){.onboarding-page{padding-top:17px;padding-bottom:35px}.onboarding-progress{font-size:calc(13px * var(--text-scale, 1))}.onboarding-progress .back-button{font-size:calc(14px * var(--text-scale, 1))}.onboarding-progress-track{margin-bottom:23px}.onboarding-step{min-height:0}.onboarding-step h1{font-size:calc(31px * var(--text-scale, 1))}.onboarding-lead{font-size:calc(16px * var(--text-scale, 1))}.onboarding-choices{margin-top:18px;gap:10px}.onboarding-choice{min-height:76px;padding:12px}.onboarding-choice strong{font-size:calc(16px * var(--text-scale, 1))}.onboarding-choice small{font-size:calc(13px * var(--text-scale, 1))}.onboarding-choices.compact{gap:8px}.onboarding-choice.small{min-height:55px;padding:9px;font-size:calc(14px * var(--text-scale, 1))}.preference-list{margin-top:18px;gap:9px}.preference-row{min-height:74px;padding:10px;gap:9px}.preference-icon{height:38px;width:38px;border-radius:12px}.preference-row strong{font-size:calc(14px * var(--text-scale, 1))}.preference-row small{font-size:calc(12px * var(--text-scale, 1))}.switch-track{height:26px;width:45px}.switch-track i{width:20px;height:20px}.switch-track.on i{transform:translateX(19px)}.onboarding-summary>div{grid-template-columns:1fr;gap:4px;padding:11px 13px}.onboarding-summary dd{text-align:left}.onboarding-actions{margin-top:19px}.onboarding-actions .primary-button,.onboarding-actions .secondary-button{min-width:0;flex:1;padding:0 11px;font-size:calc(14px * var(--text-scale, 1))}}
 
 html.large-text{--text-scale:1.2}
+
+/* High contrast: a distinct, persistent theme with strong text, surface and focus contrast. */
+html.high-contrast {
+  color-scheme: dark;
+  --ink: #ffffff;
+  --muted: #f2f2f2;
+  --green: #ffeb3b;
+  --green-dark: #e2c900;
+  --green-soft: #202020;
+  --line: #ffffff;
+  --paper: #000000;
+  --cream: #000000;
+  --coral: #ffb199;
+  --shadow: none;
+  background: #000000;
+  color: #ffffff;
+}
+html.high-contrast body,
+html.high-contrast .app-shell {
+  background: #000000;
+  color: #ffffff;
+}
+html.high-contrast .topbar,
+html.high-contrast .page,
+html.high-contrast .flow-page,
+html.high-contrast .welcome-page,
+html.high-contrast .onboarding-page,
+html.high-contrast .site-footer,
+html.high-contrast .bottom-nav {
+  background: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
+  box-shadow: none;
+}
+html.high-contrast :is(h1,h2,h3,h4,p,small,strong,label,span,li,.brand,.section-heading span,.eyebrow,.intro-copy,.flow-heading p,.quick-copy small,.trust-note,.onboarding-lead,.onboarding-privacy,.preference-row small,.welcome-lead,.welcome-transparency,.result-address,.place-meta,.privacy-note,.privacy-footer,.step-label,.field-label,.input-label,.voice-row p) {
+  color: #ffffff;
+}
+html.high-contrast :is(.ask-card,.quick-card,.form-card,.form-control,.results-card,.confirm-card,.done-card,.loading-panel,.empty-results,.empty-state,.saved-card,.text-panel,.trusted-dialog,.welcome-card,.onboarding-choice,.preference-row,.onboarding-summary,.voice-feedback,.location-explain,.inline-message,.privacy-note,.other-answer) {
+  background: #000000;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: none;
+}
+html.high-contrast :is(input,textarea,select,.text-entry input,.form-control) {
+  background: #000000;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  caret-color: #ffeb3b;
+}
+html.high-contrast :is(input,textarea,select)::placeholder,
+html.high-contrast .text-entry input::placeholder {
+  color: #e6e6e6;
+  opacity: 1;
+}
+html.high-contrast :is(a,.home-link,.back-button,.text-button,.onboarding-skip,.action-link) {
+  color: #ffeb3b;
+  text-decoration-thickness: 2px;
+}
+html.high-contrast :is(.primary-button,.small-primary,.voice-button,.trusted-launcher,.trusted-call,.welcome-primary,.brand-mark,.send-button) {
+  background: #ffeb3b;
+  color: #000000;
+  border: 2px solid #ffeb3b;
+  box-shadow: none;
+}
+html.high-contrast :is(.primary-button,.small-primary,.voice-button,.trusted-launcher,.trusted-call,.welcome-primary,.send-button) :is(svg,span) {
+  color: #000000;
+}
+html.high-contrast :is(.secondary-button,.icon-action,.choice-button,.nav-item,.bottom-nav button,.panel-close,.trusted-close,.onboarding-progress .back-button,.site-footer button) {
+  background: #000000;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: none;
+}
+html.high-contrast .icon-action[aria-pressed="true"],
+html.high-contrast :is(.choice-button.chosen,.onboarding-choice.selected,.nav-item.active) {
+  background: #ffeb3b;
+  color: #000000;
+  border: 3px solid #ffeb3b;
+}
+html.high-contrast .icon-action[aria-pressed="true"] :is(svg,span),
+html.high-contrast :is(.choice-button.chosen,.onboarding-choice.selected,.nav-item.active) :is(svg,span,strong,small) {
+  color: #000000;
+}
+html.high-contrast :is(.sky,.sage,.coral,.lilac,.quick-icon,.result-icon,.trusted-avatar,.preference-icon,.trust-check,.done-check,.confirm-icon,.empty-icon) {
+  background: #000000;
+  color: #ffeb3b;
+  border: 2px solid #ffeb3b;
+}
+html.high-contrast :is(.demo-banner,.real-banner,.status-message,.demo-mini,.onboarding-hint,.onboarding-privacy,.welcome-transparency,.trusted-error,.error,.success,.info) {
+  background: #111111;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+html.high-contrast .demo-banner :is(span,strong),
+html.high-contrast .real-banner :is(span,strong) {
+  color: #ffffff;
+}
+html.high-contrast :is(button,a,input,textarea,select,[tabindex]):focus-visible {
+  outline: 4px solid #ffeb3b;
+  outline-offset: 4px;
+}
+html.high-contrast :is(button,a):hover:not(:disabled) {
+  outline: 2px solid #ffeb3b;
+  outline-offset: 2px;
+}
+html.high-contrast :is(button,input,textarea,select):disabled {
+  opacity: 1;
+  color: #d0d0d0;
+  border-color: #bdbdbd;
+}
+html.high-contrast .onboarding-progress-track,
+html.high-contrast .flow-progress {
+  background: #333333;
+  border: 1px solid #ffffff;
+}
+html.high-contrast :is(.onboarding-progress-track,.flow-progress) :is(span,i) {
+  background: #ffeb3b;
+}
+html.high-contrast .switch-track {
+  background: #333333;
+  border: 2px solid #ffffff;
+}
+html.high-contrast .switch-track.on {
+  background: #ffeb3b;
+  border-color: #ffeb3b;
+}
+html.high-contrast .demo-dot {
+  background: #ffeb3b;
+}
+html.high-contrast .trusted-backdrop {
+  background: rgba(0, 0, 0, .9);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.high-contrast *,
+  html.high-contrast *::before,
+  html.high-contrast *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
