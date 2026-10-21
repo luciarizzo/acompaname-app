@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, CalendarDays, Check, ExternalLink, MapPin, Searc
 import type { AppointmentOption, AppointmentSpecialty, EventResult, EventSearch, FlowKind, SavedTask, SourceMode } from '../types';
 import { searchEvents } from '../services/events';
 import { StatusMessage } from '../components/StatusMessage';
+import { DateSelector } from '../components/DateSelector';
 import { saveTask } from '../utils/storage';
 import { downloadCalendarFile } from '../utils/calendar';
 import { classifyNeed, extractRequestedDate } from '../utils/intent';
@@ -107,7 +108,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
           <p className="form-intro">Elegí una actividad.</p>
           <div className="choice-grid">{Object.entries(eventCategories).map(([key, value]) => <button key={key} className={eventCategory === key ? 'choice-button chosen' : 'choice-button'} onClick={() => setEventCategory(key)}>{value}{eventCategory === key && <Check size={18}/>}</button>)}</div>
           <div className="privacy-note"><MapPin size={18}/><span>Buscamos salidas en {city}.</span></div>
-          <label className="field-label" htmlFor="event-date">¿Qué día? (opcional)</label><input id="event-date" className="form-control" type="date" value={eventDate} onChange={e => { setEventDate(e.target.value); setDateFromPrompt(false); }}/>
+          <DateSelector value={eventDate} onChange={value => { setEventDate(value); setDateFromPrompt(false); }}/>
           {dateFromPrompt && <p className="date-detected" role="status">Dejé seleccionado el sábado que mencionaste. Podés cambiarlo si querés.</p>}
         </>}
         {kind === 'appointment' && <>

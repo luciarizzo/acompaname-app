@@ -186,3 +186,11 @@ html.high-contrast .trusted-backdrop {
     scroll-behavior: auto !important;
   }
 }
+
+.date-selector{border:0;padding:0;margin:22px 0 0;min-width:0}
+.date-selector legend.field-label{padding:0;margin:0 0 10px}
+.date-selector-fields{display:grid;grid-template-columns:.9fr 1.45fr 1.05fr;gap:10px}
+.date-part{display:flex;flex-direction:column;gap:7px;min-width:0}
+.date-part label{font-size:calc(15px * var(--text-scale, 1));font-weight:800}
+.date-part .form-control{min-width:0;min-height:58px;padding:0 10px;font-size:calc(16px * var(--text-scale, 1))}
+@media(max-width:650px){.date-selector-fields{gap:8px}.date-part{gap:6px}.date-part label{font-size:calc(14px * var(--text-scale, 1))}.date-part .form-control{min-height:56px;padding:0 7px;font-size:calc(15px * var(--text-scale, 1))}}
