@@ -48,7 +48,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
 
   useEffect(() => { onStepChange(); }, [step]);
   const title = kind === 'event' ? 'Buscar una salida' : kind === 'appointment' ? 'Sacar un turno médico' : 'Otra cosa';
-  const resultTitle = kind === 'event' ? 'Algunas opciones para salir' : kind === 'appointment' ? 'Opciones de turno' : 'Una forma de empezar';
+  const resultTitle = kind === 'event' ? mode === 'demo' ? 'Ideas para una salida' : 'Algunas opciones para salir' : kind === 'appointment' ? 'Opciones de turno' : 'Una forma de empezar';
 
   const startSearch = async () => {
     setError('');
@@ -102,7 +102,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
     <div className="flow-progress"><span className="flow-mark">{kind === 'event' ? '♬' : kind === 'appointment' ? <Stethoscope size={21}/> : '✦'}</span><span>{title}</span><span className="step-label">{step === 'form' ? 'Paso 1 de 2' : step === 'loading' ? 'Preparando…' : step === 'results' ? 'Paso 2 de 2' : step === 'confirm' ? 'Revisar' : 'Listo'}</span></div>
 
     {step === 'form' && <>
-      <div className="flow-heading"><h1>{kind === 'event' ? '¿Qué te gustaría hacer?' : kind === 'appointment' ? '¿Qué tipo de atención buscás?' : 'Contame qué necesitás hacer'}</h1><p>{kind === 'event' ? 'Buscamos actividades usando los servicios disponibles.' : kind === 'appointment' ? 'Elegí una especialidad para ver opciones de turno. Este recorrido no consulta agendas ni hace reservas.' : 'Contame qué necesitás y te ayudo a encontrar una forma sencilla de orientarte.'}</p></div>
+      <div className="flow-heading"><h1>{kind === 'event' ? '¿Qué te gustaría hacer?' : kind === 'appointment' ? '¿Qué tipo de atención buscás?' : 'Contame qué necesitás hacer'}</h1><p>{kind === 'event' ? 'Buscamos actividades usando los servicios disponibles.' : kind === 'appointment' ? 'Elegí una especialidad para ver opciones. Las agendas de los prestadores todavía no están conectadas.' : 'Contame qué necesitás y te ayudo a encontrar una forma sencilla de orientarte.'}</p></div>
       <div className="form-card">
         {kind === 'event' && <>
           <p className="form-intro">Elegí una actividad.</p>
@@ -115,7 +115,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
           <div className="privacy-note"><MapPin size={18}/><span>Mostramos sedes en {city}.</span></div>
           <label className="field-label" htmlFor="specialty">Elegí una especialidad</label>
           <select id="specialty" className="form-control" value={specialty} onChange={e => setSpecialty(e.target.value as AppointmentSpecialty)}>{specialties.map(option => <option key={option}>{option}</option>)}</select>
-          <div className="privacy-note"><ShieldCheck size={18}/><span>OSDE, PAMI y prestadores médicos son integraciones futuras. Esta demo no envía datos ni confirma un turno real.</span></div>
+          <div className="privacy-note"><ShieldCheck size={18}/><span>OSDE, PAMI y otros prestadores todavía no están conectados. No compartimos tus datos ni reservamos turnos.</span></div>
         </>}
         {kind === 'other' && <>
           <p className="form-intro">Contame qué necesitás hacer y voy a ayudarte a encontrar la forma más sencilla.</p>
@@ -131,7 +131,6 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
 
     {step === 'results' && <>
       <div className="flow-heading"><h1>{resultTitle}</h1><p>Revisá la información con tranquilidad. Vos elegís cómo seguir.</p></div>
-      {mode === 'demo' && <div className="demo-banner"><span className="demo-dot"/> {kind === 'appointment' ? 'Demo · horarios y profesionales de ejemplo. No representan disponibilidad real ni reservan un turno.' : 'Modo demostración · estos datos son de ejemplo y no están actualizados en tiempo real.'}</div>}
       {kind === 'other' ? <div className="results-card other-answer"><span className="result-icon lilac">✦</span><h2>Podemos buscar dónde hacerlo</h2><p>Por ahora no puedo realizar “{need}” directamente. Puedo ayudarte a encontrar una página oficial para continuar.</p><button className="secondary-button" onClick={() => choose({ id: 'other', name: need, date: '', venue: 'Buscador web', url: `https://www.google.com/search?q=${encodeURIComponent(`${need} sitio oficial Argentina`)}` })}>Revisemos antes de continuar <ArrowRight size={18}/></button></div> :
         <div className="results-list">{items.length === 0 ? <div className="empty-results"><h2>No encontré opciones para esta búsqueda</h2><p>Podés cambiar algún dato o volver a intentarlo.</p><button className="secondary-button" onClick={() => setStep('form')}>Cambiar búsqueda</button></div> : items.map(item => isAppointment(item) ? <AppointmentCard key={item.id} item={item} onChoose={() => choose(item)}/> : <EventCard key={item.id} item={item} onChoose={() => choose(item)} demo={mode === 'demo'}/>)}</div>}
       <div className="flow-footer"><button className="secondary-button" onClick={() => setStep('form')}><ArrowLeft size={18}/> Cambiar búsqueda</button><button className="text-button" onClick={onHome}>Volver al inicio</button></div>
@@ -141,16 +140,16 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
       <div className="flow-heading"><h1>Revisemos antes de continuar</h1><p>Leé el resumen. Todavía podés cambiar algo.</p></div>
       <section className="confirm-card">
         <div className="confirm-icon">{kind === 'event' ? '♬' : kind === 'appointment' ? <Stethoscope size={24}/> : '✦'}</div>
-        <h2>{kind === 'appointment' ? 'Revisá los datos del turno' : kind === 'event' ? 'Vas a continuar en el sitio oficial' : 'Vas a buscar información para'}</h2>
+        <h2>{kind === 'appointment' ? 'Revisá los datos del turno' : kind === 'event' && mode === 'demo' ? 'Vas a guardar esta salida' : kind === 'event' ? 'Vas a continuar en el sitio oficial' : 'Vas a buscar información para'}</h2>
         <div className="confirm-details">{kind === 'appointment' && isAppointment(selected) ? <><p><span>Especialidad</span><strong>{selected.specialty}</strong></p><p><span>Profesional</span><strong>{selected.professional}</strong></p><p><span>Fecha y hora</span><strong>{selected.date} · {selected.time}</strong></p><p><span>Sede</span><strong>{selected.location}</strong></p></> : kind === 'event' && !isAppointment(selected) ? <><p><span>Actividad</span><strong>{(selected as EventResult).name}</strong></p><p><span>Fecha</span><strong>{(selected as EventResult).date}</strong></p><p><span>Lugar</span><strong>{(selected as EventResult).venue}</strong></p></> : <p><span>Tu consulta</span><strong>{need}</strong></p>}</div>
-        <div className="confirm-honesty">{kind === 'appointment' ? 'Estás viendo información de demostración: el horario no está reservado y no se contactó a la sede. No compartimos tus datos. OSDE, PAMI y prestadores médicos requieren integraciones futuras.' : kind === 'event' && mode === 'demo' ? 'Este evento es de ejemplo. No existe como resultado real y no se abrirá un servicio externo.' : kind === 'event' ? 'La información y cualquier compra se gestionan en el sitio oficial.' : 'La búsqueda se realizará en Google. Acompáñame no completará el trámite.'}</div>
-        {kind === 'appointment' || (kind === 'event' && mode === 'demo') ? <button className="primary-button full-button" onClick={() => { save(); setStep('done'); }}><Check size={19}/> {kind === 'appointment' ? 'Guardar consulta' : 'Guardar este ejemplo'}</button> : <a className="primary-button full-button action-link" href={kind === 'event' && !isAppointment(selected) ? selected.url : '#'} target="_blank" rel="noreferrer" onClick={() => { save(); setStep('done'); }}><ExternalLink size={19}/>Abrir sitio oficial<ArrowRight size={19}/></a>}
+        <div className="confirm-honesty">{kind === 'appointment' ? 'Este turno todavía no está reservado. Acompáñame aún no está conectado a las agendas de OSDE, PAMI ni otros prestadores. No compartimos tus datos.' : kind === 'event' && mode === 'demo' ? 'Estas ideas te ayudan a organizar la salida. Para asistir a un evento concreto, confirmá fecha, lugar y disponibilidad en su sitio oficial.' : kind === 'event' ? 'La información y cualquier compra se gestionan en el sitio oficial.' : 'La búsqueda se realizará en Google. Acompáñame no completará el trámite.'}</div>
+        {kind === 'appointment' || (kind === 'event' && mode === 'demo') ? <button className="primary-button full-button" onClick={() => { save(); setStep('done'); }}><Check size={19}/> {kind === 'appointment' ? 'Guardar consulta' : 'Guardar salida'}</button> : <a className="primary-button full-button action-link" href={kind === 'event' && !isAppointment(selected) ? selected.url : !isAppointment(selected) ? selected.url : '#'} target="_blank" rel="noreferrer" onClick={() => { save(); setStep('done'); }}><ExternalLink size={19}/>{kind === 'other' ? 'Abrir búsqueda' : 'Abrir sitio oficial'}<ArrowRight size={19}/></a>}
         {kind === 'event' && mode === 'real' && !isAppointment(selected) && selected.localDate && selected.localTime && <button className="secondary-button full-button" onClick={() => downloadCalendarFile(selected)}><CalendarDays size={18}/> Agregar a mi calendario</button>}
         <button className="secondary-button full-button" onClick={() => setStep('results')}>Cambiar algo</button>
       </section>
     </>}
 
-    {step === 'done' && <section className="done-card"><span className="done-check"><Check size={28}/></span><h1>{kind === 'appointment' ? 'Consulta guardada' : mode === 'demo' ? 'Ejemplo guardado' : kind === 'event' ? 'El sitio oficial se abrió en otra pestaña' : 'La búsqueda se abrió en otra pestaña'}</h1><p>{kind === 'appointment' ? 'Guardamos esta opción en Mis gestiones. El turno no quedó reservado ni confirmado.' : mode === 'demo' ? 'Este ejemplo quedó guardado.' : kind === 'event' ? 'La información de entradas se confirma en el sitio oficial.' : 'Acompáñame no realizó el trámite.'}</p><div className="demo-banner">{saved ? 'Guardado en Mis gestiones.' : ''}</div><button className="primary-button full-button" onClick={onSaved}>Ir a Mis gestiones <ArrowRight size={18}/></button><button className="text-button" onClick={onHome}>Volver al inicio</button></section>}
+    {step === 'done' && <section className="done-card"><span className="done-check"><Check size={28}/></span><h1>{kind === 'appointment' ? 'Consulta guardada' : mode === 'demo' && kind === 'event' ? 'Salida guardada' : kind === 'event' ? 'El sitio oficial se abrió en otra pestaña' : 'La búsqueda se abrió en otra pestaña'}</h1><p>{kind === 'appointment' ? 'Guardamos esta opción en Mis gestiones. El turno no quedó reservado ni confirmado.' : mode === 'demo' && kind === 'event' ? 'Guardamos esta salida en Mis gestiones para que la tengas a mano.' : kind === 'event' ? 'La información de entradas se confirma en el sitio oficial.' : 'La búsqueda se abrió en otra pestaña. Acompáñame no completó el trámite.'}</p><div className="inline-message">{saved ? 'Guardado en Mis gestiones.' : ''}</div><button className="primary-button full-button" onClick={onSaved}>Ir a Mis gestiones <ArrowRight size={18}/></button><button className="text-button" onClick={onHome}>Volver al inicio</button></section>}
   </main>;
 }
 
@@ -159,5 +158,5 @@ function AppointmentCard({ item, onChoose }: { item: AppointmentOption; onChoose
 }
 
 function EventCard({ item, onChoose, demo }: { item: EventResult; onChoose: () => void; demo: boolean }) {
-  return <article className="results-card event-card">{item.image && <img src={item.image} alt=""/>}<div className="event-content"><div className="result-topline"><span className="result-type">{item.name}</span><CalendarDays size={20}/></div><p className="result-address">{item.date}</p><p className="result-address">{item.venue}</p><button className="small-primary" onClick={onChoose}>{demo ? 'Revisar este ejemplo' : 'Ver entrada'} <ArrowRight size={17}/></button></div></article>;
+  return <article className="results-card event-card">{item.image && <img src={item.image} alt=""/>}<div className="event-content"><div className="result-topline"><span className="result-type">{item.name}</span><CalendarDays size={20}/></div><p className="result-address">{item.date}</p><p className="result-address">{item.venue}</p><button className="small-primary" onClick={onChoose}>{demo ? 'Ver idea' : 'Ver entrada'} <ArrowRight size={17}/></button></div></article>;
 }
