@@ -25,7 +25,7 @@ Los resultados demo están identificados en la interfaz y son ejemplos ficticios
 
 La primera visita incluye una configuración de uso de cuatro pasos: para quién se prepara la app, un nombre y perfil opcionales, la ciudad, preferencias de accesibilidad y una revisión antes de guardar. La ciudad configurada (Mendoza por defecto) se reutiliza en salidas y sedes de turnos para no volver a pedirla en cada flujo. Estos datos se guardan solo en `localStorage` de este dispositivo. V1 no crea cuentas ni guarda credenciales, datos de salud ni medios de pago.
 
-En cualquier pantalla principal o de una gestión está disponible el acceso a contactos de confianza. Se guardan nombres y teléfonos solo en el dispositivo y la acción de llamada usa el marcador del teléfono. Abrir o cerrar esta ayuda no reinicia el flujo en curso. Al escribir una solicitud de salida que menciona “sábado”, la fecha se completa con el próximo sábado; el usuario puede cambiarla antes de buscar.
+Durante el onboarding se pueden guardar hasta dos contactos de confianza, ambos opcionales. Los perfiles V1 existentes ven ese paso una sola vez. Después, la app muestra esos contactos y permite llamar desde el marcador del teléfono; sus datos quedan guardados solo en el dispositivo y la lista no ofrece agregar ni quitar contactos desde el uso diario. Abrir o cerrar esta ayuda no reinicia el flujo en curso. Al escribir una solicitud de salida que menciona “sábado”, la fecha se completa con el próximo sábado; el usuario puede cambiarla antes de buscar.
 
 ## Proveedores de datos
 

@@ -1,20 +1,36 @@
 import { ArrowLeft, ArrowRight, Check, Eye, Mic, Volume2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { defaultProfile, type OnboardingProfile } from '../utils/profile';
+import type { OnboardingProfile } from '../utils/profile';
 
-interface Props { onComplete: (profile: OnboardingProfile) => void; onCancel: () => void; onStepChange: () => void; onPreferencesPreview: (preferences: Pick<OnboardingProfile, 'largerText' | 'highContrast'>) => void }
-const steps = ['Quién la usa', 'Perfil', 'Preferencias', 'Revisar'];
+interface Props { onComplete: (profile: OnboardingProfile) => void; onCancel: () => void; onStepChange: () => void; onPreferencesPreview: (preferences: Pick<OnboardingProfile, 'largerText' | 'highContrast'>) => void; initialProfile: OnboardingProfile; initialStep?: number }
+const steps = ['Quién la usa', 'Perfil', 'Preferencias', 'Contactos de confianza', 'Revisar'];
 
-export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferencesPreview }: Props) {
-  const [step, setStep] = useState(0);
-  const [profile, setProfile] = useState<OnboardingProfile>(defaultProfile);
+export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferencesPreview, initialProfile, initialStep = 0 }: Props) {
+  const [step, setStep] = useState(() => Math.min(Math.max(initialStep, 0), steps.length - 1));
+  const [profile, setProfile] = useState<OnboardingProfile>(initialProfile);
+  const [contactError, setContactError] = useState('');
   useEffect(() => { onStepChange(); }, [step]);
   const update = (changes: Partial<OnboardingProfile>) => setProfile((current) => {
     const next = { ...current, ...changes };
     if ('largerText' in changes || 'highContrast' in changes) onPreferencesPreview({ largerText: next.largerText, highContrast: next.highContrast });
     return next;
   });
-  const next = () => step < steps.length - 1 ? setStep((current) => current + 1) : onComplete(profile);
+  const updateContact = (index: number, changes: { name?: string; phone?: string }) => {
+    const contacts = [...profile.trustedContacts];
+    contacts[index] = { id: contacts[index]?.id || crypto.randomUUID(), name: changes.name ?? contacts[index]?.name ?? '', phone: changes.phone ?? contacts[index]?.phone ?? '' };
+    update({ trustedContacts: contacts.slice(0, 2) });
+    setContactError('');
+  };
+  const next = () => {
+    if (step === 3) {
+      const hasPartialContact = profile.trustedContacts.some(contact => Boolean(contact.name.trim()) !== Boolean(contact.phone.trim()));
+      if (hasPartialContact) { setContactError('Para guardar un contacto, completá su nombre y su teléfono. También podés dejar los dos vacíos.'); return; }
+      const hasInvalidPhone = profile.trustedContacts.some(contact => contact.name.trim() && contact.phone.replace(/\D/g, '').length < 7);
+      if (hasInvalidPhone) { setContactError('Revisá el número: tiene que incluir al menos 7 dígitos.'); return; }
+    }
+    setContactError('');
+    step < steps.length - 1 ? setStep((current) => current + 1) : onComplete(profile);
+  };
   const back = () => step > 0 ? setStep((current) => current - 1) : onCancel();
 
   return <main id="main" className="page onboarding-page">
@@ -61,12 +77,30 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
       <div className="onboarding-hint"><Mic size={19}/><span>También podés dictar lo que necesitás cuando el navegador lo permite. Si no, siempre podés escribirlo.</span></div>
     </section>}
 
-    {step === 3 && <section className="onboarding-step" aria-labelledby="onboarding-title">
+    {step === 3 && <section className="onboarding-step trusted-onboarding-step" aria-labelledby="onboarding-title">
+      <p className="eyebrow">SI ALGUNA VEZ LO NECESITÁS</p><h1 id="onboarding-title">¿A quién podrías llamar?</h1>
+      <p className="onboarding-lead">Podés agregar hasta dos personas de confianza. Es opcional; Acompáñame funciona igual si preferís dejarlo vacío.</p>
+      {[0, 1].map(index => {
+        const contact = profile.trustedContacts[index] || { id: `trusted-${index}`, name: '', phone: '' };
+        return <fieldset className="trusted-onboarding-contact" key={contact.id}>
+          <legend>{index === 0 ? 'Persona 1' : 'Persona 2'} <span className="optional-label">(opcional)</span></legend>
+          <label className="field-label" htmlFor={`trusted-name-${index}`}>Nombre</label>
+          <input className="form-control" id={`trusted-name-${index}`} value={contact.name} onChange={event => updateContact(index, { name: event.target.value })} autoComplete="name" maxLength={60} placeholder="Por ejemplo: Ana"/>
+          <label className="field-label" htmlFor={`trusted-phone-${index}`}>Teléfono</label>
+          <input className="form-control" id={`trusted-phone-${index}`} type="tel" inputMode="tel" autoComplete="tel" value={contact.phone} onChange={event => updateContact(index, { phone: event.target.value })} maxLength={32} placeholder="Por ejemplo: 261 555 1234"/>
+        </fieldset>;
+      })}
+      {contactError && <p className="trusted-error" role="alert">{contactError}</p>}
+      <p className="onboarding-privacy">Los nombres y teléfonos se guardan solo en este dispositivo. No pedimos acceso a tu agenda.</p>
+    </section>}
+
+    {step === 4 && <section className="onboarding-step" aria-labelledby="onboarding-title">
       <p className="eyebrow">ANTES DE EMPEZAR</p><h1 id="onboarding-title">Revisemos tu configuración</h1>
       <dl className="onboarding-summary">
         <div><dt>La app está preparada para</dt><dd>{profile.role === 'self' ? 'La voy a usar yo' : 'Estoy ayudando a otra persona'}</dd></div>
         <div><dt>Nombre</dt><dd>{profile.name.trim() || 'Sin nombre por ahora'}</dd></div>
         <div><dt>Ciudad</dt><dd>{profile.city.trim() || 'Mendoza'}</dd></div>
+        <div><dt>Contactos de confianza</dt><dd>{profile.trustedContacts.filter(contact => contact.name.trim() && contact.phone.trim()).length || 'Ninguno'}</dd></div>
         <div><dt>Preferencias de accesibilidad</dt><dd>{[
           profile.accessibility === 'older-adult' ? 'Persona mayor' : '',
           profile.accessibility === 'disability' ? 'Persona con discapacidad' : '',
