@@ -79,7 +79,7 @@ html.high-contrast .bottom-nav {
 html.high-contrast :is(h1,h2,h3,h4,p,small,strong,label,span,li,.brand,.section-heading span,.eyebrow,.intro-copy,.flow-heading p,.quick-copy small,.trust-note,.onboarding-lead,.onboarding-privacy,.preference-row small,.welcome-lead,.welcome-transparency,.result-address,.place-meta,.privacy-note,.privacy-footer,.step-label,.field-label,.input-label,.voice-row p) {
   color: #ffffff;
 }
-html.high-contrast :is(.ask-card,.quick-card,.form-card,.form-control,.results-card,.confirm-card,.done-card,.loading-panel,.empty-results,.empty-state,.saved-card,.text-panel,.trusted-dialog,.welcome-card,.onboarding-choice,.preference-row,.onboarding-summary,.voice-feedback,.location-explain,.inline-message,.privacy-note,.other-answer) {
+html.high-contrast :is(.ask-card,.quick-card,.form-card,.form-control,.results-card,.confirm-card,.done-card,.loading-panel,.empty-results,.empty-state,.saved-card,.text-panel,.trusted-dialog,.welcome-card,.onboarding-choice,.preference-row,.onboarding-summary,.trusted-onboarding-contact,.voice-feedback,.location-explain,.inline-message,.privacy-note,.other-answer) {
   background: #000000;
   color: #ffffff;
   border: 2px solid #ffffff;
@@ -156,6 +156,9 @@ html.high-contrast .onboarding-progress-track,
 html.high-contrast .flow-progress {
   background: #333333;
   border: 1px solid #ffffff;
+}
+html.high-contrast .onboarding-summary > div {
+  border-color: #ffffff;
 }
 html.high-contrast :is(.onboarding-progress-track,.flow-progress) :is(span,i) {
   background: #ffeb3b;
