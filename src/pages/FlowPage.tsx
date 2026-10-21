@@ -5,7 +5,7 @@ import { searchEvents } from '../services/events';
 import { StatusMessage } from '../components/StatusMessage';
 import { saveTask } from '../utils/storage';
 import { downloadCalendarFile } from '../utils/calendar';
-import { classifyNeed } from '../utils/intent';
+import { classifyNeed, extractRequestedDate } from '../utils/intent';
 
 interface Props { kind: FlowKind; initialPrompt?: string; city: string; onBack: () => void; onHome: () => void; onSaved: () => void; onStepChange: () => void }
 type Step = 'form' | 'loading' | 'results' | 'confirm' | 'done';
@@ -40,7 +40,8 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
   const [saved, setSaved] = useState(false);
   const [eventCategory, setEventCategory] = useState<string | null>(classifyNeed(initialPrompt).eventCategory || null);
   const city = profileCity.trim() || 'Mendoza';
-  const [eventDate, setEventDate] = useState('');
+  const [eventDate, setEventDate] = useState(() => extractRequestedDate(initialPrompt) || '');
+  const [dateFromPrompt, setDateFromPrompt] = useState(() => Boolean(extractRequestedDate(initialPrompt)));
   const [specialty, setSpecialty] = useState<AppointmentSpecialty>('Clínica médica');
   const [need, setNeed] = useState(initialPrompt);
 
@@ -106,7 +107,8 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
           <p className="form-intro">Elegí una actividad.</p>
           <div className="choice-grid">{Object.entries(eventCategories).map(([key, value]) => <button key={key} className={eventCategory === key ? 'choice-button chosen' : 'choice-button'} onClick={() => setEventCategory(key)}>{value}{eventCategory === key && <Check size={18}/>}</button>)}</div>
           <div className="privacy-note"><MapPin size={18}/><span>Buscamos salidas en {city}.</span></div>
-          <label className="field-label" htmlFor="event-date">¿Qué día? (opcional)</label><input id="event-date" className="form-control" type="date" value={eventDate} onChange={e => setEventDate(e.target.value)}/>
+          <label className="field-label" htmlFor="event-date">¿Qué día? (opcional)</label><input id="event-date" className="form-control" type="date" value={eventDate} onChange={e => { setEventDate(e.target.value); setDateFromPrompt(false); }}/>
+          {dateFromPrompt && <p className="date-detected" role="status">Dejé seleccionado el sábado que mencionaste. Podés cambiarlo si querés.</p>}
         </>}
         {kind === 'appointment' && <>
           <div className="privacy-note"><MapPin size={18}/><span>Mostramos sedes en {city}.</span></div>

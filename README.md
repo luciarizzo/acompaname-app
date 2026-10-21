@@ -23,7 +23,9 @@ npm run preview
 
 Los resultados demo están identificados en la interfaz y son ejemplos ficticios. Si una integración configurada falla, se muestra el error y no se reemplazan los datos silenciosamente.
 
-La primera visita incluye una configuración de uso de cuatro pasos: para quién se prepara la app, un nombre, la ciudad y perfil opcionales, preferencias de accesibilidad y una revisión antes de guardar. La ciudad configurada (Mendoza por defecto) se reutiliza en salidas y sedes de turnos para no volver a pedirla en cada flujo. Estos datos se guardan solo en `localStorage` de este dispositivo. V1 no crea cuentas ni guarda credenciales, datos de salud, contactos o medios de pago.
+La primera visita incluye una configuración de uso de cuatro pasos: para quién se prepara la app, un nombre y perfil opcionales, la ciudad, preferencias de accesibilidad y una revisión antes de guardar. La ciudad configurada (Mendoza por defecto) se reutiliza en salidas y sedes de turnos para no volver a pedirla en cada flujo. Estos datos se guardan solo en `localStorage` de este dispositivo. V1 no crea cuentas ni guarda credenciales, datos de salud ni medios de pago.
+
+En cualquier pantalla principal o de una gestión está disponible el acceso a contactos de confianza. Se guardan nombres y teléfonos solo en el dispositivo y la acción de llamada usa el marcador del teléfono. Abrir o cerrar esta ayuda no reinicia el flujo en curso. Al escribir una solicitud de salida que menciona “sábado”, la fecha se completa con el próximo sábado; el usuario puede cambiarla antes de buscar.
 
 ## Proveedores de datos
 
