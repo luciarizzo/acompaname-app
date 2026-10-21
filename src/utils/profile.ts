@@ -1,6 +1,7 @@
 export interface OnboardingProfile {
   role: 'self' | 'supporting';
   name: string;
+  city: string;
   accessibility: 'older-adult' | 'disability' | 'both' | 'prefer-not-to-say' | '';
   largerText: boolean;
   highContrast: boolean;
@@ -12,6 +13,7 @@ const PROFILE_KEY = 'acompaname-v1-profile';
 export const defaultProfile: OnboardingProfile = {
   role: 'self',
   name: '',
+  city: 'Mendoza',
   accessibility: '',
   largerText: false,
   highContrast: false,

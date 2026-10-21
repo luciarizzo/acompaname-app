@@ -37,6 +37,9 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
       <p className="eyebrow">PARA PERSONALIZAR LA EXPERIENCIA</p><h1 id="onboarding-title">Conozcamos a quien va a usar la app</h1>
       <label className="field-label" htmlFor="profile-name">{profile.role === 'self' ? '¿Cómo querés que te llamemos?' : '¿Cómo se llama la persona que usará la app?'} <span className="optional-label">(opcional)</span></label>
       <input id="profile-name" className="form-control" value={profile.name} maxLength={40} placeholder="Solo el nombre" onChange={(event) => update({ name: event.target.value })}/>
+      <label className="field-label" htmlFor="profile-city">¿En qué ciudad estás?</label>
+      <input id="profile-city" className="form-control" value={profile.city} maxLength={60} placeholder="Por ejemplo: Mendoza" onChange={(event) => update({ city: event.target.value })}/>
+      <p className="onboarding-privacy">Usamos tu ciudad para mostrar salidas y sedes cercanas. Podés corregirla antes de guardar.</p>
       <fieldset className="onboarding-fieldset"><legend>¿Qué opción te representa mejor? <span className="optional-label">(opcional)</span></legend>
         <div className="onboarding-choices compact">
           {([
@@ -44,7 +47,7 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
           ] as const).map(([value, label]) => <button key={value} className={`onboarding-choice small ${profile.accessibility === value ? 'selected' : ''}`} aria-pressed={profile.accessibility === value} onClick={() => update({ accessibility: profile.accessibility === value ? '' : value })}>{label}</button>)}
         </div>
       </fieldset>
-      <p className="onboarding-privacy">Este dato es opcional. Tu nombre y esta preferencia quedan guardados solo en este dispositivo.</p>
+      <p className="onboarding-privacy">Tu nombre, ciudad y preferencias quedan guardados solo en este dispositivo.</p>
     </section>}
 
     {step === 2 && <section className="onboarding-step" aria-labelledby="onboarding-title">
@@ -63,6 +66,7 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
       <dl className="onboarding-summary">
         <div><dt>La app está preparada para</dt><dd>{profile.role === 'self' ? 'La voy a usar yo' : 'Estoy ayudando a otra persona'}</dd></div>
         <div><dt>Nombre</dt><dd>{profile.name.trim() || 'Sin nombre por ahora'}</dd></div>
+        <div><dt>Ciudad</dt><dd>{profile.city.trim() || 'Mendoza'}</dd></div>
         <div><dt>Preferencias de accesibilidad</dt><dd>{[
           profile.accessibility === 'older-adult' ? 'Persona mayor' : '',
           profile.accessibility === 'disability' ? 'Persona con discapacidad' : '',

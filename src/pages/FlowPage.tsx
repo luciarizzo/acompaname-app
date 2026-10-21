@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, CalendarDays, Check, ExternalLink, Search, ShieldCheck, Stethoscope } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CalendarDays, Check, ExternalLink, MapPin, Search, ShieldCheck, Stethoscope } from 'lucide-react';
 import type { AppointmentOption, AppointmentSpecialty, EventResult, EventSearch, FlowKind, SavedTask, SourceMode } from '../types';
 import { searchEvents } from '../services/events';
 import { StatusMessage } from '../components/StatusMessage';
@@ -7,7 +7,7 @@ import { saveTask } from '../utils/storage';
 import { downloadCalendarFile } from '../utils/calendar';
 import { classifyNeed } from '../utils/intent';
 
-interface Props { kind: FlowKind; initialPrompt?: string; onBack: () => void; onHome: () => void; onSaved: () => void; onStepChange: () => void }
+interface Props { kind: FlowKind; initialPrompt?: string; city: string; onBack: () => void; onHome: () => void; onSaved: () => void; onStepChange: () => void }
 type Step = 'form' | 'loading' | 'results' | 'confirm' | 'done';
 type Result = EventResult | AppointmentOption;
 const eventCategories = { music: 'Música', theater: 'Teatro', sports: 'Deportes', other: 'Otro tipo de salida' };
@@ -18,20 +18,20 @@ const specialtyCopy: Record<AppointmentSpecialty, string> = {
   Oftalmología: 'Dra. Laura Acosta',
   Odontología: 'Dr. Andrés Molina'
 };
-function demoAppointments(specialty: AppointmentSpecialty): AppointmentOption[] {
+function demoAppointments(specialty: AppointmentSpecialty, city: string): AppointmentOption[] {
   const formatDate = (days: number) => {
     const date = new Date();
     date.setDate(date.getDate() + days);
     return date.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   };
   return [
-    { id: `demo-${specialty}-1`, specialty, professional: specialtyCopy[specialty], date: formatDate(3), time: '10:30', location: 'Consultorio Centro · Mendoza' },
-    { id: `demo-${specialty}-2`, specialty, professional: specialtyCopy[specialty], date: formatDate(5), time: '16:00', location: 'Consultorios Parque · Mendoza' }
+    { id: `demo-${specialty}-1`, specialty, professional: specialtyCopy[specialty], date: formatDate(3), time: '10:30', location: `Consultorio Centro · ${city}` },
+    { id: `demo-${specialty}-2`, specialty, professional: specialtyCopy[specialty], date: formatDate(5), time: '16:00', location: `Consultorios Parque · ${city}` }
   ];
 }
 function isAppointment(item: Result): item is AppointmentOption { return 'specialty' in item; }
 
-export function FlowPage({ kind, initialPrompt = '', onBack, onHome, onSaved, onStepChange }: Props) {
+export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, onHome, onSaved, onStepChange }: Props) {
   const [step, setStep] = useState<Step>('form');
   const [error, setError] = useState('');
   const [mode, setMode] = useState<SourceMode>('demo');
@@ -39,7 +39,7 @@ export function FlowPage({ kind, initialPrompt = '', onBack, onHome, onSaved, on
   const [selected, setSelected] = useState<Result | null>(null);
   const [saved, setSaved] = useState(false);
   const [eventCategory, setEventCategory] = useState<string | null>(classifyNeed(initialPrompt).eventCategory || null);
-  const [city, setCity] = useState('Mendoza');
+  const city = profileCity.trim() || 'Mendoza';
   const [eventDate, setEventDate] = useState('');
   const [specialty, setSpecialty] = useState<AppointmentSpecialty>('Clínica médica');
   const [need, setNeed] = useState(initialPrompt);
@@ -58,7 +58,7 @@ export function FlowPage({ kind, initialPrompt = '', onBack, onHome, onSaved, on
         setItems(result.items);
         setMode(result.mode);
       } else if (kind === 'appointment') {
-        setItems(demoAppointments(specialty));
+        setItems(demoAppointments(specialty, city));
         setMode('demo');
       } else {
         setItems([]);
@@ -105,10 +105,11 @@ export function FlowPage({ kind, initialPrompt = '', onBack, onHome, onSaved, on
         {kind === 'event' && <>
           <p className="form-intro">Elegí una actividad.</p>
           <div className="choice-grid">{Object.entries(eventCategories).map(([key, value]) => <button key={key} className={eventCategory === key ? 'choice-button chosen' : 'choice-button'} onClick={() => setEventCategory(key)}>{value}{eventCategory === key && <Check size={18}/>}</button>)}</div>
-          <label className="field-label" htmlFor="event-city">¿En qué ciudad?</label><input id="event-city" className="form-control" value={city} onChange={e => setCity(e.target.value)} placeholder="Por ejemplo: Mendoza"/>
+          <div className="privacy-note"><MapPin size={18}/><span>Buscamos salidas en {city}.</span></div>
           <label className="field-label" htmlFor="event-date">¿Qué día? (opcional)</label><input id="event-date" className="form-control" type="date" value={eventDate} onChange={e => setEventDate(e.target.value)}/>
         </>}
         {kind === 'appointment' && <>
+          <div className="privacy-note"><MapPin size={18}/><span>Mostramos sedes en {city}.</span></div>
           <label className="field-label" htmlFor="specialty">Elegí una especialidad</label>
           <select id="specialty" className="form-control" value={specialty} onChange={e => setSpecialty(e.target.value as AppointmentSpecialty)}>{specialties.map(option => <option key={option}>{option}</option>)}</select>
           <div className="privacy-note"><ShieldCheck size={18}/><span>OSDE, PAMI y prestadores médicos son integraciones futuras. Esta demo no envía datos ni confirma un turno real.</span></div>
