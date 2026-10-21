@@ -1,5 +1,7 @@
 import type { TrustedContact } from './trustedContacts';
 
+export type PaymentMethod = 'debit-card' | 'credit-card' | '';
+
 export interface OnboardingProfile {
   role: 'self' | 'supporting';
   name: string;
@@ -8,6 +10,7 @@ export interface OnboardingProfile {
   largerText: boolean;
   highContrast: boolean;
   readScreens: boolean;
+  preferredPaymentMethod: PaymentMethod;
   trustedContacts: TrustedContact[];
   trustedContactsSetup: boolean;
 }
@@ -22,6 +25,7 @@ export const defaultProfile: OnboardingProfile = {
   largerText: false,
   highContrast: false,
   readScreens: false,
+  preferredPaymentMethod: '',
   trustedContacts: [],
   trustedContactsSetup: false,
 };
@@ -34,7 +38,8 @@ export function getOnboardingProfile(): OnboardingProfile {
       contact && typeof contact.id === 'string' && typeof contact.name === 'string' && typeof contact.phone === 'string' &&
       contact.name.trim().length > 0 && contact.phone.replace(/\D/g, '').length >= 7
     ).slice(0, 2) : [];
-    return { ...profile, trustedContacts: contacts, trustedContactsSetup: Boolean(profile.trustedContactsSetup) };
+    const preferredPaymentMethod: PaymentMethod = profile.preferredPaymentMethod === 'debit-card' || profile.preferredPaymentMethod === 'credit-card' ? profile.preferredPaymentMethod : '';
+    return { ...profile, preferredPaymentMethod, trustedContacts: contacts, trustedContactsSetup: Boolean(profile.trustedContactsSetup) };
   } catch {
     return defaultProfile;
   }

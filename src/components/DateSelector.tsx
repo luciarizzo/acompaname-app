@@ -3,6 +3,7 @@ import { useEffect, useId, useState } from 'react';
 interface Props {
   value: string;
   onChange: (value: string) => void;
+  optional?: boolean;
 }
 
 const months = Array.from({ length: 12 }, (_, index) => ({
@@ -23,7 +24,7 @@ function toIsoDate(year: number, month: number, day: number) {
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
-export function DateSelector({ value, onChange }: Props) {
+export function DateSelector({ value, onChange, optional = true }: Props) {
   const id = useId();
   const [parts, setParts] = useState(() => getParts(value));
   const { year, month, day } = parts;
@@ -51,7 +52,7 @@ export function DateSelector({ value, onChange }: Props) {
   };
 
   return <fieldset className="date-selector">
-    <legend className="field-label">¿Qué día? (opcional)</legend>
+    <legend className="field-label">¿Qué día?{optional ? ' (opcional)' : ''}</legend>
     <div className="date-selector-fields">
       <div className="date-part">
         <label htmlFor={`${id}-day`}>Día</label>

@@ -1,5 +1,5 @@
 export type SourceMode = 'demo' | 'real';
-export type FlowKind = 'event' | 'appointment' | 'other';
+export type FlowKind = 'event' | 'cinema' | 'appointment' | 'other';
 export type AppointmentSpecialty = 'Clínica médica' | 'Cardiología' | 'Oftalmología' | 'Odontología';
 export interface AppointmentOption { id: string; specialty: AppointmentSpecialty; professional: string; date: string; time: string; location: string }
 export interface EventSearch { category: string; city: string; date?: string }

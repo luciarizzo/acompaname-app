@@ -1,9 +1,9 @@
-import { ArrowLeft, ArrowRight, Check, Eye, Mic, Volume2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, CreditCard, Eye, Mic, Volume2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { OnboardingProfile } from '../utils/profile';
 
 interface Props { onComplete: (profile: OnboardingProfile) => void; onCancel: () => void; onStepChange: () => void; onPreferencesPreview: (preferences: Pick<OnboardingProfile, 'largerText' | 'highContrast'>) => void; initialProfile: OnboardingProfile; initialStep?: number }
-const steps = ['Quién la usa', 'Perfil', 'Preferencias', 'Contactos de confianza', 'Revisar'];
+const steps = ['Quién la usa', 'Perfil', 'Preferencias', 'Medio de pago', 'Contactos de confianza', 'Revisar'];
 
 export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferencesPreview, initialProfile, initialStep = 0 }: Props) {
   const [step, setStep] = useState(() => Math.min(Math.max(initialStep, 0), steps.length - 1));
@@ -22,7 +22,7 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
     setContactError('');
   };
   const next = () => {
-    if (step === 3) {
+    if (step === 4) {
       const hasPartialContact = profile.trustedContacts.some(contact => Boolean(contact.name.trim()) !== Boolean(contact.phone.trim()));
       if (hasPartialContact) { setContactError('Para guardar un contacto, completá su nombre y su teléfono. También podés dejar los dos vacíos.'); return; }
       const hasInvalidPhone = profile.trustedContacts.some(contact => contact.name.trim() && contact.phone.replace(/\D/g, '').length < 7);
@@ -77,7 +77,18 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
       <div className="onboarding-hint"><Mic size={19}/><span>También podés dictar lo que necesitás cuando el navegador lo permite. Si no, siempre podés escribirlo.</span></div>
     </section>}
 
-    {step === 3 && <section className="onboarding-step trusted-onboarding-step" aria-labelledby="onboarding-title">
+    {step === 3 && <section className="onboarding-step" aria-labelledby="onboarding-title">
+      <p className="eyebrow">OPCIONAL</p><h1 id="onboarding-title">¿Querés vincular un medio de pago?</h1>
+      <p className="onboarding-lead">Si elegís uno, será tu medio preferido y se usará para las transacciones de Acompáñame. Podés dejarlo para más adelante.</p>
+      <div className="onboarding-payment-list" role="group" aria-label="Medio de pago preferido">
+        {([
+          ['debit-card', 'Tarjeta de débito'], ['credit-card', 'Tarjeta de crédito'], ['', 'Lo hago más adelante']
+        ] as const).map(([value, label]) => <button key={value || 'later'} className={`onboarding-payment-choice ${profile.preferredPaymentMethod === value ? 'selected' : ''}`} aria-pressed={profile.preferredPaymentMethod === value} onClick={() => update({ preferredPaymentMethod: value })}><span className="preference-icon">{value ? <CreditCard/> : <span aria-hidden="true">⏳</span>}</span><strong>{label}</strong>{profile.preferredPaymentMethod === value && <Check size={20}/>}</button>)}
+      </div>
+      <p className="onboarding-privacy">Por ahora guardamos esta preferencia en este dispositivo. No pedimos ni guardamos números de tarjeta y todavía no procesamos pagos.</p>
+    </section>}
+
+    {step === 4 && <section className="onboarding-step trusted-onboarding-step" aria-labelledby="onboarding-title">
       <p className="eyebrow">SI ALGUNA VEZ LO NECESITÁS</p><h1 id="onboarding-title">¿A quién podrías llamar?</h1>
       <p className="onboarding-lead">Podés agregar hasta dos personas de confianza. Es opcional; Acompáñame funciona igual si preferís dejarlo vacío.</p>
       {[0, 1].map(index => {
@@ -94,7 +105,7 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
       <p className="onboarding-privacy">Los nombres y teléfonos se guardan solo en este dispositivo. No pedimos acceso a tu agenda.</p>
     </section>}
 
-    {step === 4 && <section className="onboarding-step" aria-labelledby="onboarding-title">
+    {step === 5 && <section className="onboarding-step" aria-labelledby="onboarding-title">
       <p className="eyebrow">ANTES DE EMPEZAR</p><h1 id="onboarding-title">Revisemos tu configuración</h1>
       <dl className="onboarding-summary">
         <div><dt>La app está preparada para</dt><dd>{profile.role === 'self' ? 'La voy a usar yo' : 'Estoy ayudando a otra persona'}</dd></div>
@@ -110,6 +121,7 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
         <div><dt>Texto grande</dt><dd>{profile.largerText ? 'Activado' : 'Desactivado'}</dd></div>
         <div><dt>Contraste alto</dt><dd>{profile.highContrast ? 'Activado' : 'Desactivado'}</dd></div>
         <div><dt>Lectura en voz alta</dt><dd>{profile.readScreens ? 'Activada' : 'Desactivada'}</dd></div>
+        <div><dt>Medio de pago preferido</dt><dd>{profile.preferredPaymentMethod === 'debit-card' ? 'Tarjeta de débito' : profile.preferredPaymentMethod === 'credit-card' ? 'Tarjeta de crédito' : 'Lo elegiré más adelante'}</dd></div>
       </dl>
       <p className="onboarding-privacy">Esta configuración se guarda en este dispositivo. No es una cuenta ni se envía a un servicio externo.</p>
     </section>}
