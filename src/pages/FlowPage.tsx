@@ -95,6 +95,30 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
     if (step === 'results' || step === 'loading') { setStep('form'); return; }
     onBack();
   };
+
+  const hasUnsavedChanges = () => {
+    const initialCategory = classifyNeed(initialPrompt).eventCategory || null;
+    const initialDate = extractRequestedDate(initialPrompt) || '';
+
+    return !saved && (
+      step !== 'form' ||
+      need !== initialPrompt ||
+      eventCategory !== initialCategory ||
+      eventDate !== initialDate ||
+      specialty !== 'Clínica médica'
+    );
+  };
+
+  const goHome = () => {
+    if (
+      hasUnsavedChanges() &&
+      !window.confirm('Tenés datos sin guardar. Si volvés al inicio, podrías perderlos. ¿Querés continuar?')
+    ) {
+      return;
+    }
+    onHome();
+    };
+  
   const choose = (item: Result) => { setSelected(item); setStep('confirm'); };
 
   onst hasUnsavedChanges = () => {
