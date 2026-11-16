@@ -97,8 +97,28 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
   };
   const choose = (item: Result) => { setSelected(item); setStep('confirm'); };
 
+  onst hasUnsavedChanges = () => {
+  const initialCategory = classifyNeed(initialPrompt).eventCategory || null;
+  const initialDate = extractRequestedDate(initialPrompt) || '';
+
+  return !saved && (
+    step !== 'form' ||
+    need !== initialPrompt ||
+    eventCategory !== initialCategory ||
+    eventDate !== initialDate ||
+    specialty !== 'Clínica médica');
+  };
+
+  const goHome = () => {
+    if (
+      hasUnsavedChanges() &&
+      !window.confirm('Tenés datos sin guardar. Si volvés al inicio, podrías perderlos. ¿Querés continuar?')
+    ) return;
+    onHome();
+  };
+  
   return <main id="main" className="page flow-page">
-    <div className="flow-top"><button className="back-button" onClick={backStep}><ArrowLeft size={20}/> Volver</button><button className="home-link" onClick={onHome}>Ir al inicio</button></div>
+    <div className="flow-top"><button className="back-button" onClick={backStep}><ArrowLeft size={20}/> Volver</button><button className="home-link" onClick={goHome}>Ir al inicio</button></div>
     <div className="flow-progress"><span className="flow-mark">{kind === 'event' ? '♬' : kind === 'appointment' ? <Stethoscope size={21}/> : '✦'}</span><span>{title}</span><span className="step-label">{step === 'form' ? 'Paso 1 de 2' : step === 'loading' ? 'Preparando…' : step === 'results' ? 'Paso 2 de 2' : step === 'confirm' ? 'Revisar' : 'Listo'}</span></div>
 
     {step === 'form' && <>
@@ -133,7 +153,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
       <div className="flow-heading"><h1>{resultTitle}</h1><p>Revisá la información con tranquilidad. Vos elegís cómo seguir.</p></div>
       {kind === 'other' ? <div className="results-card other-answer"><span className="result-icon lilac">✦</span><h2>Podemos buscar dónde hacerlo</h2><p>Por ahora no puedo realizar “{need}” directamente. Puedo ayudarte a encontrar una página oficial para continuar.</p><button className="secondary-button" onClick={() => choose({ id: 'other', name: need, date: '', venue: 'Buscador web', url: `https://www.google.com/search?q=${encodeURIComponent(`${need} sitio oficial Argentina`)}` })}>Revisemos antes de continuar <ArrowRight size={18}/></button></div> :
         <div className="results-list">{items.length === 0 ? <div className="empty-results"><h2>No encontré opciones para esta búsqueda</h2><p>Podés cambiar algún dato o volver a intentarlo.</p><button className="secondary-button" onClick={() => setStep('form')}>Cambiar búsqueda</button></div> : items.map(item => isAppointment(item) ? <AppointmentCard key={item.id} item={item} onChoose={() => choose(item)}/> : <EventCard key={item.id} item={item} onChoose={() => choose(item)} demo={mode === 'demo'}/>)}</div>}
-      <div className="flow-footer"><button className="secondary-button" onClick={() => setStep('form')}><ArrowLeft size={18}/> Cambiar búsqueda</button><button className="text-button" onClick={onHome}>Volver al inicio</button></div>
+      <div className="flow-footer"><button className="secondary-button" onClick={() => setStep('form')}><ArrowLeft size={18}/> Cambiar búsqueda</button><button className="text-button" onClick={goHome}>Volver al inicio</button></div>
     </>}
 
     {step === 'confirm' && selected && <>
@@ -149,7 +169,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
       </section>
     </>}
 
-    {step === 'done' && <section className="done-card"><span className="done-check"><Check size={28}/></span><h1>{kind === 'appointment' ? 'Consulta guardada' : mode === 'demo' && kind === 'event' ? 'Salida guardada' : kind === 'event' ? 'El sitio oficial se abrió en otra pestaña' : 'La búsqueda se abrió en otra pestaña'}</h1><p>{kind === 'appointment' ? 'Guardamos esta opción en Mis gestiones. El turno no quedó reservado ni confirmado.' : mode === 'demo' && kind === 'event' ? 'Guardamos esta salida en Mis gestiones para que la tengas a mano.' : kind === 'event' ? 'La información de entradas se confirma en el sitio oficial.' : 'La búsqueda se abrió en otra pestaña. Acompáñame no completó el trámite.'}</p><div className="inline-message">{saved ? 'Guardado en Mis gestiones.' : ''}</div><button className="primary-button full-button" onClick={onSaved}>Ir a Mis gestiones <ArrowRight size={18}/></button><button className="text-button" onClick={onHome}>Volver al inicio</button></section>}
+    {step === 'done' && <section className="done-card"><span className="done-check"><Check size={28}/></span><h1>{kind === 'appointment' ? 'Consulta guardada' : mode === 'demo' && kind === 'event' ? 'Salida guardada' : kind === 'event' ? 'El sitio oficial se abrió en otra pestaña' : 'La búsqueda se abrió en otra pestaña'}</h1><p>{kind === 'appointment' ? 'Guardamos esta opción en Mis gestiones. El turno no quedó reservado ni confirmado.' : mode === 'demo' && kind === 'event' ? 'Guardamos esta salida en Mis gestiones para que la tengas a mano.' : kind === 'event' ? 'La información de entradas se confirma en el sitio oficial.' : 'La búsqueda se abrió en otra pestaña. Acompáñame no completó el trámite.'}</p><div className="inline-message">{saved ? 'Guardado en Mis gestiones.' : ''}</div><button className="primary-button full-button" onClick={onSaved}>Ir a Mis gestiones <ArrowRight size={18}/></button><button className="text-button" onClick={goHome}>Volver al inicio</button></section>}
   </main>;
 }
 
