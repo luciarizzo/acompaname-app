@@ -97,8 +97,20 @@ export function TripFlow({ city: profileCity, addresses, onAddressesChange, onSa
 
   const stepLabel = editor ? (editor.id ? 'Editar dirección' : 'Nueva dirección') : managing ? 'Mis direcciones' : step === 'review' ? 'Revisar' : step === 'done' ? 'Listo' : `Paso ${stepIndex + 1} de 3`;
 
+  const goHome = () => {
+  const hasUnsavedChanges = step !== 'done' && (
+    step !== 'to' ||
+    Boolean(toId || fromId || rideId || editor?.name.trim() || editor?.address.trim())
+  );
+  if (
+    hasUnsavedChanges &&
+    !window.confirm('Tenés datos sin guardar. Si volvés al inicio, podrías perderlos. ¿Querés continuar?')
+  ) return;
+  onHome();
+  };
+  
   return <main id="main" className="page flow-page cinema-flow">
-    <div className="flow-top"><button className="back-button" onClick={back}><ArrowLeft size={20}/> {step === 'done' && !editor ? 'Inicio' : 'Volver'}</button>{step !== 'done' && <button className="home-link" onClick={onHome}>Ir al inicio</button>}</div>
+    <div className="flow-top"><button className="back-button" onClick={back}><ArrowLeft size={20}/> {step === 'done' && !editor ? 'Inicio' : 'Volver'}</button>{step !== 'done' && <button className="home-link" onClick={goHome}>Ir al inicio</button>}</div>
     <div className="flow-progress"><span className="flow-mark"><Car size={20}/></span><span>Pedir un viaje</span><span className="step-label">{stepLabel}</span></div>
 
     {editor && <>
@@ -194,7 +206,7 @@ export function TripFlow({ city: profileCity, addresses, onAddressesChange, onSa
         <ReviewRow label="Patente" value="AB 123 CD"/>
       </div>
       <button className="primary-button full-button" onClick={onSaved}>Ir a Mis gestiones <ArrowRight size={18}/></button>
-      <button className="text-button" onClick={onHome}>Volver al inicio</button>
+      <button className="text-button" onClick={goHome}>Volver al inicio</button>
     </section>}
   </main>;
 }
