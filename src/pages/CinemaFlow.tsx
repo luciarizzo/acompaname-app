@@ -83,8 +83,24 @@ export function CinemaFlow({ city: profileCity, preferredPaymentMethod, onPaymen
     setStep('done');
   };
 
+  const goHome = () => {
+  const hasUnsavedChanges = !saved && (
+    theater !== '' ||
+    movie !== '' ||
+    time !== '' ||
+    seatZone !== '' ||
+    ticketCount !== '1' ||
+    payment !== preferredPaymentMethod ||
+    date !== upcomingSaturday()
+  );
+  if (
+    hasUnsavedChanges &&
+    !window.confirm('Tenés elecciones sin guardar. Si volvés al inicio, podrías perderlas. ¿Querés continuar?')
+  ) return;
+  onHome();
+  };
   return <main id="main" className="page flow-page cinema-flow">
-    <div className="flow-top"><button className="back-button" onClick={back}><ArrowLeft size={20}/> {step === 'done' ? 'Inicio' : 'Volver'}</button>{step !== 'done' && <button className="home-link" onClick={onHome}>Ir al inicio</button>}</div>
+    <div className="flow-top"><button className="back-button" onClick={back}><ArrowLeft size={20}/> {step === 'done' ? 'Inicio' : 'Volver'}</button>{step !== 'done' && <button className="home-link" onClick={goHome}>Ir al inicio</button>}</div>
     <div className="flow-progress"><span className="flow-mark"><Clapperboard size={20}/></span><span>Ir al cine</span><span className="step-label">{step === 'review' ? 'Revisar' : step === 'done' ? 'Listo' : `Paso ${stepIndex + 1} de 7`}</span></div>
 
     {step !== 'review' && step !== 'done' && <>
@@ -118,7 +134,7 @@ export function CinemaFlow({ city: profileCity, preferredPaymentMethod, onPaymen
       </section>
     </>}
 
-    {step === 'done' && <section className="done-card"><span className="done-check"><Check size={28}/></span><h1>Plan guardado</h1><p>Guardamos tus elecciones en Mis gestiones para que las tengas a mano. La disponibilidad y el pago se confirman directamente con el cine; no se reservó ninguna entrada ni se realizó un cobro.</p>{saved && <div className="inline-message">Tu plan quedó guardado {isAccountMode() ? 'en tu cuenta' : 'en este dispositivo'}.</div>}<button className="primary-button full-button" onClick={onSaved}>Ir a Mis gestiones <ArrowRight size={18}/></button><button className="text-button" onClick={onHome}>Volver al inicio</button></section>}
+    {step === 'done' && <section className="done-card"><span className="done-check"><Check size={28}/></span><h1>Plan guardado</h1><p>Guardamos tus elecciones en Mis gestiones para que las tengas a mano. La disponibilidad y el pago se confirman directamente con el cine; no se reservó ninguna entrada ni se realizó un cobro.</p>{saved && <div className="inline-message">Tu plan quedó guardado {isAccountMode() ? 'en tu cuenta' : 'en este dispositivo'}.</div>}<button className="primary-button full-button" onClick={onSaved}>Ir a Mis gestiones <ArrowRight size={18}/></button><button className="text-button" onClick={goHome}>Volver al inicio</button></section>}
   </main>;
 }
 
