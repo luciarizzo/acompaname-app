@@ -529,3 +529,14 @@ html.high-contrast .header-reading-actions .icon-action[aria-pressed="true"]{bac
 /* HU13: un único nombre de la acción de ayuda para escritorio y celular. */
 .trusted-launcher{white-space:nowrap;max-width:calc(100vw - 28px)}
 html.high-contrast .trusted-launcher{outline-offset:3px}
+
+/* Acceso visible a la cuenta sin añadir botones a la cabecera principal. */
+.home-intro-top{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;margin-bottom:10px}
+.home-intro-top .eyebrow{margin:0}
+.home-account-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:8px 12px;border:1px solid #bcd5ca;border-radius:12px;background:#fff;color:var(--green);font-size:calc(14px * var(--text-scale,1));font-weight:800;white-space:nowrap}
+.home-account-button:hover{background:#eaf4ee;border-color:#8fb7a8}
+@media(max-width:650px){.home-intro-top{align-items:flex-start}.home-account-button{margin-left:auto}}
+html.high-contrast .home-account-button{background:#000;color:#ffeb3b;border:2px solid #ffeb3b}
+html.high-contrast .home-account-button :is(span,svg){color:#ffeb3b}
+html.high-contrast .home-account-button:hover{background:#ffeb3b;color:#000}
+html.high-contrast .home-account-button:hover :is(span,svg){color:#000}

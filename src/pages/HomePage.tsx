@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { classifyNeed } from '../utils/intent';
-import { ArrowRight, CalendarHeart, Car, Clapperboard, ClipboardList, Mic, Sparkles, Theater } from 'lucide-react';
+import { ArrowRight, CalendarHeart, Car, Clapperboard, ClipboardList, LogIn, LogOut, Mic, Sparkles, Theater } from 'lucide-react';
 import type { FlowKind } from '../types';
-interface Props { onSelect: (kind: FlowKind, prompt?: string) => void; largeText: boolean; displayName?: string; onHowItWorks: () => void; onTasks: () => void }
+interface Props { onSelect: (kind: FlowKind, prompt?: string) => void; largeText: boolean; displayName?: string; onHowItWorks: () => void; onTasks: () => void; signedIn: boolean; onAccountAction: () => void }
 const quickTasks = [
  { kind: 'event' as const, icon: Theater, title: 'Buscar una salida', detail: 'Música, teatro o deportes', color: 'coral' },
  { kind: 'cinema' as const, icon: Clapperboard, title: 'Ir al cine', detail: 'Elegir película, función y butacas', color: 'sky' },
@@ -10,7 +10,7 @@ const quickTasks = [
  { kind: 'trip' as const, icon: Car, title: 'Pedir un viaje', detail: 'Elegir adónde ir y desde dónde', color: 'sand' },
  { kind: 'other' as const, icon: Sparkles, title: 'Otra cosa', detail: 'Sugerí una nueva función', color: 'lilac' }
 ];
-export function HomePage({ onSelect, largeText, displayName = '', onHowItWorks, onTasks }: Props) {
+export function HomePage({ onSelect, largeText, displayName = '', onHowItWorks, onTasks, signedIn, onAccountAction }: Props) {
  const [prompt, setPrompt] = useState(''); const [listening, setListening] = useState(false); const [voiceMessage, setVoiceMessage] = useState('');
  const startVoice = () => {
   type RecognitionResult = { 0: { transcript: string } };
@@ -26,7 +26,7 @@ export function HomePage({ onSelect, largeText, displayName = '', onHowItWorks, 
  };
  const submit = () => { if (prompt.trim()) onSelect(classifyNeed(prompt).kind, prompt.trim()); };
  return <main id="main" className={`page home-page ${largeText ? 'large-text' : ''}`}>
-  <div className="home-intro"><p className="eyebrow">A TU RITMO, PASO A PASO</p><h1>Hola{displayName.trim() ? `, ${displayName.trim()}` : ''} <span className="wave" aria-hidden="true">👋</span><br/>¿Qué necesitás hacer hoy?</h1><p className="intro-copy">Contame y buscamos la forma más sencilla de hacerlo.</p></div>
+  <div className="home-intro"><div className="home-intro-top"><p className="eyebrow">A TU RITMO, PASO A PASO</p><button className="home-account-button" type="button" onClick={onAccountAction} aria-label={signedIn ? 'Cerrar sesión de mi cuenta' : 'Iniciar sesión con una cuenta'}>{signedIn ? <LogOut size={18}/> : <LogIn size={18}/>}<span>{signedIn ? 'Cerrar sesión' : 'Iniciar sesión'}</span></button></div><h1>Hola{displayName.trim() ? `, ${displayName.trim()}` : ''} <span className="wave" aria-hidden="true">👋</span><br/>¿Qué necesitás hacer hoy?</h1><p className="intro-copy">Contame y buscamos la forma más sencilla de hacerlo.</p></div>
   <section data-guide="ask" className="ask-card" aria-label="Contanos qué necesitás">
     <div className="voice-row"><div><span className="voice-title">¿Preferís hablar?</span><p>Podés contármelo con tu voz.</p></div><button className={`voice-button ${listening ? 'listening' : ''}`} onClick={startVoice}><Mic size={20}/><span>{listening ? 'Escuchando…' : 'Decímelo con tu voz'}</span></button></div>
     {voiceMessage && <p className="voice-feedback" role="status">{voiceMessage}</p>}

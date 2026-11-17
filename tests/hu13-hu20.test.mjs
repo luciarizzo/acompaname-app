@@ -254,6 +254,7 @@ const suggestionDraft = loadModule('../src/utils/featureSuggestion.ts');
 test('HU20: cancelar el login vuelve a la sugerencia y no a la entrada', () => {
   assert.deepEqual({ ...loginRoutes.returnFromLogin('suggestion') }, { view: 'home', flow: 'other' });
   assert.deepEqual({ ...loginRoutes.returnFromLogin('entry') }, { view: 'entry', flow: null });
+  assert.deepEqual({ ...loginRoutes.returnFromLogin('home') }, { view: 'home', flow: null });
 });
 
 test('HU20: al iniciar sesión se retoma la sugerencia solo con perfil configurado', () => {
