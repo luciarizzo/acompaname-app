@@ -6,6 +6,8 @@ export async function searchEvents(input: EventSearch): Promise<SearchResult<Eve
     music: [`Música en vivo · ${input.city}`, `Recital acústico · ${input.city}`],
     theater: [`Función de teatro · ${input.city}`, `Comedia en vivo · ${input.city}`],
     sports: [`Encuentro deportivo · ${input.city}`, `Partido de fútbol · ${input.city}`],
+    culture: [`Actividad cultural · ${input.city}`, `Muestra o espectáculo · ${input.city}`],
+    all: [`Actividad cultural · ${input.city}`, `Salida para compartir · ${input.city}`],
     other: [`Feria cultural · ${input.city}`, `Actividad al aire libre · ${input.city}`]
   };
   const names = eventNames[input.category] || eventNames.other;

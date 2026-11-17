@@ -13,8 +13,8 @@ import { loadFlowDraft, saveFlowDraft, removeFlowDraft } from '../utils/flowDraf
 interface Props { kind: Extract<FlowKind, 'event' | 'appointment'>; initialPrompt?: string; city: string; onBack: () => void; onHome: () => void; onSaved: () => void; onStepChange: () => void }
 type Step = 'form' | 'loading' | 'results' | 'confirm' | 'done';
 type Result = EventResult | AppointmentOption;
-interface SearchDraft { step: Step; eventCategory: string | null; eventDate: string; specialty: AppointmentSpecialty }
-const eventCategories = { music: 'Música', theater: 'Teatro', sports: 'Deportes', other: 'Otro tipo de salida' };
+interface SearchDraft { step: Step; eventCategory: string | null; eventDate: string; specialty: AppointmentSpecialty; searchCity?: string }
+const eventCategories = { all: 'Todas las actividades', music: 'Música', theater: 'Teatro', sports: 'Deportes', other: 'Otras salidas' };
 const specialties: AppointmentSpecialty[] = ['Clínica médica', 'Cardiología', 'Oftalmología', 'Odontología'];
 const specialtyCopy: Record<AppointmentSpecialty, string> = {
   'Clínica médica': 'Dra. Paula Ríos',
@@ -45,8 +45,15 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
   const [selected, setSelected] = useState<Result | null>(null);
   const [saved, setSaved] = useState(false);
   const currentRequest = useRef(0);
-  const [eventCategory, setEventCategory] = useState<string | null>(() => previous?.eventCategory ?? classifyNeed(initialPrompt).eventCategory ?? null);
+  const [eventCategory, setEventCategory] = useState<string | null>(() => {
+    const initialCategory = previous?.eventCategory ?? classifyNeed(initialPrompt).eventCategory ?? null;
+    return initialCategory === 'culture' ? 'all' : initialCategory;
+  });
   const city = profileCity.trim() || 'Mendoza';
+  const [searchCity, setSearchCity] = useState(() => previous?.searchCity || city);
+  const [eventSource, setEventSource] = useState('');
+  const [eventNotice, setEventNotice] = useState('');
+  const [eventAgendaUrl, setEventAgendaUrl] = useState<string | null>(null);
   const [eventDate, setEventDate] = useState(() => previous?.eventDate ?? extractRequestedDate(initialPrompt) ?? '');
   const [dateFromPrompt, setDateFromPrompt] = useState(() => Boolean(extractRequestedDate(initialPrompt)));
   const [specialty, setSpecialty] = useState<AppointmentSpecialty>(() => previous?.specialty ?? 'Clínica médica');
@@ -55,9 +62,9 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
     if (resumePrompt) return;
     if (step === 'done') { removeFlowDraft(kind); return; }
     if (step === 'form' && !eventCategory && !eventDate && (kind !== 'appointment' || specialty === 'Clínica médica')) { removeFlowDraft(kind); return; }
-    saveFlowDraft(kind, { step, eventCategory, eventDate, specialty } satisfies SearchDraft);
-  }, [kind, step, eventCategory, eventDate, specialty, resumePrompt]);
-  const discardDraft = () => { removeFlowDraft(kind);setStep('form');setEventCategory(null);setEventDate('');setSpecialty('Clínica médica');setResumePrompt(false); };
+    saveFlowDraft(kind, { step, eventCategory, eventDate, specialty, searchCity } satisfies SearchDraft);
+  }, [kind, step, eventCategory, eventDate, specialty, searchCity, resumePrompt]);
+  const discardDraft = () => { removeFlowDraft(kind);setStep('form');setEventCategory(null);setEventDate('');setSearchCity(city);setSpecialty('Clínica médica');setResumePrompt(false); };
   const title = kind === 'event' ? 'Buscar una salida' : 'Sacar un turno médico';
   const resultTitle = kind === 'event' ? mode === 'demo' ? 'Ideas para una salida' : 'Algunas opciones para salir' : 'Opciones de turno';
 
@@ -69,10 +76,13 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
       await new Promise(resolve => window.setTimeout(resolve, 350));
       if (request !== currentRequest.current) return;
       if (kind === 'event') {
-        const result = await searchEvents({ category: eventCategory || 'other', city, date: eventDate } satisfies EventSearch);
+        const result = await searchEvents({ category: eventCategory || 'other', city: searchCity, date: eventDate } satisfies EventSearch);
         if (request !== currentRequest.current) return;
         setItems(result.items);
         setMode(result.mode);
+        setEventSource(result.source || '');
+        setEventNotice(result.notice || '');
+        setEventAgendaUrl(result.agendaUrl || null);
       } else {
         setItems(demoAppointments(specialty, city));
         setMode('demo');
@@ -127,7 +137,9 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
         {kind === 'event' && <>
           <p className="form-intro">Elegí una actividad.</p>
           <div className="choice-grid">{Object.entries(eventCategories).map(([key, value]) => <button key={key} className={eventCategory === key ? 'choice-button chosen' : 'choice-button'} onClick={() => setEventCategory(key)}>{value}{eventCategory === key && <span className="selected-indicator" aria-hidden="true">Elegido</span>}</button>)}</div>
-          <div className="privacy-note"><MapPin size={18}/><span>Buscamos salidas en {city}.</span></div>
+          <label className="field-label" htmlFor="event-city">Ciudad donde querés buscar actividades</label>
+          <input id="event-city" className="form-control" value={searchCity} maxLength={100} onChange={e => setSearchCity(e.target.value)} placeholder="Ej.: Rosario, Córdoba, Mendoza o Buenos Aires"/>
+          <div className="privacy-note"><MapPin size={18}/><span>La disponibilidad de eventos reales depende de la agenda oficial de cada ciudad.</span></div>
           <DateSelector value={eventDate} onChange={value => { setEventDate(value); setDateFromPrompt(false); }}/>
           {dateFromPrompt && <p className="date-detected" role="status">Dejé seleccionado el sábado que mencionaste. Podés cambiarlo si querés.</p>}
         </>}
@@ -138,15 +150,15 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
           <div className="privacy-note"><ShieldCheck size={18}/><span>OSDE, PAMI y otros prestadores todavía no están conectados. No compartimos tus datos ni reservamos turnos.</span></div>
         </>}
         {error && <StatusMessage kind="error">{error}</StatusMessage>}
-        <button className="primary-button full-button" onClick={() => void startSearch()} disabled={kind === 'event' && (!eventCategory || !city.trim())}><Search size={19}/>{kind === 'appointment' ? 'Ver opciones de turno' : 'Buscar opciones'}<ArrowRight size={19}/></button>
+        <button className="primary-button full-button" onClick={() => void startSearch()} disabled={kind === 'event' && (!eventCategory || !searchCity.trim())}><Search size={19}/>{kind === 'appointment' ? 'Ver opciones de turno' : 'Buscar opciones'}<ArrowRight size={19}/></button>
       </div>
     </>}
 
     {!resumePrompt && step === 'loading' && <section className="loading-panel"><StatusMessage kind="loading">{kind === 'appointment' ? 'Preparando opciones de turno…' : 'Estoy buscando opciones para vos. Puede tardar un momento.'}</StatusMessage><p>Podés esperar en esta pantalla.</p></section>}
 
     {!resumePrompt && step === 'results' && <>
-      <div className="flow-heading"><h1>{resultTitle}</h1><p>Revisá la información con tranquilidad. Vos elegís cómo seguir.</p></div>
-      <div className="results-list">{items.length === 0 ? <div className="empty-results"><h2>No encontré opciones para esta búsqueda</h2><p>Podés cambiar algún dato o volver a intentarlo.</p><button className="secondary-button" onClick={() => setStep('form')}>Cambiar búsqueda</button></div> : items.map(item => isAppointment(item) ? <AppointmentCard key={item.id} item={item} onChoose={() => choose(item)}/> : <EventCard key={item.id} item={item} onChoose={() => choose(item)} demo={mode === 'demo'}/>)}</div>
+      <div className="flow-heading"><h1>{resultTitle}</h1><p>Revisá la información con tranquilidad. Vos elegís cómo seguir.</p>{eventSource && <p>Fuente: {eventSource}.</p>}{eventNotice && <p role="status">{eventNotice}</p>}</div>
+      <div className="results-list">{items.length === 0 ? <div className="empty-results"><h2>No encontré opciones para esta búsqueda</h2><p>Podés cambiar algún dato o volver a intentarlo.</p>{kind === 'event' && eventAgendaUrl && <p><a href={eventAgendaUrl} target="_blank" rel="noreferrer">Consultar agenda oficial de {searchCity} <ExternalLink size={15}/></a></p>}<button className="secondary-button" onClick={() => setStep('form')}>Cambiar búsqueda</button></div> : items.map(item => isAppointment(item) ? <AppointmentCard key={item.id} item={item} onChoose={() => choose(item)}/> : <EventCard key={item.id} item={item} onChoose={() => choose(item)} demo={mode === 'demo'}/>)}</div>
       <div className="flow-footer"><button className="secondary-button" onClick={() => setStep('form')}><ArrowLeft size={18}/> Cambiar búsqueda</button><button className="text-button" onClick={onHome}>Volver al inicio</button></div>
     </>}
 
