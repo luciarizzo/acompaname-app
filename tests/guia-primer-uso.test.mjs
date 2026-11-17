@@ -18,8 +18,8 @@ test('Guía de primer uso: destaca controles reales en escritorio y móvil', () 
   const header = read('components/BrandHeader.tsx');
   const home = read('pages/HomePage.tsx');
   const bottom = read('components/BottomNav.tsx');
-  assert.equal((guide.match(/title: '/g) || []).length, 5);
-  for (const selector of ['ask','quick','tasks-desktop','tasks-mobile','reading-desktop','reading-mobile','trusted-call']) {
+  assert.equal((guide.match(/title: '/g) || []).length, 6);
+  for (const selector of ['ask','quick','tasks-desktop','tasks-mobile','settings-desktop','settings-mobile','reading-desktop','reading-mobile','trusted-call']) {
     assert.match(guide, new RegExp(`data-guide=\\"${selector}\\"`));
     assert.ok([header, home, bottom, read('main.tsx')].some(source => source.includes(`data-guide="${selector}"`) || (selector === 'quick' && source.includes("data-guide={kind === 'event'"))), `Falta el elemento destacado: ${selector}`);
   }
@@ -38,15 +38,34 @@ test('Guía accesible: diálogo modal, foco controlado y salida libre', () => {
   assert.match(guide, /Anterior/);
 });
 
-test('Menú descriptivo: opciones por su función, sin icono de silla de ruedas', () => {
+test('Menú de lectura y configuración con iconos diferentes y nombres claros', () => {
   const header = read('components/BrandHeader.tsx');
   const css = read('styles.css');
-  assert.match(header, /Ver y escuchar mejor/);
-  assert.match(header, /SlidersHorizontal/);
+  assert.match(header, /Leer y escuchar/);
+  assert.match(header, /BookOpenText/);
+  assert.match(header, /<Settings size=\{20\}/);
+  assert.match(read('components/BottomNav.tsx'), /<Settings size=\{22\}/);
   assert.doesNotMatch(header, /<Accessibility\b/);
   assert.match(header, /Escuchar pantalla/);
   assert.match(header, /Tamaño del texto/);
   assert.match(header, /Contraste alto/);
   assert.match(css, /html\.high-contrast \.accessibility-panel :is\(span,p,svg\)/);
   assert.match(css, /html\.high-contrast \.accessibility-option:hover :is\(span,svg\)/);
+});
+
+test('Animación del tutorial: pasos separados, progreso visual y movimiento reducido', () => {
+  const guide = read('components/FirstUseGuide.tsx');
+  const css = read('styles.css');
+  assert.match(guide, /title: 'Cambiá tu configuración'/);
+  assert.match(guide, /settings-desktop/);
+  assert.match(guide, /settings-mobile/);
+  assert.match(guide, /mobileDescription/);
+  assert.match(guide, /menu se abre al tocarlo|Tocá «Leer y escuchar»/);
+  assert.match(guide, /Estos tres botones permiten/);
+  assert.match(guide, /key=\{index\}/);
+  assert.match(guide, /first-use-guide-steps/);
+  assert.match(guide, /prefers-reduced-motion: reduce/);
+  assert.match(css, /@keyframes guide-step-appear/);
+  assert.match(css, /first-use-guide-spotlight\{transition/);
+  assert.match(css, /prefers-reduced-motion:reduce/);
 });
