@@ -51,7 +51,7 @@ Para activar eventos reales en Netlify, configurar `VITE_ENABLE_LIVE_APIS=true` 
 
 ### Cartelera de cine real
 
-La sección **Cine** consulta `netlify/functions/cinema-catalog.mjs`, que usa la API [AMODB](https://amodb.dev/cinema-api/argentina/) para consultar cines y funciones disponibles. Configurar `AMODB_KEY` como variable de entorno **Functions** en Netlify, sin prefijo `VITE_`; no incluir la clave en Git ni en el navegador. La API requiere contratar un plan y su cobertura argentina es parcial (principalmente Cinemacenter, Showcase y Atlas). No se muestran películas ni horarios ficticios cuando no hay datos. El enlace de compra abre el proveedor de venta informado para esa función, o la web del cine como alternativa. Allí se eligen las butacas y se paga; guardar un plan en Acompáñame **no reserva ni compra** entradas.
+La sección **Cine** utiliza carteleras oficiales verificadas de Cinemark Hoyts, Showcase, Atlas, Cinépolis y Cinemacenter. No necesita API Key ni tiene costos por consultas. El recorrido permite elegir la cadena, estimar entradas y abrir su cartelera oficial, donde la persona comprueba el complejo disponible en su localidad, elige película, fecha, horario y butacas y efectúa el pago. **No hay integración automática de funciones, precios ni disponibilidad de asientos**; no se simula esa información. Guardar un plan en Acompáñame **no reserva ni compra** entradas.
 
 Copiá `.env.example` a `.env` si querés configurar la búsqueda real de salidas. No guardes claves reales en archivos versionados ni uses prefijo `VITE_` para secretos.
 
