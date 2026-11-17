@@ -49,6 +49,10 @@ También se puede cambiar la ciudad en el buscador de eventos culturales. La age
 
 Para activar eventos reales en Netlify, configurar `VITE_ENABLE_LIVE_APIS=true` en el entorno de compilación y volver a desplegar. **No hace falta API Key.** La fuente es la página pública de Turismo BA: https://turismo.buenosaires.gob.ar/es/article/que-hacer-esta-semana. Su listado estructurado **no es una API pública documentada**; si el sitio cambia, la función informa un error en vez de presentar resultados falsos. No se realiza reserva ni compra de entradas.
 
+### Cartelera de cine real
+
+La sección **Cine** consulta `netlify/functions/cinema-catalog.mjs`, que usa la API [AMODB](https://amodb.dev/cinema-api/argentina/) para consultar cines y funciones disponibles. Configurar `AMODB_KEY` como variable de entorno **Functions** en Netlify, sin prefijo `VITE_`; no incluir la clave en Git ni en el navegador. La API requiere contratar un plan y su cobertura argentina es parcial (principalmente Cinemacenter, Showcase y Atlas). No se muestran películas ni horarios ficticios cuando no hay datos. El enlace de compra abre el proveedor de venta informado para esa función, o la web del cine como alternativa. Allí se eligen las butacas y se paga; guardar un plan en Acompáñame **no reserva ni compra** entradas.
+
 Copiá `.env.example` a `.env` si querés configurar la búsqueda real de salidas. No guardes claves reales en archivos versionados ni uses prefijo `VITE_` para secretos.
 
 - **Ticketmaster Discovery API** (`TICKETMASTER_API_KEY`): requiere una API key del portal de desarrolladores. Los eventos reales se abren en su página oficial; Acompáñame no procesa entradas. Sin clave, se muestran eventos ficticios identificados como demostración.
