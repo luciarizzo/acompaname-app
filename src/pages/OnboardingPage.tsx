@@ -58,7 +58,7 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
       <label className="field-label" htmlFor="profile-name">{profile.role === 'self' ? '¿Cómo querés que te llamemos?' : '¿Cómo se llama la persona que usará la app?'} <span className="optional-label">(opcional)</span></label>
       <input id="profile-name" className="form-control" value={profile.name} maxLength={40} placeholder="Solo el nombre" onChange={(event) => update({ name: event.target.value })}/>
       <label className="field-label" htmlFor="profile-city">¿En qué ciudad estás?</label>
-      <LocalityAutocomplete id="profile-city" value={profile.city} onChange={city => update({ city })} placeholder="Ej.: Rosario, Mendoza o La Plata"/>
+      <LocalityAutocomplete id="profile-city" value={profile.city} onChange={city => update({ city })} placeholder="Escribí tu ciudad o localidad"/>
       <p className="onboarding-privacy">Escribí al menos dos letras y elegí tu localidad de las sugerencias oficiales. Si no hay conexión, podés ingresarla manualmente.</p>
       <fieldset className="onboarding-fieldset"><legend>¿Qué opción te representa mejor? <span className="optional-label">(opcional)</span></legend>
         <div className="onboarding-choices compact">
@@ -114,7 +114,7 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
       <dl className="onboarding-summary">
         <div><dt>La app está preparada para</dt><dd>{profile.role === 'self' ? 'La voy a usar yo' : 'Estoy ayudando a otra persona'}</dd></div>
         <div><dt>Nombre</dt><dd>{profile.name.trim() || 'Sin nombre por ahora'}</dd></div>
-        <div><dt>Ciudad</dt><dd>{profile.city.trim() || 'Mendoza'}</dd></div>
+        <div><dt>Ciudad</dt><dd>{profile.city.trim() || 'Sin seleccionar'}</dd></div>
         <div><dt>Contactos de confianza</dt><dd>{profile.trustedContacts.filter(contact => contact.name.trim() && contact.phone.trim()).length || 'Ninguno'}</dd></div>
         <div><dt>Preferencias de accesibilidad</dt><dd>{[
           profile.accessibility === 'older-adult' ? 'Persona mayor' : '',
