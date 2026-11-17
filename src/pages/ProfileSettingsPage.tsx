@@ -2,6 +2,7 @@ import { useBrowserBack } from '../utils/useBrowserBack';
 import { useEffect, useState, type FormEvent } from 'react';
 import { ArrowLeft, Check, SlidersHorizontal } from 'lucide-react';
 import { type OnboardingProfile } from '../utils/profile';
+import { LocalityAutocomplete } from '../components/LocalityAutocomplete';
 
 interface Props {
   profile: OnboardingProfile;
@@ -36,7 +37,7 @@ export function ProfileSettingsPage({ profile, onSave, onCancel, onPreferencesPr
       <label className="field-label" htmlFor="settings-name">Nombre que querés usar</label>
       <input id="settings-name" className="form-control" maxLength={40} value={draft.name} onChange={event => change({ name: event.target.value })}/>
       <label className="field-label" htmlFor="settings-city">Ciudad</label>
-      <input id="settings-city" className="form-control" maxLength={60} value={draft.city} onChange={event => {change({ city: event.target.value });setError('');}} required/>
+      <LocalityAutocomplete id="settings-city" value={draft.city} onChange={city => {change({ city });setError('');}} required/>
       <label className="field-label" htmlFor="settings-role">¿Quién usa Acompáñame?</label>
       <select id="settings-role" className="form-control" value={draft.role} onChange={event => change({ role: event.target.value as OnboardingProfile['role'] })}>
         <option value="self">La voy a usar yo</option><option value="supporting">Estoy ayudando a otra persona</option>
