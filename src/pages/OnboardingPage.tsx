@@ -1,3 +1,4 @@
+import { useBrowserBack } from '../utils/useBrowserBack';
 import { ArrowLeft, ArrowRight, Check, CreditCard, Eye, Mic, Volume2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { OnboardingProfile } from '../utils/profile';
@@ -34,9 +35,10 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
   };
   const back = () => step > 0 ? setStep((current) => current - 1) : onCancel();
 
+  useBrowserBack(back);
   return <main id="main" className="page onboarding-page">
     <div className="onboarding-progress" aria-label={`Paso ${step + 1} de ${steps.length}`}>
-      <button className="back-button" onClick={back}><ArrowLeft size={18}/> {step === 0 ? 'Volver a bienvenida' : 'Volver'}</button>
+      <button className="back-button" onClick={back}><ArrowLeft size={18}/> {step === 0 ? 'Volver a bienvenida' : 'Volver al paso anterior'}</button>
       <span>Paso {step + 1} de {steps.length}</span>
     </div>
     <div className="onboarding-progress-track" aria-hidden="true"><span style={{ width: `${((step + 1) / steps.length) * 100}%` }}/></div>
@@ -84,7 +86,7 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
       <div className="onboarding-payment-list" role="group" aria-label="Medio de pago preferido">
         {([
           ['debit-card', 'Tarjeta de débito'], ['credit-card', 'Tarjeta de crédito'], ['', 'Lo hago más adelante']
-        ] as const).map(([value, label]) => <button key={value || 'later'} className={`onboarding-payment-choice ${profile.preferredPaymentMethod === value ? 'selected' : ''}`} aria-pressed={profile.preferredPaymentMethod === value} onClick={() => update({ preferredPaymentMethod: value })}><span className="preference-icon">{value ? <CreditCard/> : <span aria-hidden="true">⏳</span>}</span><strong>{label}</strong>{profile.preferredPaymentMethod === value && <Check size={20}/>}</button>)}
+        ] as const).map(([value, label]) => <button key={value || 'later'} className={`onboarding-payment-choice ${profile.preferredPaymentMethod === value ? 'selected' : ''}`} aria-pressed={profile.preferredPaymentMethod === value} onClick={() => update({ preferredPaymentMethod: value })}><span className="preference-icon">{value ? <CreditCard/> : <span aria-hidden="true">⏳</span>}</span><strong>{label}</strong>{profile.preferredPaymentMethod === value && <span className="selected-indicator" aria-hidden="true">Elegido</span>}</button>)}
       </div>
       <p className="onboarding-privacy">Por ahora guardamos esta preferencia {isAccountMode() ? 'en tu cuenta' : 'en este dispositivo'}. No pedimos ni guardamos números de tarjeta y todavía no procesamos pagos.</p>
     </section>}

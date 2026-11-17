@@ -1,3 +1,4 @@
+import { useBrowserBack } from '../utils/useBrowserBack';
 import { useState } from 'react';
 import { ArrowLeft, Eye, EyeOff, LogIn } from 'lucide-react';
 import { StatusMessage } from '../components/StatusMessage';
@@ -6,9 +7,10 @@ import { signIn } from '../services/account';
 // Pantalla de inicio de sesión con mail y contraseña.
 // Los atributos autoComplete permiten que el celular ofrezca guardar y completar la contraseña.
 
-interface Props { onBack: () => void; onSuccess: () => Promise<void> }
+interface Props { onBack: () => void; onSuccess: () => Promise<void>; returnToSuggestion?: boolean; returnToHome?: boolean }
 
-export function LoginPage({ onBack, onSuccess }: Props) {
+export function LoginPage({ onBack, onSuccess, returnToSuggestion = false, returnToHome = false }: Props) {
+  useBrowserBack(onBack);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -25,8 +27,8 @@ export function LoginPage({ onBack, onSuccess }: Props) {
   };
 
   return <main id="main" className="page flow-page">
-    <div className="flow-top"><button className="back-button" onClick={onBack}><ArrowLeft size={20}/> Volver</button></div>
-    <div className="flow-heading"><h1>Iniciar sesión</h1><p>Escribí el mail y la contraseña de tu cuenta.</p></div>
+    <div className="flow-top"><button className="back-button" type="button" onClick={onBack}><ArrowLeft size={20}/> {returnToSuggestion ? 'Volver a mi sugerencia' : returnToHome ? 'Volver al inicio' : 'Volver'}</button></div>
+    <div className="flow-heading"><h1>Iniciar sesión</h1><p>Escribí el mail y la contraseña de tu cuenta.</p>{returnToSuggestion && <p>Después vas a poder revisar y enviar tu sugerencia. No se envía automáticamente.</p>}</div>
     <form className="form-card" onSubmit={e => { e.preventDefault(); void submit(); }}>
       <label className="field-label" htmlFor="login-email">Mail</label>
       <input id="login-email" className="form-control" type="email" inputMode="email" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} placeholder="nombre@gmail.com"/>

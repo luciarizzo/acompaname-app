@@ -8,3 +8,6 @@ let accountId: string | null = null;
 export function setAccountMode(id: string | null) { accountId = id; }
 export function isAccountMode() { return accountId !== null; }
 export function storageKey(base: string) { return accountId ? `${base}-cuenta` : base; }
+
+/** Identificador de la cuenta actual para aislar borradores entre usuarios. */
+export function currentAccountId() { return accountId; }

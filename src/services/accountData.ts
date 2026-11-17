@@ -9,8 +9,9 @@ import { supabase } from './supabase';
 
 export const TASKS_KEY = 'acompaname-v1-tasks';
 export const PROFILE_KEY = 'acompaname-v1-profile';
+const pendingTaskSaves = new Map<string, Promise<void>>();
 
-async function request<T>(name: string, method: 'GET' | 'POST' | 'PUT', body?: unknown): Promise<T> {
+async function request<T>(name: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE', body?: unknown): Promise<T> {
   const { data } = await supabase!.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new Error('No hay sesión iniciada.');
@@ -27,7 +28,27 @@ async function request<T>(name: string, method: 'GET' | 'POST' | 'PUT', body?: u
 // Envía una gestión a la base. Si falla (por ejemplo, sin internet), la gestión igual queda en la copia local.
 export function pushTask(task: SavedTask) {
   if (!isAccountMode() || !supabase) return;
-  request('gestiones', 'POST', task).catch(error => console.warn('No se pudo guardar la gestión en la base', error));
+  const pending = request('gestiones', 'POST', task)
+    .then(() => undefined)
+    .catch(error => console.warn('No se pudo guardar la gestión en la base', error))
+    .finally(() => { if (pendingTaskSaves.get(task.id) === pending) pendingTaskSaves.delete(task.id); });
+  pendingTaskSaves.set(task.id, pending);
+}
+
+// Edición de una referencia guardada: el servidor modifica únicamente título y descripción
+// y comprueba que la gestión pertenezca a la cuenta autenticada.
+export async function updateTaskOnAccount(task: SavedTask): Promise<void> {
+  if (!isAccountMode()) return;
+  if (!supabase) throw new Error('No se puede acceder a la cuenta en este momento.');
+  await pendingTaskSaves.get(task.id);
+  await request('gestiones', 'PUT', task);
+}
+
+export async function deleteTaskOnAccount(id: string): Promise<void> {
+  if (!isAccountMode()) return;
+  if (!supabase) throw new Error('No se puede acceder a la cuenta en este momento.');
+  await pendingTaskSaves.get(id);
+  await request('gestiones', 'DELETE', { id });
 }
 
 // Envía el perfil completo a la base. Si falla, el perfil igual queda en la copia local.
@@ -67,4 +88,10 @@ export function deactivateAccount() {
     localStorage.removeItem(storageKey(TASKS_KEY));
   }
   setAccountMode(null);
+}
+
+// Las sugerencias son voluntarias y solo las guarda una cuenta autenticada.
+export async function sendFeatureSuggestion(text: string): Promise<void> {
+  if (!isAccountMode() || !supabase) throw new Error('Para enviar la sugerencia necesitás iniciar sesión.');
+  await request('sugerencias', 'POST', { text: text.trim() });
 }
