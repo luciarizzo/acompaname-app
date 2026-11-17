@@ -567,4 +567,23 @@ html.high-contrast .trusted-delete-screen{color:#fff}
 .saved-delete-screen h2{margin:0 0 12px;font-size:calc(23px * var(--text-scale,1));color:var(--ink)}
 .saved-delete-screen p{line-height:1.6}
 html.high-contrast .saved-delete-screen h2{color:#fff}
+/* Alto contraste: la confirmación ocupa la tarjeta completa. Solo el panel activo
+   conserva el borde; evitamos dos marcos concéntricos y mantenemos el padding. */
+html.high-contrast .saved-card-confirming{
+  padding:0;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+html.high-contrast .saved-card-confirming .saved-delete{
+  margin:0;
+  padding:22px;
+  border:2px solid #fff;
+  border-radius:23px;
+  background:#000;
+  box-shadow:none;
+}
+@media(max-width:650px){
+  html.high-contrast .saved-card-confirming .saved-delete{padding:18px}
+}
 @media(max-width:650px){.saved-card-confirming{padding:18px}}
