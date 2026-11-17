@@ -5,4 +5,4 @@ export interface AppointmentOption { id: string; specialty: AppointmentSpecialty
 export interface EventSearch { category: string; city: string; date?: string }
 export interface EventResult { id: string; name: string; date: string; venue: string; image?: string; url: string; localDate?: string; localTime?: string }
 export interface SearchResult<T> { mode: SourceMode; items: T[] }
-export interface SavedTask { id: string; kind: FlowKind; title: string; description: string; createdAt: string; mode: SourceMode }
+export interface SavedTask { id: string; kind: FlowKind; title: string; description: string; createdAt: string; mode: SourceMode; editChoices?: { appointmentSlots: AppointmentOption[] } }

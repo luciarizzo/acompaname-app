@@ -1,3 +1,5 @@
+import { loadFlowDraft, saveFlowDraft, removeFlowDraft } from '../utils/flowDraft';
+import { useBrowserBack } from '../utils/useBrowserBack';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Car, Check, MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
 import type { SavedTask } from '../types';
@@ -14,6 +16,7 @@ type RideOption = { id: string; label: string; detail: string; eta: string; pric
 type Editor = { id: string | null; name: string; address: string; returnTo: 'choose' | 'manage' };
 
 const steps: Step[] = ['to', 'from', 'options', 'review', 'done'];
+interface TripDraft { step: Step; toId: string; fromId: string; rideId: string }
 const rideOptions: RideOption[] = [
   { id: 'auto', label: 'Auto', detail: 'Un auto común, para hasta 4 personas', eta: 'Llega en 5 minutos', price: '$4.500' },
   { id: 'espacio', label: 'Auto con más espacio', detail: 'Con baúl amplio, si viajás con andador o silla de ruedas plegable', eta: 'Llega en 9 minutos', price: '$5.800' },
@@ -31,16 +34,31 @@ interface Props {
 }
 
 export function TripFlow({ city: profileCity, addresses, onAddressesChange, onSave, onBack, onHome, onSaved, onStepChange }: Props) {
-  const [step, setStep] = useState<Step>('to');
-  const [toId, setToId] = useState('');
-  const [fromId, setFromId] = useState('');
-  const [rideId, setRideId] = useState('');
+  const [previous] = useState(() => {
+    const saved = loadFlowDraft<TripDraft>('trip');
+    if (saved && ((saved.toId && !addresses.some(item => item.id === saved.toId)) || (saved.fromId && !addresses.some(item => item.id === saved.fromId)))) {
+      removeFlowDraft('trip'); return null;
+    }
+    return saved;
+  });
+  const [resumePrompt, setResumePrompt] = useState(Boolean(previous));
+  const [step, setStep] = useState<Step>(() => previous && steps.includes(previous.step) && previous.step !== 'done' ? previous.step : 'to');
+  const [toId, setToId] = useState(() => previous?.toId ?? '');
+  const [fromId, setFromId] = useState(() => previous?.fromId ?? '');
+  const [rideId, setRideId] = useState(() => previous?.rideId ?? '');
   const [editor, setEditor] = useState<Editor | null>(null);
   const [managing, setManaging] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState('');
   const city = profileCity.trim() || 'Mendoza';
   const stepIndex = steps.indexOf(step);
   useEffect(() => { onStepChange(); }, [step, editor === null, managing]);
+  useEffect(() => {
+    if (resumePrompt) return;
+    if (step === 'done') { removeFlowDraft('trip'); return; }
+    if (step === 'to' && !toId) { removeFlowDraft('trip'); return; }
+    saveFlowDraft('trip', { step, toId, fromId, rideId } satisfies TripDraft);
+  }, [step, toId, fromId, rideId, resumePrompt]);
+  const discardDraft = () => {removeFlowDraft('trip');setStep('to');setToId('');setFromId('');setRideId('');setResumePrompt(false);};
 
   const destination = addresses.find(item => item.id === toId);
   const origin = addresses.find(item => item.id === fromId);
@@ -63,6 +81,7 @@ export function TripFlow({ city: profileCity, addresses, onAddressesChange, onSa
     setConfirmDelete('');
     setStep(steps[stepIndex - 1]);
   };
+  useBrowserBack(back);
   const next = () => { setConfirmDelete(''); setStep(steps[stepIndex + 1]); };
 
   const saveAddress = () => {
@@ -92,28 +111,21 @@ export function TripFlow({ city: profileCity, addresses, onAddressesChange, onSa
       description: `Desde ${addressLabel(origin)} (${origin.address}) hasta ${addressLabel(destination)} (${destination.address}) · ${ride.label} · ${ride.price} estimado`,
       createdAt: new Date().toISOString(), mode: 'demo'
     });
+    removeFlowDraft('trip');
     setStep('done');
   };
 
   const stepLabel = editor ? (editor.id ? 'Editar dirección' : 'Nueva dirección') : managing ? 'Mis direcciones' : step === 'review' ? 'Revisar' : step === 'done' ? 'Listo' : `Paso ${stepIndex + 1} de 3`;
 
-  const goHome = () => {
-  const hasUnsavedChanges = step !== 'done' && (
-    step !== 'to' ||
-    Boolean(toId || fromId || rideId || editor?.name.trim() || editor?.address.trim())
-  );
-  if (
-    hasUnsavedChanges &&
-    !window.confirm('Tenés datos sin guardar. Si volvés al inicio, podrías perderlos. ¿Querés continuar?')
-  ) return;
-  onHome();
-  };
-  
   return <main id="main" className="page flow-page cinema-flow">
-    <div className="flow-top"><button className="back-button" onClick={back}><ArrowLeft size={20}/> {step === 'done' && !editor ? 'Inicio' : 'Volver'}</button>{step !== 'done' && <button className="home-link" onClick={goHome}>Ir al inicio</button>}</div>
+    <div className="flow-top"><button className="back-button" onClick={back}><ArrowLeft size={20}/> {step === 'done' && !editor ? 'Ir al inicio' : stepIndex === 0 && !editor && !managing ? 'Volver a las opciones' : 'Volver al paso anterior'}</button>{step !== 'done' && <button className="home-link" onClick={onHome}>Ir al inicio</button>}</div>
+    {resumePrompt && <section className="draft-resume" aria-label="Retomar un viaje">
+      <h2>Tenías un viaje sin terminar</h2><p>Podés retomarlo o empezar de nuevo. Todavía no se solicitó ningún vehículo.</p>
+      <div className="draft-resume-actions"><button className="primary-button" onClick={() => setResumePrompt(false)}>Retomar mi recorrido</button><button className="secondary-button" onClick={discardDraft}>Empezar de nuevo</button></div>
+    </section>}
     <div className="flow-progress"><span className="flow-mark"><Car size={20}/></span><span>Pedir un viaje</span><span className="step-label">{stepLabel}</span></div>
 
-    {editor && <>
+    {!resumePrompt && <>{editor && <>
       <div className="flow-heading"><h1>{editor.id ? 'Editar dirección' : 'Nueva dirección'}</h1><p>Escribí la dirección y, si querés, un nombre para reconocerla fácil.</p></div>
       <form className="form-card" onSubmit={e => { e.preventDefault(); saveAddress(); }}>
         <label className="field-label" htmlFor="address-street">Dirección</label>
@@ -134,7 +146,7 @@ export function TripFlow({ city: profileCity, addresses, onAddressesChange, onSa
           {visibleAddresses.map(item => <button key={item.id} type="button" aria-pressed={currentId === item.id} className={`cinema-pick${currentId === item.id ? ' selected' : ''}`} onClick={() => choose(item.id)}>
             <span className="cinema-pick-icon"><MapPin size={21}/></span>
             <span className="cinema-pick-copy"><strong>{addressLabel(item)}</strong>{item.name.trim() && <small>{item.address}</small>}</span>
-            {currentId === item.id ? <Check className="cinema-pick-check" size={21}/> : <ArrowRight className="cinema-pick-check" size={21}/>}
+            {currentId === item.id ? <span className="selected-indicator" aria-hidden="true">Elegido</span> : <ArrowRight className="cinema-pick-check" size={21}/>}
           </button>)}
         </div>
         <button type="button" className={`${visibleAddresses.length ? 'secondary-button' : 'primary-button'} full-button`} style={{ marginTop: 22 }} onClick={() => setEditor({ id: null, name: '', address: '', returnTo: 'choose' })}><Plus size={19}/> Agregar una dirección nueva</button>
@@ -175,7 +187,7 @@ export function TripFlow({ city: profileCity, addresses, onAddressesChange, onSa
         <div className="cinema-choices">{rideOptions.map(option => <button key={option.id} type="button" aria-pressed={rideId === option.id} className={`cinema-pick${rideId === option.id ? ' selected' : ''}`} onClick={() => setRideId(option.id)}>
           <span className="cinema-pick-icon"><Car size={21}/></span>
           <span className="cinema-pick-copy"><strong>{option.label} · {option.price}</strong><small>{option.eta}. {option.detail}.</small></span>
-          {rideId === option.id && <Check className="cinema-pick-check" size={21}/>}
+          {rideId === option.id && <span className="selected-indicator" aria-hidden="true">Elegido</span>}
         </button>)}</div>
         <button className="primary-button full-button" disabled={!rideId} onClick={next}><span>Continuar</span><ArrowRight size={19}/></button>
       </section>
@@ -206,8 +218,9 @@ export function TripFlow({ city: profileCity, addresses, onAddressesChange, onSa
         <ReviewRow label="Patente" value="AB 123 CD"/>
       </div>
       <button className="primary-button full-button" onClick={onSaved}>Ir a Mis gestiones <ArrowRight size={18}/></button>
-      <button className="text-button" onClick={goHome}>Volver al inicio</button>
+      <button className="text-button" onClick={onHome}>Volver al inicio</button>
     </section>}
+    </>}
   </main>;
 }
 

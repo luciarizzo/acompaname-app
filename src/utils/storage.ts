@@ -1,6 +1,6 @@
 import type { SavedTask } from '../types';
 import { storageKey } from './storageMode';
-import { pushTask, TASKS_KEY } from '../services/accountData';
+import { deleteTaskOnAccount, pushTask, updateTaskOnAccount, TASKS_KEY } from '../services/accountData';
 // Invitado: guarda en localStorage como siempre. Con cuenta: guarda en la copia local y además envía la gestión a la base.
 const key = () => storageKey(TASKS_KEY);
 export function getSavedTasks(): SavedTask[] {
@@ -13,3 +13,23 @@ export function saveTask(task: SavedTask) {
   return tasks;
 }
 export function clearSavedTasks() { localStorage.removeItem(key()); }
+
+// Para una cuenta, primero se confirma el cambio remoto. Si falla, el usuario puede
+// reintentar sin perder el texto que estaba editando ni alterar la copia local.
+export async function updateSavedTask(task: SavedTask): Promise<SavedTask[]> {
+  const tasks = getSavedTasks();
+  if (!tasks.some(item => item.id === task.id)) throw new Error('No encontramos esa gestión guardada.');
+  const updated = tasks.map(item => item.id === task.id ? task : item);
+  await updateTaskOnAccount(task);
+  localStorage.setItem(key(), JSON.stringify(updated));
+  return updated;
+}
+
+export async function deleteSavedTask(id: string): Promise<SavedTask[]> {
+  const tasks = getSavedTasks();
+  if (!tasks.some(item => item.id === id)) throw new Error('No encontramos esa gestión guardada.');
+  await deleteTaskOnAccount(id);
+  const updated = tasks.filter(item => item.id !== id);
+  localStorage.setItem(key(), JSON.stringify(updated));
+  return updated;
+}

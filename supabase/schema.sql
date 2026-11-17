@@ -39,6 +39,7 @@ create table public.gestiones (
   titulo       text not null,
   descripcion  text not null default '',
   modo         text not null default 'demo' check (modo in ('demo', 'real')),
+  opciones_edicion jsonb, -- alternativas que se mostraron al guardar un turno
   creado_en    timestamptz not null default now()
 );
 
@@ -56,3 +57,15 @@ alter table public.gestiones           enable row level security;
 -- Solo el back (service_role) puede acceder a las tablas. Ver también supabase/permisos.sql.
 grant usage on schema public to service_role;
 grant select, insert, update, delete on public.perfiles, public.contactos_confianza, public.gestiones to service_role;
+
+-- 6. SUGERENCIAS VOLUNTARIAS DE FUNCIONALIDADES
+-- La función del servidor verifica la sesión, limita envíos y rechaza correos y teléfonos.
+create table public.sugerencias_funcionalidades (
+  id uuid primary key default gen_random_uuid(),
+  usuario_id uuid not null references auth.users(id) on delete cascade,
+  texto text not null check (char_length(trim(texto)) between 10 and 280),
+  creado_en timestamptz not null default now()
+);
+create index sugerencias_usuario_fecha_idx on public.sugerencias_funcionalidades (usuario_id, creado_en desc);
+alter table public.sugerencias_funcionalidades enable row level security;
+grant select, insert on public.sugerencias_funcionalidades to service_role;

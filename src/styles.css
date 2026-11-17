@@ -41,7 +41,7 @@
 .onboarding-page{max-width:720px;padding-top:clamp(24px,5vh,56px);padding-bottom:44px}.onboarding-progress{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px;color:#60766f;font-size:calc(14px * var(--text-scale, 1));font-weight:800}.onboarding-progress .back-button{font-size:calc(15px * var(--text-scale, 1))}.onboarding-progress-track{height:7px;background:#e2ebe6;border-radius:99px;overflow:hidden;margin-bottom:29px}.onboarding-progress-track span{display:block;height:100%;border-radius:inherit;background:#4e8c79;transition:width .2s ease}.onboarding-step{min-height:330px}.onboarding-step .eyebrow{margin-bottom:9px}.onboarding-step h1{margin:0;color:#173b37;font-size:calc(clamp(30px,4.5vw,42px) * var(--text-scale, 1));line-height:1.14;letter-spacing:-.03em;font-weight:900}.onboarding-lead{margin:12px 0 21px;color:#566e67;font-size:calc(18px * var(--text-scale, 1));line-height:1.5}.onboarding-choices{display:grid;gap:12px;margin-top:22px}.onboarding-choice{min-height:82px;display:grid;grid-template-columns:46px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:13px;padding:14px 16px;text-align:left;border:1px solid #d4e0dc;border-radius:17px;background:#fff;color:#193a37;box-shadow:0 3px 13px rgba(20,67,60,.035)}.onboarding-choice>span{grid-row:1/3;display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#eef5f1;font-size:calc(23px * var(--text-scale, 1))}.onboarding-choice strong{align-self:end;font-size:calc(17px * var(--text-scale, 1))}.onboarding-choice small{align-self:start;margin-top:3px;color:#61756f;font-size:calc(14px * var(--text-scale, 1))}.onboarding-choice:hover{border-color:#8eb9a9}.onboarding-choice.selected{border:2px solid #3e806d;background:#f0f7f3}.onboarding-fieldset{border:0;padding:0;margin:22px 0 0}.onboarding-fieldset legend{margin-bottom:10px;padding:0;font-weight:800;font-size:calc(16px * var(--text-scale, 1))}.optional-label{color:#627770;font-weight:500;font-size:calc(.9em * var(--text-scale, 1))}.onboarding-choices.compact{grid-template-columns:1fr 1fr;margin-top:0;gap:9px}.onboarding-choice.small{min-height:58px;display:flex;justify-content:flex-start;padding:10px 13px;font-size:calc(15px * var(--text-scale, 1));font-weight:700}.onboarding-privacy{margin:17px 0 0;padding:12px 13px;background:#f1f6f3;border-radius:12px;color:#526a62;font-size:calc(14px * var(--text-scale, 1));line-height:1.5}.preference-list{display:grid;gap:10px;margin-top:22px}.preference-row{min-height:80px;padding:12px 15px;display:flex;align-items:center;gap:13px;text-align:left;border:1px solid #d6e2dc;border-radius:16px;background:#fff;color:#193a37}.preference-icon{display:grid;place-items:center;flex:0 0 auto;width:43px;height:43px;border-radius:14px;background:#edf5f1;color:#286c59}.preference-icon svg{width:22px;height:22px}.contrast-icon{font-size:calc(25px * var(--text-scale, 1));font-weight:800}.preference-row>span:nth-child(2){display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}.preference-row strong{font-size:calc(16px * var(--text-scale, 1))}.preference-row small{color:#61756f;font-size:calc(14px * var(--text-scale, 1));line-height:1.35}.switch-track{width:49px;height:28px;flex:0 0 auto;display:flex;align-items:center;padding:3px;border-radius:99px;background:#aab8b2;transition:background .18s}.switch-track i{height:22px;width:22px;border-radius:50%;background:white;transition:transform .18s}.switch-track.on{background:#2e7662}.switch-track.on i{transform:translateX(21px)}.preference-row[aria-checked=true]{border-color:#70a892;background:#f7fbf8}.onboarding-hint{display:flex;align-items:flex-start;gap:10px;margin-top:15px;color:#526b63;font-size:calc(14px * var(--text-scale, 1));line-height:1.45}.onboarding-hint svg{flex:0 0 auto;color:#286c59}.onboarding-summary{margin:21px 0 0;padding:0;background:#fff;border:1px solid #dce6e0;border-radius:17px;overflow:hidden}.onboarding-summary>div{display:grid;grid-template-columns:minmax(165px,.8fr) 1.2fr;gap:12px;padding:13px 16px;border-bottom:1px solid #e8eeea}.onboarding-summary>div:last-child{border-bottom:0}.onboarding-summary dt{color:#5e746c;font-size:calc(14px * var(--text-scale, 1))}.onboarding-summary dd{margin:0;text-align:right;font-size:calc(15px * var(--text-scale, 1));font-weight:800}.onboarding-actions{display:flex;justify-content:space-between;gap:13px;margin-top:24px}.onboarding-actions .primary-button,.onboarding-actions .secondary-button{min-width:160px}.onboarding-skip{display:block;min-height:44px;margin:12px auto 0;padding:8px 13px;border:0;border-radius:10px;background:transparent;color:#315e52;font-weight:800;text-decoration:underline;text-underline-offset:3px}.onboarding-skip:hover{background:#edf5f0}.high-contrast .onboarding-choice,.high-contrast .preference-row,.high-contrast .onboarding-summary{border-color:#65776f}.high-contrast .onboarding-lead,.high-contrast .onboarding-privacy,.high-contrast .preference-row small{color:#263d35}
 @media(max-width:650px){.onboarding-page{padding-top:17px;padding-bottom:35px}.onboarding-progress{font-size:calc(13px * var(--text-scale, 1))}.onboarding-progress .back-button{font-size:calc(14px * var(--text-scale, 1))}.onboarding-progress-track{margin-bottom:23px}.onboarding-step{min-height:0}.onboarding-step h1{font-size:calc(31px * var(--text-scale, 1))}.onboarding-lead{font-size:calc(16px * var(--text-scale, 1))}.onboarding-choices{margin-top:18px;gap:10px}.onboarding-choice{min-height:76px;padding:12px}.onboarding-choice strong{font-size:calc(16px * var(--text-scale, 1))}.onboarding-choice small{font-size:calc(13px * var(--text-scale, 1))}.onboarding-choices.compact{gap:8px}.onboarding-choice.small{min-height:55px;padding:9px;font-size:calc(14px * var(--text-scale, 1))}.preference-list{margin-top:18px;gap:9px}.preference-row{min-height:74px;padding:10px;gap:9px}.preference-icon{height:38px;width:38px;border-radius:12px}.preference-row strong{font-size:calc(14px * var(--text-scale, 1))}.preference-row small{font-size:calc(12px * var(--text-scale, 1))}.switch-track{height:26px;width:45px}.switch-track i{width:20px;height:20px}.switch-track.on i{transform:translateX(19px)}.onboarding-summary>div{grid-template-columns:1fr;gap:4px;padding:11px 13px}.onboarding-summary dd{text-align:left}.onboarding-actions{margin-top:19px}.onboarding-actions .primary-button,.onboarding-actions .secondary-button{min-width:0;flex:1;padding:0 11px;font-size:calc(14px * var(--text-scale, 1))}}
 
-html.large-text{--text-scale:1.2}
+html.large-text{--text-scale:1.32}
 
 /* High contrast: a distinct, persistent theme with strong text, surface and focus contrast. */
 html.high-contrast {
@@ -235,3 +235,256 @@ html.high-contrast .brand-version{background:#000;color:#ffeb3b;border:1px solid
 /* Pedir un viaje */
 .sand{background:#f6efd9;color:#7a5c17}
 .saved-icon.trip{background:#f6efd9;color:#7a5c17}
+
+/* HU13: acceso visible, alineado con el contenido principal del inicio. */
+.home-saved-entry{display:flex;align-items:center;gap:15px;margin:17px 0 25px;padding:16px 19px;background:#eaf4ef;border:1px solid #c8dfd4;border-radius:19px}
+.home-saved-icon{width:49px;height:49px;display:grid;place-items:center;flex:0 0 auto;border-radius:15px;background:#fff;color:var(--green)}
+.home-saved-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+.home-saved-copy strong{font-size:calc(18px * var(--text-scale,1))}
+.home-saved-copy span{font-size:calc(15px * var(--text-scale,1));color:var(--muted);line-height:1.4}
+.home-saved-action{white-space:nowrap;min-height:49px}
+@media(max-width:650px){.home-saved-entry{flex-wrap:wrap;padding:15px;gap:11px}.home-saved-icon{width:44px;height:44px}.home-saved-copy{flex:1 1 calc(100% - 60px)}.home-saved-action{width:100%;justify-content:center}}
+html.high-contrast .home-saved-entry{background:#000;color:#fff;border:2px solid #fff}
+html.high-contrast .home-saved-icon{background:#000;color:#ffeb3b;border:2px solid #ffeb3b}
+html.high-contrast .home-saved-copy span{color:#fff}
+
+/* HU14–HU16: gestionar contactos desde el mismo diálogo de ayuda. */
+.trusted-return{margin:0 0 15px;padding:7px 0}
+.trusted-dialog h3{font-size:calc(20px * var(--text-scale,1));margin:0 0 9px}
+.trusted-dialog form .field-label{display:block;margin:14px 0 7px}
+.trusted-dialog form .form-control{width:100%;min-height:52px}
+.trusted-form-actions{display:flex;gap:11px;margin-top:22px;justify-content:flex-end}
+.trusted-form-actions button{min-height:50px}
+.trusted-notice{padding:10px 13px;border-radius:11px;background:#e5f4eb;color:#174f43;font-weight:700}
+.trusted-add{width:100%;justify-content:center;margin-top:15px;min-height:51px}
+.trusted-limit,.trusted-privacy{margin:14px 0 0;color:var(--muted);line-height:1.5;font-size:calc(14px * var(--text-scale,1))}
+html.high-contrast .trusted-notice{background:#111;color:#fff;border:2px solid #fff}
+html.high-contrast .trusted-privacy,html.high-contrast .trusted-limit{color:#fff}
+@media(max-width:650px){.trusted-form-actions{flex-wrap:wrap}.trusted-form-actions button{flex:1;min-width:120px}}
+
+/* HU15: acción de edición reconocible sin depender del ícono. */
+.trusted-manage{min-height:46px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 11px;border:1px solid #bdd2ca;border-radius:12px;background:#fff;color:var(--green);font-weight:800}
+.trusted-manage:hover{background:#edf5f1}
+@media(max-width:650px){.trusted-manage{margin-left:50px;flex:1}.trusted-contact .trusted-call{margin-left:0;flex:1;justify-content:center}}
+html.high-contrast .trusted-manage{background:#000;color:#fff;border:2px solid #fff}
+
+/* HU16: confirmación explícita antes de quitar un contacto. */
+.trusted-contact{flex-wrap:wrap}
+.trusted-delete-confirm{padding:18px;border:1px solid #eed6d0;border-radius:15px;background:#fff8f5}
+.trusted-delete-confirm p{line-height:1.55;margin:0 0 8px}
+.trusted-danger{color:#8b3e31;border-color:#e8c7be}
+.trusted-danger:hover{background:#fff0eb}
+.trusted-delete-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 15px;background:#8b3e31;color:#fff;border:0;border-radius:13px;font-weight:800}
+.trusted-delete-button:hover{background:#743026}
+html.high-contrast .trusted-delete-confirm{background:#000;color:#fff;border:2px solid #fff}
+html.high-contrast .trusted-danger{background:#000;color:#fff;border:2px solid #fff}
+html.high-contrast .trusted-delete-button{background:#ffeb3b;color:#000;border:2px solid #fff}
+@media(max-width:650px){.trusted-contact-info{flex:1 1 calc(100% - 72px)}.trusted-contact .trusted-manage{margin-left:0;flex:1 1 28%;min-width:0}.trusted-contact .trusted-call{flex:1 1 27%;min-width:0}}
+
+/* HU17–HU19: gestiones legibles, detalle explícito y acciones accesibles. */
+.saved-card-detailed .saved-copy>span{margin-top:7px}
+.saved-state{display:inline-block!important;margin:11px 0 0!important;padding:6px 10px;border-radius:10px;background:#e5f4eb;color:#195244!important;font-size:calc(14px * var(--text-scale,1))!important;font-weight:800}
+.saved-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.saved-action{min-height:46px;padding:0 13px;font-size:calc(15px * var(--text-scale,1));gap:7px}
+.saved-detail{margin-top:17px;padding:17px;background:#f5f9f6;border:1px solid #d5e3db;border-radius:15px}
+.saved-detail h3{margin:0 0 10px;font-size:calc(18px * var(--text-scale,1))}
+.saved-detail dl{margin:0}
+.saved-detail dl>div{display:grid;grid-template-columns:minmax(115px,40%) 1fr;gap:12px;padding:9px 0;border-bottom:1px solid #e1e9e5}
+.saved-detail dt{color:#526a63}
+.saved-detail dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+.saved-honesty{margin:14px 0 0!important;color:#355c4e!important;font-weight:700;line-height:1.5!important}
+html.high-contrast .saved-state,html.high-contrast .saved-detail{background:#000;color:#fff!important;border:2px solid #fff}
+html.high-contrast .saved-honesty,html.high-contrast .saved-detail dt{color:#fff!important}
+@media(max-width:650px){.saved-card-detailed{gap:10px;padding:13px}.saved-card-detailed .saved-icon{width:39px;height:39px}.saved-detail{padding:13px}.saved-detail dl>div{grid-template-columns:1fr;gap:3px}.saved-action{flex:1;justify-content:center}}
+
+/* HU18: edición contextual, con controles reconocibles y validación. */
+.saved-more-actions{margin-top:8px}
+.saved-edit{margin-top:15px;padding:18px;border:1px solid #c6d9cf;border-radius:16px;background:#fafdfb}
+.saved-edit h3{display:flex;align-items:center;gap:9px;margin:0 0 9px;font-size:calc(19px * var(--text-scale,1))}
+.saved-edit>p{margin:0 0 12px;line-height:1.5}
+.saved-edit .field-label{display:block;margin:13px 0 6px}
+.saved-edit .form-control{width:100%;min-height:50px}
+.saved-form-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-top:20px}
+.saved-form-actions button{min-height:50px}
+.saved-notice{padding:12px 15px;border-radius:13px;background:#e4f2e9;color:#174d3c;font-weight:800}
+html.high-contrast .saved-edit,html.high-contrast .saved-notice{background:#000;color:#fff;border:2px solid #fff}
+@media(max-width:650px){.saved-edit{padding:13px}.saved-form-actions button{flex:1;min-width:120px}}
+
+/* HU19: eliminar planes exige confirmación y no implica cancelar operaciones externas. */
+.saved-danger{color:#8b3e31;border-color:#e2c6bb}
+.saved-danger:hover{background:#fff0eb}
+.saved-delete{margin-top:15px;padding:17px;border:1px solid #eccdc4;background:#fff8f5;border-radius:15px}
+.saved-delete h3{margin:0 0 8px;font-size:calc(18px * var(--text-scale,1))}
+.saved-delete p{margin:0;line-height:1.55}
+.saved-delete-button{min-height:50px;display:flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;background:#8b3e31;color:#fff;font-weight:800;padding:0 16px}
+.saved-delete-button:hover{background:#753025}
+html.high-contrast .saved-delete,html.high-contrast .saved-danger{background:#000;color:#fff;border:2px solid #fff}
+html.high-contrast .saved-delete-button{background:#ffeb3b;color:#000;border:2px solid #fff}
+
+/* HU20: recorridos disponibles y sugerencias, sin resultados web externos. */
+.other-request-page{max-width:1040px;margin-inline:auto}
+.other-request-page .flow-heading{margin-bottom:23px}
+.other-section-title{font-size:calc(21px * var(--text-scale,1));margin:0 0 13px}
+.other-features-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.other-feature-card{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:99px;padding:17px 20px;border:1px solid var(--line);border-radius:19px;background:var(--paper);color:var(--ink);box-shadow:var(--shadow);cursor:pointer;text-align:left}
+.other-feature-card>span{display:grid;gap:7px;min-width:0}
+.other-feature-card strong{font-size:calc(19px * var(--text-scale,1))}
+.other-feature-card small{font-size:calc(15px * var(--text-scale,1));line-height:1.45;color:var(--muted)}
+.other-feature-card:hover{border-color:var(--green);background:#f2f8f4}
+.other-feature-card svg{flex:0 0 auto;color:var(--green)}
+.suggestion-privacy{line-height:1.5;color:var(--muted);font-size:calc(14px * var(--text-scale,1));margin:12px 0 0}
+.other-suggestion-card{margin:26px 0 8px;padding:24px;border:1px solid #cadfd3;border-radius:20px;background:#edf6f0}
+.other-suggestion-heading{display:flex;align-items:flex-start;gap:14px;margin-bottom:17px}
+.other-suggestion-heading>svg{flex:0 0 auto;color:var(--green)}
+.other-suggestion-heading h2{margin:0 0 7px;font-size:calc(22px * var(--text-scale,1))}
+.other-suggestion-heading p{margin:0;line-height:1.5;color:var(--muted)}
+.other-suggestion-card .field-label{display:block;margin:0 0 8px}
+.other-suggestion-card .form-control{width:100%;min-height:104px;resize:vertical}
+.other-suggestion-info{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 14px;margin-top:8px;font-size:calc(13px * var(--text-scale,1));color:var(--muted)}
+.other-suggestion-card .primary-button{margin-top:18px}
+.other-suggestion-success{display:flex;gap:13px;padding:17px;background:#fff;border:1px solid #c5ded2;border-radius:15px}
+.other-suggestion-success svg{flex-shrink:0;color:var(--green)}
+.other-suggestion-success p{margin:5px 0 0;line-height:1.5}
+.other-home-link{margin-top:19px}
+html.high-contrast :is(.other-feature-card,.other-suggestion-card,.other-suggestion-success){background:#000;color:#fff;border:2px solid #fff}
+html.high-contrast .other-feature-card small,html.high-contrast .other-suggestion-heading p,html.high-contrast .other-suggestion-info,html.high-contrast .suggestion-privacy{color:#fff}
+@media(max-width:650px){.other-features-grid{grid-template-columns:1fr}.other-suggestion-card{padding:17px}.other-feature-card{min-height:84px}}
+
+/* HU13: en escritorio Mis gestiones es otra opción principal; en móvil sigue el acceso destacado. */
+@media(min-width:651px){.home-saved-entry{display:none}}
+@media(max-width:650px){.quick-saved-card{display:none}}
+
+/* HU14–16: el botón cerrar y las acciones nunca salen del cuadro. */
+.trusted-dialog{min-width:0;overflow-x:hidden}
+.trusted-dialog-header{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:12px;padding-right:0;align-items:center}
+.trusted-dialog-header>div:nth-child(2){min-width:0}
+.trusted-dialog-header h2{overflow-wrap:anywhere}
+.trusted-close{position:static;margin:0;width:44px;height:44px;justify-self:end}
+.trusted-contact{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px 12px}
+.trusted-contact-info{min-width:0;overflow-wrap:anywhere}
+.trusted-contact-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.trusted-contact-actions>*{margin:0!important;min-width:0;min-height:46px;padding-inline:7px;justify-content:center}
+@media(max-width:440px){.trusted-dialog-header{grid-template-columns:40px minmax(0,1fr) 40px;gap:9px}.trusted-close{width:40px;height:40px}.trusted-contact-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.trusted-contact-actions .trusted-call{grid-column:1/-1}}
+
+/* HU17–19: controles de detalle arriba, edición y eliminación debajo, sin tarjetas enormes. */
+.saved-card-detailed{display:grid;grid-template-columns:45px minmax(0,1fr) minmax(210px,230px);align-items:start;gap:12px 15px;padding:18px}
+.saved-card-detailed .saved-icon{width:45px;height:45px}
+.saved-card-detailed .saved-copy{min-width:0}
+.saved-meta{display:flex;align-items:center;flex-wrap:wrap;gap:7px 12px;margin-top:10px;font-size:calc(13px * var(--text-scale,1));color:var(--muted)}
+.saved-meta .saved-state{margin:0!important}
+.saved-card-controls{display:grid;gap:9px;min-width:0}
+.saved-detail-toggle{width:100%;justify-content:center}
+.saved-secondary-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.saved-secondary-controls .saved-action{min-width:0;padding:0 7px;justify-content:center}
+.saved-card-detailed :is(.saved-detail,.saved-edit,.saved-delete){grid-column:1/-1;margin-top:0}
+@media(max-width:700px){.saved-card-detailed{grid-template-columns:42px minmax(0,1fr);gap:10px 12px;padding:14px}.saved-card-detailed .saved-icon{width:42px;height:42px}.saved-card-controls{grid-column:1/-1}}
+
+/* HU18: opciones acotadas para edición y valores históricos como solo lectura. */
+.saved-locked-value{margin:0;padding:12px 14px;border:1px solid #e0e9e3;border-radius:12px;background:#f0f5f2;color:#465d55;line-height:1.45;overflow-wrap:anywhere}
+.saved-readonly-note{margin:14px 0 0!important;padding:12px 14px;border-radius:12px;background:#f2f6f3;color:#405b52}
+.saved-slot-options{border:0;padding:0;min-width:0;margin:18px 0 0}
+.saved-slot-options legend{padding:0;margin:0 0 9px}
+.saved-slot-option{display:flex;gap:11px;align-items:flex-start;padding:11px 12px;margin:8px 0;border:1px solid #cadbd4;border-radius:13px;cursor:pointer;background:#fff}
+.saved-slot-option input{width:19px;height:19px;margin:4px 0 0;flex:0 0 auto;accent-color:var(--green)}
+.saved-slot-option span{min-width:0;display:grid;gap:5px}
+.saved-slot-option small{color:#536a66;line-height:1.4}
+.saved-slot-option:has(input:checked){border:2px solid var(--green);background:#edf7f2}
+html.high-contrast :is(.saved-locked-value,.saved-readonly-note,.saved-slot-option){background:#000;color:#fff;border:2px solid #fff}
+html.high-contrast .saved-slot-option small{color:#fff}
+
+/* HU13: navegación de escritorio siempre visible, sin depender del pie de página. */
+.header-main-nav{display:flex;align-items:center;justify-content:center;gap:9px;margin-inline:auto;padding-inline:14px}
+.header-nav-item{min-height:50px;padding:9px 16px;display:inline-flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;border:1px solid #c5d7d0;border-radius:14px;background:#eff6f2;color:var(--green);font-size:calc(16px * var(--text-scale,1));font-weight:800}
+.header-nav-item:hover{background:#dcece4;border-color:#8cb9a6}
+.header-nav-item.active{background:var(--green);color:#fff;border-color:var(--green)}
+.header-nav-item.active:hover{background:var(--green-dark)}
+@media(min-width:651px) and (max-width:1250px){
+  .topbar:has(.header-main-nav){height:auto;min-height:78px;flex-wrap:wrap;gap:10px;padding-block:9px}
+  .header-main-nav{order:3;flex-basis:100%;padding-inline:0}
+}
+@media(max-width:650px){.header-main-nav{display:none}}
+html.high-contrast .header-nav-item{border:2px solid #fff;background:#000;color:#fff}
+html.high-contrast .header-nav-item.active{background:#ffeb3b;color:#000;border-color:#ffeb3b}
+
+/* HU25: Mi configuración, accesible sin repetir onboarding. */
+.profile-settings-page{max-width:760px}
+.profile-settings-heading{display:flex;align-items:center;gap:11px;color:var(--green)}
+.profile-settings-heading h2{margin:0;font-size:calc(21px * var(--text-scale,1))}
+.settings-options{border:0;margin:20px 0 4px;padding:0}
+.settings-options legend{font-size:calc(18px * var(--text-scale,1));font-weight:800;margin-bottom:12px}
+.settings-option{display:flex;align-items:center;gap:15px;min-height:55px;padding:12px 14px;margin:8px 0;border:1px solid var(--line);border-radius:13px;background:var(--paper);cursor:pointer;font-weight:700}
+.settings-option input{width:23px;height:23px;flex-shrink:0;accent-color:var(--green)}
+@media(max-width:650px){.bottom-nav{grid-template-columns:repeat(3,minmax(0,1fr))}.nav-item{font-size:calc(11px * var(--text-scale,1));line-height:1.25;text-align:center;padding:7px 3px}.page{padding-bottom:calc(150px + env(safe-area-inset-bottom))}}
+html.high-contrast .settings-option{border:2px solid #000}
+
+/* HU23: el borrador es una ayuda de continuidad, no una reserva. */
+.draft-resume{padding:19px;margin:0 0 18px;border:2px solid #bfd8c9;border-radius:18px;background:#eff7f2}
+.draft-resume h2{font-size:calc(21px * var(--text-scale,1));margin:0 0 9px;color:var(--ink)}
+.draft-resume p{margin:0 0 15px;line-height:1.5}
+.draft-resume-actions{display:flex;flex-wrap:wrap;gap:10px}
+.draft-resume-actions button{flex:1;min-width:160px}
+html.high-contrast .draft-resume{background:#fff;border:2px solid #000}
+
+/* HU08: el modo texto grande también amplía aclaraciones, etiquetas y controles. */
+html.large-text .page{overflow-wrap:anywhere}
+html.large-text :is(.quick-copy small,.privacy-footer,.suggestion-privacy,.saved-copy>span,.step-label,.onboarding-privacy){font-size:max(16px,1em)}
+html.large-text :is(.section-heading,.flow-top,.top-actions){flex-wrap:wrap}
+html.large-text :is(.form-card,.confirm-card,.onboarding-step,.saved-card){min-width:0}
+@media(max-width:650px){html.large-text .nav-item{font-size:clamp(13px,3.2vw,16px)}html.large-text .bottom-nav{gap:2px;padding-inline:4px}html.large-text .nav-item span{overflow-wrap:anywhere}}
+
+/* HU26: un estado informativo no parece un botón ni tiene superficie pulsable. */
+.trust-note-label{flex:none;font-size:calc(14px * var(--text-scale,1));font-weight:800;color:var(--green);line-height:1.7}
+.selected-indicator{margin-left:auto;display:inline-block;color:var(--green-dark);font-size:calc(13px * var(--text-scale,1));font-weight:800;line-height:1.35;white-space:normal;pointer-events:none}
+.done-check{background:transparent;border:0;border-radius:0;box-shadow:none;pointer-events:none}
+.cinema-pick:has(.selected-indicator),.choice-button:has(.selected-indicator){border:2px solid var(--green)}
+html.high-contrast .selected-indicator,html.high-contrast .trust-note-label{color:#000}
+@media(max-width:650px){.trust-note{flex-wrap:wrap;gap:4px 9px}.selected-indicator{font-size:calc(12px * var(--text-scale,1))}}
+
+/* HU13 · Cabecera más liviana: destinos visibles, ajustes agrupados sin hover obligatorio. */
+@media (min-width:651px) {
+  .topbar:has(.header-main-nav){gap:clamp(12px,2vw,28px)}
+  .header-main-nav{gap:4px;margin-inline:auto;padding:0;flex:0 1 auto;min-width:0}
+  .header-nav-item{min-height:46px;padding:8px 12px;gap:7px;border:0;border-bottom:3px solid transparent;border-radius:9px;background:transparent;color:var(--green);font-size:calc(15px * var(--text-scale,1));font-weight:750}
+  .header-nav-item:hover{background:#f1f7f3;border-color:#c1d8cc}
+  .header-nav-item.active,.header-nav-item.active:hover{background:#eaf4ee;color:var(--green-dark);border-color:var(--green)}
+  .desktop-access-menu{position:relative}
+  .accessibility-trigger{min-height:46px;padding:0 13px;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid #ccdcd4;border-radius:13px;background:#fff;color:var(--green);font-size:calc(15px * var(--text-scale,1));font-weight:800;list-style:none;cursor:pointer;white-space:nowrap}
+  .accessibility-trigger::-webkit-details-marker{display:none}
+  .accessibility-trigger:hover,.desktop-access-menu[open] .accessibility-trigger{background:#f0f7f3}
+  .accessibility-trigger:focus-visible{outline:3px solid #e7a13a;outline-offset:3px}
+  .accessibility-chevron{transition:transform .18s ease}
+  .desktop-access-menu[open] .accessibility-chevron{transform:rotate(180deg)}
+  .accessibility-panel{position:absolute;top:calc(100% + 10px);right:0;width:max-content;min-width:260px;max-width:min(92vw,360px);padding:10px;background:#fff;border:1px solid #d1e0d9;border-radius:16px;box-shadow:0 12px 38px rgba(24,67,59,.15);z-index:45;display:grid;gap:3px}
+  .accessibility-option{min-height:48px;padding:9px 12px;display:flex;align-items:center;gap:11px;border:0;border-radius:10px;text-align:left;background:transparent;color:var(--ink);font-weight:750;white-space:nowrap}
+  .accessibility-option:hover,.accessibility-option:focus-visible{background:#eaf4ef}
+  .mobile-top-actions{display:none}
+  /* En escritorio el acceso principal no se duplica encima del contenido. */
+  .home-saved-entry{display:none}
+  /* Acción de emergencia compacta, sin ocultar todo el texto detrás de un hover. */
+  .trusted-launcher{right:18px;bottom:20px;min-height:52px;padding:0 15px;gap:8px;font-size:calc(15px * var(--text-scale,1));border-radius:15px}
+  .trusted-label-full{display:none}
+  .trusted-label-short{display:inline}
+}
+@media (min-width:651px) and (max-width:1060px){
+  .topbar:has(.header-main-nav){height:auto;min-height:78px;flex-wrap:wrap;gap:6px 12px;padding-block:9px}
+  .header-main-nav{order:3;flex:1 0 100%;justify-content:center;padding:0}
+}
+@media (max-width:650px){
+  .desktop-access-menu{display:none}
+  .mobile-top-actions{display:flex;align-items:center;gap:4px}
+  .trusted-label-short{display:none}
+  .trusted-label-full{display:inline}
+}
+html.high-contrast .header-nav-item{background:transparent;border:2px solid transparent;color:#000}
+html.high-contrast .header-nav-item.active{background:#000;color:#fff;border:2px solid #000}
+html.high-contrast .accessibility-trigger{background:#fff;color:#000;border:2px solid #000}
+html.high-contrast .accessibility-panel{background:#fff;border:2px solid #000}
+html.high-contrast .accessibility-option{color:#000}
+html.high-contrast .accessibility-option:hover{background:#ddd}
+
+/* Con texto grande, reacomodar la cabecera en dos filas antes de que se superponga. */
+@media (min-width:651px){
+  html.large-text .topbar:has(.header-main-nav){height:auto;min-height:78px;flex-wrap:wrap;gap:8px 15px;padding-block:9px}
+  html.large-text .header-main-nav{order:3;flex:1 0 100%;justify-content:center;flex-wrap:wrap}
+}
+@media (min-width:651px) and (max-width:780px){.header-main-nav{flex-wrap:wrap}}

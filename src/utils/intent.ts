@@ -16,7 +16,8 @@ export function extractRequestedDate(text: string, from = new Date()): string | 
 
 export function classifyNeed(text: string): ClassifiedNeed {
   const normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  if (/\b(turno|turnos|medico|medica|consulta|especialista|cardiologo|odontologo|oftalmologo)\b/.test(normalized)) return { kind: 'appointment' };
+  if (/\b(turno|turnos|medico|medica|especialista|cardiologo|odontologo|oftalmologo)\b/.test(normalized) || /\bconsulta (?:medica|con (?:un|una) (?:medico|medica))\b/.test(normalized)) return { kind: 'appointment' };
+  if (/\b(viaje|viajar|viajes|taxi|uber|remis|traslado|transporte|llevarme)\b/.test(normalized)) return { kind: 'trip' };
   if (/\b(cine|pelicula|peliculas|butaca|butacas|entrada\s+(?:de\s+)?cine)\b/.test(normalized)) return { kind: 'cinema' };
   if (/\b(salida|evento|recital|concierto|hacer algo|musica|teatro|cine|pelicula|peliculas|deporte|deportes)\b/.test(normalized)) {
     const eventCategory = /\b(teatro|cine|pelicula|peliculas)\b/.test(normalized) ? 'theater' : /\b(deporte|deportes|partido)\b/.test(normalized) ? 'sports' : /\b(musica|recital|concierto)\b/.test(normalized) ? 'music' : '';
