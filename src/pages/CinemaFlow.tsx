@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Clapperboard, ExternalLink, MapPin } from 'lucide-react';
 import { officialCinemas } from '../data/officialCinemas';
+import { CinemarkLiveFlow } from './CinemarkLiveFlow';
+import { ShowcaseLiveFlow } from './ShowcaseLiveFlow';
 import { ticketAmounts } from '../data/cinemaOptions';
 import type { SavedTask } from '../types';
 import type { PaymentMethod } from '../utils/profile';
@@ -21,6 +23,8 @@ export function CinemaFlow({ city: profileCity, onBack, onHome, onSaved, onStepC
   const [theater, setTheater] = useState(previous?.theater || '');
   const [ticketCount, setTicketCount] = useState(previous?.ticketCount || '1');
   const [saved, setSaved] = useState(false);
+  const [cinemarkLive, setCinemarkLive] = useState(false);
+  const [showcaseLive, setShowcaseLive] = useState(false);
   const city = profileCity.trim();
   const cinema = officialCinemas.find(option => option.id === theater);
   const index = steps.indexOf(step);
@@ -42,6 +46,9 @@ export function CinemaFlow({ city: profileCity, onBack, onHome, onSaved, onStepC
     saveTask(task); removeFlowDraft('cinema'); setSaved(true); setStep('done');
   };
 
+  if (cinemarkLive) return <CinemarkLiveFlow city={profileCity} onBack={() => setCinemarkLive(false)} onHome={onHome} onSaved={onSaved} onStepChange={onStepChange}/>;
+  if (showcaseLive) return <ShowcaseLiveFlow city={profileCity} onBack={() => setShowcaseLive(false)} onHome={onHome} onSaved={onSaved} onStepChange={onStepChange}/>;
+
   return <main id="main" className="page flow-page cinema-flow">
     <div className="flow-top"><button className="back-button" onClick={back}><ArrowLeft size={20}/> Volver</button>{step !== 'done' && <button className="home-link" onClick={onHome}>Ir al inicio</button>}</div>
     {resume && <section className="draft-resume"><h2>Tenías un plan de cine sin terminar</h2><p>Podés seguir o empezar de nuevo. Todavía no compraste entradas desde Acompáñame.</p><div className="draft-resume-actions"><button className="primary-button" onClick={() => setResume(false)}>Retomar</button><button className="secondary-button" onClick={reset}>Empezar de nuevo</button></div></section>}
@@ -53,7 +60,7 @@ export function CinemaFlow({ city: profileCity, onBack, onHome, onSaved, onStepC
           <span className="cinema-pick-copy"><strong>{option.name}</strong><small>{option.detail}</small></span>{theater === option.id && <span className="selected-indicator" aria-hidden="true">Elegido</span>}
         </button>)}</div>
         <p className="privacy-note"><MapPin size={18}/> Las cadenas no están disponibles en todas las localidades. La cartelera oficial te permitirá comprobar qué complejos tienen funciones.</p>
-        <button className="primary-button full-button" disabled={!cinema} onClick={() => setStep('tickets')}>Continuar <ArrowRight size={19}/></button>
+        <button className="primary-button full-button" disabled={!cinema} onClick={() => cinema?.id === 'cinemark' ? setCinemarkLive(true) : cinema?.id === 'showcase' ? setShowcaseLive(true) : setStep('tickets')}>Continuar <ArrowRight size={19}/></button>
       </section>
     </>}
     {!resume && step === 'tickets' && <>

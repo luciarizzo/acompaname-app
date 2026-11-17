@@ -1,6 +1,6 @@
 import { currentAccountId } from './storageMode';
 
-type DraftKind = 'cinema' | 'appointment' | 'event' | 'trip';
+type DraftKind = 'cinema' | 'cinemark-live' | 'showcase-live' | 'appointment' | 'event' | 'trip';
 interface SavedDraft<T> { version: 1; savedAt: number; payload: T }
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const draftKey = (kind: DraftKind) => {
