@@ -530,3 +530,18 @@ html.high-contrast .first-use-guide-card .first-use-guide-next :is(span,svg){col
 @media(prefers-reduced-motion:reduce){.first-use-guide *{transition:none!important;animation:none!important}}
 
 html.high-contrast .desktop-access-menu[open] .accessibility-trigger,html.high-contrast .accessibility-trigger:hover{background:#000;color:#fff;border-color:#ffeb3b}
+
+/* Guía contextual: movimiento suave entre las zonas sin depender de animaciones para entender el contenido. */
+.first-use-guide-spotlight{transition:top .3s ease-in-out,left .3s ease-in-out,width .3s ease-in-out,height .3s ease-in-out}
+.first-use-guide-card{transition:top .28s ease-in-out,left .28s ease-in-out}
+.first-use-guide-step{animation:guide-step-appear .24s ease-out both}
+@keyframes guide-step-appear{from{opacity:.2;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.first-use-guide-steps{display:flex;gap:7px;margin:2px 0 17px;align-items:center}
+.first-use-guide-steps span{height:6px;flex:1;border-radius:100px;background:#d4dfd8;transition:background-color .2s ease}
+.first-use-guide-steps span.completed{background:#18665b}
+html.high-contrast .first-use-guide-steps span{background:#444;border:1px solid #fff}
+html.high-contrast .first-use-guide-steps span.completed{background:#ffeb3b;border-color:#ffeb3b}
+@media(prefers-reduced-motion:reduce){
+  .first-use-guide-spotlight,.first-use-guide-card,.first-use-guide-steps span{transition:none!important}
+  .first-use-guide-step{animation:none!important}
+}

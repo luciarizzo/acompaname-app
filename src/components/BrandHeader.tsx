@@ -1,4 +1,4 @@
-import { SlidersHorizontal, ChevronDown, ClipboardList, House, Settings2, Volume2 } from 'lucide-react';
+import { BookOpenText, ChevronDown, ClipboardList, House, Settings, Volume2 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 interface Props {
@@ -47,13 +47,13 @@ export function BrandHeader({ onHome, onText, onRead, speaking, highContrast, on
     {onTasks && <nav className="header-main-nav" aria-label="Navegación principal de escritorio">
       <button className={`header-nav-item ${currentSection === 'home' ? 'active' : ''}`} type="button" onClick={onHome} aria-current={currentSection === 'home' ? 'page' : undefined}><House size={20}/><span>Inicio</span></button>
       <button data-guide="tasks-desktop" className={`header-nav-item ${currentSection === 'tasks' ? 'active' : ''}`} type="button" onClick={onTasks} aria-current={currentSection === 'tasks' ? 'page' : undefined}><ClipboardList size={20}/><span>Mis gestiones</span></button>
-      {onSettings && <button className={`header-nav-item ${currentSection === 'settings' ? 'active' : ''}`} type="button" onClick={onSettings} aria-current={currentSection === 'settings' ? 'page' : undefined}><Settings2 size={20}/><span>Configuración</span></button>}
+      {onSettings && <button data-guide="settings-desktop" className={`header-nav-item ${currentSection === 'settings' ? 'active' : ''}`} type="button" onClick={onSettings} aria-current={currentSection === 'settings' ? 'page' : undefined}><Settings size={20}/><span>Mi configuración</span></button>}
     </nav>}
 
     <div className="top-actions">
       <details ref={menuRef} className="desktop-access-menu">
-        <summary className="accessibility-trigger" data-guide="reading-desktop" aria-label="Ver y escuchar mejor: escuchar pantalla, texto y contraste"><SlidersHorizontal size={21}/><span>Ver y escuchar mejor</span><ChevronDown size={17} className="accessibility-chevron"/></summary>
-        <div className="accessibility-panel" role="group" aria-label="Opciones para ver y escuchar mejor">
+        <summary className="accessibility-trigger" data-guide="reading-desktop" aria-label="Abrir opciones para leer y escuchar: texto, voz y contraste"><BookOpenText size={21}/><span>Leer y escuchar</span><ChevronDown size={17} className="accessibility-chevron"/></summary>
+        <div className="accessibility-panel" role="group" aria-label="Opciones para leer y escuchar">
           <p className="accessibility-panel-intro">Elegí cómo querés ver o escuchar la pantalla:</p>
           <button className="accessibility-option" type="button" onClick={() => runFromMenu(onRead)} aria-label={speaking ? 'Detener lectura en voz alta' : 'Escuchar la pantalla'}><Volume2 size={21}/><span>{speaking ? 'Detener lectura' : 'Escuchar pantalla'}</span></button>
           <button className="accessibility-option" type="button" onClick={() => runFromMenu(onText)} aria-label="Cambiar tamaño del texto"><span className="aa">Aa</span><span>Tamaño del texto</span></button>

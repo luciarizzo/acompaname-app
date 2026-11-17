@@ -9,6 +9,7 @@ interface Props {
 interface TourStep {
   title: string;
   description: string;
+  mobileDescription?: string;
   desktop: string;
   mobile: string;
 }
@@ -29,13 +30,20 @@ export const GUIDE_STEPS: TourStep[] = [
   },
   {
     title: 'Tus gestiones guardadas',
-    description: 'En «Mis gestiones» encontrás lo que guardaste. También podés cambiar tus datos en «Mi configuración».',
+    description: 'En «Mis gestiones» encontrás los planes y las consultas que guardaste.',
     desktop: '[data-guide="tasks-desktop"]',
     mobile: '[data-guide="tasks-mobile"]',
   },
   {
-    title: 'Hacé la app más cómoda',
-    description: 'Acá podés escuchar la pantalla, agrandar el texto y activar el contraste alto. Abrí estas opciones cuando las necesites.',
+    title: 'Cambiá tu configuración',
+    description: 'En «Mi configuración» podés cambiar tus datos y preferencias sin volver a empezar.',
+    desktop: '[data-guide="settings-desktop"]',
+    mobile: '[data-guide="settings-mobile"]',
+  },
+  {
+    title: 'Leer y escuchar',
+    description: 'Tocá «Leer y escuchar» para abrir el menú. Ahí podés escuchar la pantalla, agrandar las letras o activar el contraste alto.',
+    mobileDescription: 'Estos tres botones permiten escuchar la pantalla, agrandar las letras y activar el contraste alto.',
     desktop: '[data-guide="reading-desktop"]',
     mobile: '[data-guide="reading-mobile"]',
   },
@@ -55,6 +63,7 @@ export function FirstUseGuide({ onFinish }: Props) {
   const dialogRef = useRef<HTMLElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
   const step = GUIDE_STEPS[index];
+  const isMobile = window.matchMedia('(max-width: 650px)').matches;
 
   useEffect(() => {
     previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -78,7 +87,8 @@ export function FirstUseGuide({ onFinish }: Props) {
       setTargetRect({ top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height });
     };
     // En pantallas pequeñas la persona ve el control destacado, sin necesitar buscarlo.
-    target?.scrollIntoView({ block: index === 2 || index === 3 ? 'nearest' : 'center', behavior: 'auto' });
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target?.scrollIntoView({ block: index >= 2 && index <= 4 ? 'nearest' : 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
     frame = window.requestAnimationFrame(position);
     window.addEventListener('resize', position);
     window.addEventListener('scroll', position, true);
@@ -148,8 +158,13 @@ export function FirstUseGuide({ onFinish }: Props) {
         <span className="first-use-guide-count">Paso {index + 1} de {GUIDE_STEPS.length}</span>
         <button type="button" className="first-use-guide-close" onClick={finish} aria-label="Cerrar la guía"><X size={20}/></button>
       </div>
-      <h2 id="first-use-title">{step.title}</h2>
-      <p id="first-use-description">{step.description}</p>
+      <div className="first-use-guide-step" key={index} aria-live="polite" aria-atomic="true">
+        <h2 id="first-use-title">{step.title}</h2>
+        <p id="first-use-description">{isMobile ? step.mobileDescription ?? step.description : step.description}</p>
+      </div>
+      <div className="first-use-guide-steps" aria-hidden="true">
+        {GUIDE_STEPS.map((_, stepIndex) => <span key={stepIndex} className={stepIndex <= index ? 'completed' : ''}/>)}
+      </div>
       <div className="first-use-guide-controls">
         <button type="button" className="first-use-guide-skip" onClick={finish}>Saltear guía</button>
         <div className="first-use-guide-progress">
