@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { handler as cinemark, normalizeTheaters, normalizeShowtimes } from '../netlify/functions/cinemark-live.mjs';
 import { handler as showcase, parseShowcaseMovies, normalizeShowcaseTree } from '../netlify/functions/showcase-live.mjs';
 
@@ -9,6 +10,13 @@ test('Cinemark normaliza complejos y funciones sin convertir la hora local', () 
   const shows = normalizeShowtimes([{ movieName: 'Película real', movieId: 'A1', sessionId: 75, sessionDisplayDate: '2026-11-18', sessionDateTime: '2026-11-18T19:30:00.000Z', occupation: { availableSeats: 72 } }]);
   assert.equal(shows[0].time, '19:30');
   assert.equal(shows[0].available, 72);
+});
+
+test('Cinemark agrupa tarjetas por título y conserva todos los horarios de sus variantes', () => {
+  const page = readFileSync(new URL('../src/pages/CinemarkLiveFlow.tsx', import.meta.url), 'utf8');
+  assert.match(page, /new Map\(showtimes\.map\(x => \[movieKey\(x\.movie\)/);
+  assert.match(page, /showtimes\.filter\(x => movieKey\(x\.movie\) === movieId\)/);
+  assert.match(page, /showtimes\.filter\(x => movieKey\(x\.movie\) === movieId && x\.date === date\)/);
 });
 
 test('Showcase extrae películas publicadas sin repetir IDs', () => {

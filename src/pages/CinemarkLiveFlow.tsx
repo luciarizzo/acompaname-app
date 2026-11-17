@@ -15,6 +15,7 @@ type Step = 'theater' | 'movie' | 'date' | 'time' | 'tickets' | 'review' | 'done
 type Draft = { step: Step; theaterId: string; movieId: string; date: string; timeId: string; count: string };
 const steps: Step[] = ['theater', 'movie', 'date', 'time', 'tickets', 'review', 'done'];
 const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const movieKey = (value: string) => normalize(value).replace(/\s+/g, ' ').trim();
 const officialUrl = (slug: string) => `https://www.cinemark.com.ar/?cine=${encodeURIComponent(slug)}`;
 
 export function CinemarkLiveFlow({ city, onBack, onHome, onSaved, onStepChange }: { city: string; onBack: () => void; onHome: () => void; onSaved: () => void; onStepChange: () => void }) {
@@ -36,9 +37,11 @@ export function CinemarkLiveFlow({ city, onBack, onHome, onSaved, onStepChange }
   const [showtimesError, setShowtimesError] = useState('');
   const [saved, setSaved] = useState(false);
   const theater = theaters.find(x => x.id === theaterId);
-  const availableMovies = useMemo(() => [...new Map(showtimes.map(x => [x.movieId, { id: x.movieId, name: x.movie }])).values()], [showtimes]);
-  const dates = useMemo(() => [...new Set(showtimes.filter(x => x.movieId === movieId).map(x => x.date))].sort(), [showtimes, movieId]);
-  const times = useMemo(() => showtimes.filter(x => x.movieId === movieId && x.date === date).sort((a,b) => a.time.localeCompare(b.time)), [showtimes, movieId, date]);
+  // Cinemark devuelve IDs distintos para formatos/variantes de una misma película.
+  // La selección representa el título, sin perder las funciones de los otros IDs.
+  const availableMovies = useMemo(() => [...new Map(showtimes.map(x => [movieKey(x.movie), { id: movieKey(x.movie), name: x.movie }])).values()], [showtimes]);
+  const dates = useMemo(() => [...new Set(showtimes.filter(x => movieKey(x.movie) === movieId).map(x => x.date))].sort(), [showtimes, movieId]);
+  const times = useMemo(() => showtimes.filter(x => movieKey(x.movie) === movieId && x.date === date).sort((a,b) => a.time.localeCompare(b.time)), [showtimes, movieId, date]);
   const selectedMovie = availableMovies.find(x => x.id === movieId);
   const selectedTime = times.find(x => x.id === timeId);
   const index = steps.indexOf(step);
