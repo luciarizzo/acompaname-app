@@ -5,6 +5,10 @@ import { handler } from '../netlify/functions/search-events.mjs';
 
 test('selecciona la fuente municipal adecuada sin confundir CABA con otras provincias', () => {
   assert.equal(resolveCulturalSource('Buenos Aires').id, 'caba');
+  assert.equal(resolveCulturalSource('Ciudad de Buenos Aires').id, 'caba');
+  assert.equal(resolveCulturalSource('Ciudad Autónoma de Buenos Aires').id, 'caba');
+  assert.equal(resolveCulturalSource('CABA').id, 'caba');
+  assert.equal(resolveCulturalSource('Ciudad de Buenos Aires, Argentina').id, 'caba');
   assert.equal(resolveCulturalSource('Rosario, Santa Fe').id, 'rosario');
   assert.equal(resolveCulturalSource('Córdoba').id, 'cordoba');
   assert.equal(resolveCulturalSource('Mendoza').id, 'mendoza');
@@ -37,4 +41,17 @@ test('ciudades sin feed verificado muestran el enlace oficial, sin inventar even
   assert.deepEqual(body.items, []);
   assert.match(body.agendaUrl, /ciudaddemendoza\.gob\.ar/);
   assert.match(body.notice, /no hay integración automática/);
+});
+
+test('Ciudad de Buenos Aires consulta el proveedor real y no cae en sin proveedor', async () => {
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async url => {
+    assert.match(String(url), /turismo\.buenosaires\.gob\.ar/);
+    return { ok: true, text: async () => '<script>const json = `[]`;</script>' };
+  };
+  try {
+    const response = await handler({ httpMethod: 'POST', body: JSON.stringify({ category: 'all', city: 'Ciudad de Buenos Aires' }) });
+    assert.equal(response.statusCode, 200);
+    assert.equal(JSON.parse(response.body).source, 'Ciudad de Buenos Aires');
+  } finally { globalThis.fetch = previousFetch; }
 });
