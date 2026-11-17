@@ -15,25 +15,36 @@ export function TrustedContactsDialog({ contacts, onContactsChange, onClose }: P
   const cancelDeleteRef = useRef<HTMLButtonElement>(null);
   const deleteTriggerRef = useRef<HTMLButtonElement | null>(null);
   const noticeRef = useRef<HTMLParagraphElement>(null);
-  const pendingDeleteRef = useRef<TrustedContact | null>(null);
-  const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+  const dismissCurrentViewRef = useRef<() => void>(() => {});
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<TrustedContact | null>(null);
-  pendingDeleteRef.current = pendingDelete;
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+
+  // La X y Escape retroceden dentro del diálogo antes de cerrarlo.
+  // Solo la lista principal permite cerrar el diálogo y volver a la pantalla de origen.
+  const dismissCurrentView = () => {
+    if (pendingDelete) { setPendingDelete(null); return; }
+    if (adding) {
+      setAdding(false);
+      setEditingId(null);
+      setError('');
+      return;
+    }
+    onClose();
+  };
+  dismissCurrentViewRef.current = dismissCurrentView;
 
   useEffect(() => {
     const previousFocus = document.activeElement as HTMLElement | null;
     dialogRef.current?.focus();
     const handleDialogKeys = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        if (pendingDeleteRef.current) { setPendingDelete(null); return; }
-        onCloseRef.current();
+        event.preventDefault();
+        dismissCurrentViewRef.current();
         return;
       }
       if (event.key !== 'Tab' || !dialogRef.current) return;
@@ -102,19 +113,19 @@ export function TrustedContactsDialog({ contacts, onContactsChange, onClose }: P
     setAdding(false);
   };
 
-  return <div className="trusted-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
+  return <div className="trusted-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) dismissCurrentView(); }}>
     <section ref={dialogRef} className="trusted-dialog" role="dialog" aria-modal="true" aria-labelledby="trusted-dialog-title" tabIndex={-1}>
       <div className="trusted-dialog-header">
         <div className="trusted-title-icon"><Phone size={22}/></div>
         <div><p className="eyebrow">ACOMPAÑAMIENTO</p><h2 id="trusted-dialog-title">{pendingDelete ? '¿Eliminar este contacto?' : 'Contactos de confianza'}</h2></div>
-        <button className="trusted-close" type="button" aria-label="Cerrar contactos" onClick={onClose}><X size={22}/></button>
+        <button className="trusted-close" type="button" aria-label={pendingDelete || adding ? 'Volver a mis contactos' : 'Cerrar contactos de confianza'} onClick={dismissCurrentView}><X size={22}/></button>
       </div>
 
       {pendingDelete ? <div className="trusted-delete-screen">
         <p>Vas a quitar a <strong>{pendingDelete.name}</strong> de tus contactos de confianza. Después no aparecerá en la lista para llamar.</p>
         <div className="trusted-form-actions trusted-delete-actions"><button ref={cancelDeleteRef} className="secondary-button" type="button" onClick={() => setPendingDelete(null)}>Cancelar</button><button className="trusted-delete-button" type="button" onClick={deleteContact}><Trash2 size={18}/> Sí, eliminar</button></div>
       </div> : adding ? <>
-        <button className="back-button trusted-return" type="button" onClick={() => setAdding(false)}><ArrowLeft size={18}/> Volver a mis contactos</button>
+        <button className="back-button trusted-return" type="button" onClick={dismissCurrentView}><ArrowLeft size={18}/> Volver a mis contactos</button>
         <h3>{editingId ? 'Editar contacto' : 'Agregar un contacto'}</h3>
         <p className="trusted-explainer">Guardá el nombre y teléfono de alguien a quien puedas llamar si necesitás ayuda.</p>
         <form onSubmit={saveContact} noValidate>
@@ -123,7 +134,7 @@ export function TrustedContactsDialog({ contacts, onContactsChange, onClose }: P
           <label className="field-label" htmlFor="new-contact-phone">Teléfono</label>
           <input id="new-contact-phone" className="form-control" type="tel" inputMode="tel" autoComplete="tel" maxLength={32} value={phone} onChange={event => { setPhone(event.target.value); setError(''); }} placeholder="Por ejemplo: 261 555 1234"/>
           {error && <p className="trusted-error" role="alert">{error}</p>}
-          <div className="trusted-form-actions"><button className="secondary-button" type="button" onClick={() => setAdding(false)}>Cancelar</button><button className="primary-button" type="submit">{editingId ? 'Guardar cambios' : 'Guardar contacto'}</button></div>
+          <div className="trusted-form-actions"><button className="secondary-button" type="button" onClick={dismissCurrentView}>Cancelar</button><button className="primary-button" type="submit">{editingId ? 'Guardar cambios' : 'Guardar contacto'}</button></div>
         </form>
       </> : <>
         <p className="trusted-explainer">Si necesitás ayuda, podés llamar a alguien de confianza. Acompáñame queda abierta y vas a poder seguir donde estabas.</p>
@@ -132,8 +143,8 @@ export function TrustedContactsDialog({ contacts, onContactsChange, onClose }: P
           {contacts.slice(0, 2).map(contact => <article className="trusted-contact" key={contact.id}>
             <span className="trusted-avatar" aria-hidden="true"><UserRound size={22}/></span>
             <div className="trusted-contact-info"><strong>{contact.name}</strong><span>{contact.phone}</span></div>
+            <a className="trusted-call" href={`tel:${phoneLink(contact.phone)}`} aria-label={`Llamar a ${contact.name}`}><Phone size={19}/><span>Llamar</span></a>
             <div className="trusted-contact-actions">
-              <a className="trusted-call" href={`tel:${phoneLink(contact.phone)}`} aria-label={`Llamar a ${contact.name}`}><Phone size={19}/><span>Llamar</span></a>
               <button className="trusted-manage" type="button" onClick={() => startEditing(contact)} aria-label={`Editar los datos de ${contact.name}`}><Pencil size={17}/><span>Editar</span></button>
               <button className="trusted-manage trusted-danger" type="button" onClick={event => { deleteTriggerRef.current = event.currentTarget; setNotice(''); setPendingDelete(contact); }} aria-label={`Eliminar a ${contact.name}`}><Trash2 size={17}/><span>Eliminar</span></button>
             </div>

@@ -546,12 +546,20 @@ html.high-contrast .home-account-button:hover :is(span,svg){color:#000}
 .trusted-delete-screen>p{margin:0;line-height:1.6;font-size:calc(17px * var(--text-scale,1))}
 .trusted-delete-actions{margin-top:26px;gap:14px}
 .trusted-delete-actions button{min-width:135px}
-.trusted-contact-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.trusted-contact-actions .trusted-call{grid-column:1/-1;grid-row:1;width:100%;justify-content:center}
+/* Contactos: llamada al lado de los datos; edición y borrado en segunda fila. */
+.trusted-contact{grid-template-columns:44px minmax(0,1fr) auto;align-items:center}
+.trusted-contact>.trusted-call{grid-column:3;grid-row:1;justify-self:end;width:auto;min-width:120px;min-height:48px;margin:0!important;justify-content:center;white-space:nowrap}
+.trusted-contact-actions{grid-column:1/-1;grid-row:2;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .trusted-contact-actions .trusted-manage{width:100%;padding:0 8px;min-width:0}
 html.high-contrast .trusted-delete-screen{color:#fff}
-@media(max-width:440px){.trusted-delete-actions{flex-direction:column}.trusted-delete-actions button{width:100%}}
-@media(max-width:350px){.trusted-contact-actions{grid-template-columns:1fr}.trusted-contact-actions .trusted-call{grid-column:auto}}
+@media(max-width:440px){
+  .trusted-delete-actions{flex-direction:column}
+  .trusted-delete-actions button{width:100%}
+  .trusted-contact{grid-template-columns:42px minmax(0,1fr)}
+  .trusted-contact>.trusted-call{grid-column:1/-1;grid-row:2;justify-self:stretch;width:100%}
+  .trusted-contact-actions{grid-row:3}
+}
+@media(min-width:441px){html.large-text .trusted-contact{grid-template-columns:44px minmax(0,1fr)}html.large-text .trusted-contact>.trusted-call{grid-column:1/-1;grid-row:2;justify-self:stretch;width:100%}html.large-text .trusted-contact-actions{grid-row:3}}
 
 /* HU19: al confirmar se reemplaza la tarjeta, sin botones ni paneles detrás. */
 .saved-card-confirming{display:block;padding:22px;min-width:0}
