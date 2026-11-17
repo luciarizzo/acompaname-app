@@ -19,6 +19,8 @@ test('extrae tarjetas actuales de la agenda municipal de Rosario', () => {
   assert.equal(upcoming[0].name, 'Muestra cultural de Rosario');
   assert.match(upcoming[0].url, /^https:\/\/www\.rosario\.gob\.ar/);
   assert.equal(parseRosarioAgenda(html, { today: new Date('2026-11-17T12:00:00Z'), date: '2026-11-18' }).length, 0);
+  assert.equal(parseRosarioAgenda(html, { today: new Date('2026-11-17T12:00:00Z'), query: 'MUESTRA' }).length, 1);
+  assert.equal(parseRosarioAgenda(html, { today: new Date('2026-11-17T12:00:00Z'), query: 'concierto' }).length, 0);
 });
 
 test('Rosario mantiene títulos ambiguos fuera de Música, Teatro y Deportes', () => {

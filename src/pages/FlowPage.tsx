@@ -13,7 +13,7 @@ import { loadFlowDraft, saveFlowDraft, removeFlowDraft } from '../utils/flowDraf
 interface Props { kind: Extract<FlowKind, 'event' | 'appointment'>; initialPrompt?: string; city: string; onBack: () => void; onHome: () => void; onSaved: () => void; onStepChange: () => void }
 type Step = 'form' | 'loading' | 'results' | 'confirm' | 'done';
 type Result = EventResult | AppointmentOption;
-interface SearchDraft { step: Step; eventCategory: string | null; eventDate: string; specialty: AppointmentSpecialty; searchCity?: string }
+interface SearchDraft { step: Step; eventCategory: string | null; eventDate: string; specialty: AppointmentSpecialty; searchCity?: string; eventQuery?: string }
 const eventCategories = { all: 'Todas las actividades', music: 'Música', theater: 'Teatro', sports: 'Deportes', other: 'Otras salidas' };
 const specialties: AppointmentSpecialty[] = ['Clínica médica', 'Cardiología', 'Oftalmología', 'Odontología'];
 const specialtyCopy: Record<AppointmentSpecialty, string> = {
@@ -51,6 +51,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
   });
   const city = profileCity.trim() || 'Mendoza';
   const [searchCity, setSearchCity] = useState(() => previous?.searchCity || city);
+  const [eventQuery, setEventQuery] = useState(() => previous?.eventQuery || '');
   const [eventSource, setEventSource] = useState('');
   const [eventNotice, setEventNotice] = useState('');
   const [eventAgendaUrl, setEventAgendaUrl] = useState<string | null>(null);
@@ -61,10 +62,10 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
   useEffect(() => {
     if (resumePrompt) return;
     if (step === 'done') { removeFlowDraft(kind); return; }
-    if (step === 'form' && !eventCategory && !eventDate && (kind !== 'appointment' || specialty === 'Clínica médica')) { removeFlowDraft(kind); return; }
-    saveFlowDraft(kind, { step, eventCategory, eventDate, specialty, searchCity } satisfies SearchDraft);
-  }, [kind, step, eventCategory, eventDate, specialty, searchCity, resumePrompt]);
-  const discardDraft = () => { removeFlowDraft(kind);setStep('form');setEventCategory(null);setEventDate('');setSearchCity(city);setSpecialty('Clínica médica');setResumePrompt(false); };
+    if (step === 'form' && !eventCategory && !eventDate && !eventQuery.trim() && (kind !== 'appointment' || specialty === 'Clínica médica')) { removeFlowDraft(kind); return; }
+    saveFlowDraft(kind, { step, eventCategory, eventDate, specialty, searchCity, eventQuery } satisfies SearchDraft);
+  }, [kind, step, eventCategory, eventDate, specialty, searchCity, eventQuery, resumePrompt]);
+  const discardDraft = () => { removeFlowDraft(kind);setStep('form');setEventCategory(null);setEventDate('');setEventQuery('');setSearchCity(city);setSpecialty('Clínica médica');setResumePrompt(false); };
   const title = kind === 'event' ? 'Buscar una salida' : 'Sacar un turno médico';
   const resultTitle = kind === 'event' ? mode === 'demo' ? 'Ideas para una salida' : 'Algunas opciones para salir' : 'Opciones de turno';
 
@@ -76,7 +77,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
       await new Promise(resolve => window.setTimeout(resolve, 350));
       if (request !== currentRequest.current) return;
       if (kind === 'event') {
-        const result = await searchEvents({ category: eventCategory || 'other', city: searchCity, date: eventDate } satisfies EventSearch);
+        const result = await searchEvents({ category: eventCategory || 'all', city: searchCity, date: eventDate, query: eventQuery.trim() } satisfies EventSearch);
         if (request !== currentRequest.current) return;
         setItems(result.items);
         setMode(result.mode);
@@ -135,7 +136,9 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
       <div className="flow-heading"><h1>{kind === 'event' ? '¿Qué te gustaría hacer?' : '¿Qué tipo de atención buscás?'}</h1><p>{kind === 'event' ? 'Buscamos actividades usando los servicios disponibles.' : 'Elegí una especialidad para ver opciones. Las agendas de los prestadores todavía no están conectadas.'}</p></div>
       <div className="form-card">
         {kind === 'event' && <>
-          <p className="form-intro">Elegí una actividad.</p>
+          <label className="field-label" htmlFor="event-query">¿Ya sabés cómo se llama el evento?</label>
+          <input id="event-query" type="search" className="form-control" value={eventQuery} maxLength={120} onChange={e => setEventQuery(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && searchCity.trim() && (eventQuery.trim() || eventCategory)) void startSearch(); }} placeholder="Ej.: concierto, obra o nombre del espectáculo" autoComplete="off"/>
+          <p className="form-intro">O elegí una categoría para descubrir actividades. Podés combinar ambas opciones.</p>
           <div className="choice-grid">{Object.entries(eventCategories).map(([key, value]) => <button key={key} className={eventCategory === key ? 'choice-button chosen' : 'choice-button'} onClick={() => setEventCategory(key)}>{value}{eventCategory === key && <span className="selected-indicator" aria-hidden="true">Elegido</span>}</button>)}</div>
           <label className="field-label" htmlFor="event-city">Ciudad donde querés buscar actividades</label>
           <input id="event-city" className="form-control" value={searchCity} maxLength={100} onChange={e => setSearchCity(e.target.value)} placeholder="Ej.: Rosario, Córdoba, Mendoza o Buenos Aires"/>
@@ -150,7 +153,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
           <div className="privacy-note"><ShieldCheck size={18}/><span>OSDE, PAMI y otros prestadores todavía no están conectados. No compartimos tus datos ni reservamos turnos.</span></div>
         </>}
         {error && <StatusMessage kind="error">{error}</StatusMessage>}
-        <button className="primary-button full-button" onClick={() => void startSearch()} disabled={kind === 'event' && (!eventCategory || !searchCity.trim())}><Search size={19}/>{kind === 'appointment' ? 'Ver opciones de turno' : 'Buscar opciones'}<ArrowRight size={19}/></button>
+        <button className="primary-button full-button" onClick={() => void startSearch()} disabled={kind === 'event' && (!(eventCategory || eventQuery.trim()) || !searchCity.trim())}><Search size={19}/>{kind === 'appointment' ? 'Ver opciones de turno' : 'Buscar opciones'}<ArrowRight size={19}/></button>
       </div>
     </>}
 

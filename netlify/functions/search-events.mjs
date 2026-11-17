@@ -24,7 +24,7 @@ export function extractOfficialAgenda(html) {
   return records;
 }
 
-export function normalizeActivities(records, { date = '', category = 'all', today = new Date() } = {}) {
+export function normalizeActivities(records, { date = '', category = 'all', query = '', today = new Date() } = {}) {
   const targetDate = date ? new Date(`${date}T12:00:00-03:00`) : null;
   const weekday = targetDate ? weekDays[targetDate.getUTCDay()] : null;
   const currentDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit' }).format(today);
@@ -36,6 +36,7 @@ export function normalizeActivities(records, { date = '', category = 'all', toda
   const seen = new Set();
   return records.flatMap((item, index) => {
     const name = String(item.nombre_actividad || '').trim();
+    if (query.trim() && !normalize(`${name} ${item.proveedor || ''}`).includes(normalize(query.trim()))) return [];
     const start = String(item.fecha_inicio || '');
     const schedule = String(item.dias_horarios || '').trim();
     const days = normalize(item.dias_filtro).split(',').map(day => day.trim());
@@ -63,8 +64,8 @@ export const handler = async (request) => {
   if (request.httpMethod !== 'POST') return json(405, { error: 'Método no permitido.' });
   let input;
   try { input = JSON.parse(request.body || '{}'); } catch { return json(400, { error: 'Solicitud inválida.' }); }
-  const { category = 'all', city = 'Buenos Aires', date = '' } = input ?? {};
-  if (!categories.has(category) || typeof city !== 'string' || !city.trim() || (date && (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T12:00:00Z`))))) {
+  const { category = 'all', city = 'Buenos Aires', date = '', query = '' } = input ?? {};
+  if (!categories.has(category) || typeof city !== 'string' || !city.trim() || typeof query !== 'string' || query.length > 120 || (date && (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T12:00:00Z`))))) {
     return json(400, { error: 'Revisá los filtros de la búsqueda cultural.' });
   }
   const source = resolveCulturalSource(city);
@@ -74,7 +75,7 @@ export const handler = async (request) => {
     const siteResponse = await fetch(source.url, { signal: AbortSignal.timeout(10000), headers: { Accept: 'text/html' } });
     if (!siteResponse.ok) throw new Error(`HTTP ${siteResponse.status}`);
     const html = await siteResponse.text();
-    const items = source.id === 'rosario' ? parseRosarioAgenda(html, { date, category }) : normalizeActivities(extractOfficialAgenda(html), { date, category });
+    const items = source.id === 'rosario' ? parseRosarioAgenda(html, { date, category, query }) : normalizeActivities(extractOfficialAgenda(html), { date, category, query });
     return json(200, {
       mode: 'real', source: source.name, items,
       agendaUrl: source.url,

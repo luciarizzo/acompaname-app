@@ -20,7 +20,7 @@ export function inferRosarioCategory(title) {
   if (/\b(deporte|deportivo|futbol|maraton|carrera)\b/.test(text)) return 'sports';
   return 'other';
 }
-export function parseRosarioAgenda(html, { date = '', category = 'all', today = new Date() } = {}) {
+export function parseRosarioAgenda(html, { date = '', category = 'all', query = '', today = new Date() } = {}) {
   const year = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric' }).format(today));
   const todayDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit' }).format(today);
   const cards = [...html.matchAll(/<actividad\b[^>]*>([\s\S]*?)<\/actividad>/gi)];
@@ -36,6 +36,7 @@ export function parseRosarioAgenda(html, { date = '', category = 'all', today = 
     const last = dates[1] || first;
     if (!first || last < todayDate || (date && (date < first || date > last))) return [];
     const name = plain(title);
+    if (query.trim() && !name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(query.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase())) return [];
     if (!['all', 'culture'].includes(category) && inferRosarioCategory(name) !== category) return [];
     return [{ id: `rosario-${i}`, name, date: label, venue: 'Rosario, Santa Fe · Ver ubicación en el sitio oficial', url: `https://www.rosario.gob.ar${href}` }];
   }).slice(0, 30);

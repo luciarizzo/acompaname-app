@@ -34,6 +34,21 @@ test('clasifica según categorías publicadas por Turismo BA', () => {
   assert.equal(normalizeActivities(tagged, { category: 'theater' }).length, 0); // segundo registro sin URL segura
 });
 
+test('busca por nombre o sede sin tildes y respeta la categoría elegida', () => {
+  const tagged = [
+    { ...records[0], nombre_actividad: 'Concierto de cámara', categoria_actividad_filtro: 'Música' },
+    { ...records[0], nombre_actividad: 'Obra de teatro', categoria_actividad_filtro: 'Teatro' }
+  ];
+  assert.deepEqual(normalizeActivities(tagged, { query: 'CAMARA' }).map(item => item.name), ['Concierto de cámara']);
+  assert.equal(normalizeActivities(tagged, { query: 'centro cultural', category: 'theater' }).length, 1);
+  assert.equal(normalizeActivities(tagged, { query: 'concierto', category: 'theater' }).length, 0);
+});
+
+test('valida el texto de búsqueda antes de consultar el proveedor', async () => {
+  const response = await handler(request({ city: 'Buenos Aires', query: 'a'.repeat(121) }));
+  assert.equal(response.statusCode, 400);
+});
+
 test('obtiene resultados reales sin credenciales desde Turismo BA', async () => {
   globalThis.fetch = async (url) => {
     assert.match(String(url), /turismo\.buenosaires\.gob\.ar/);
