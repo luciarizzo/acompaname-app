@@ -31,7 +31,7 @@ test('HU13: el menú accesible permite elegir las tres opciones sin hover', () =
   const header = read('components/BrandHeader.tsx');
   const css = read('styles.css');
   assert.match(header, /<details ref=\{menuRef\} className="desktop-access-menu">/);
-  assert.match(header, /<summary className="accessibility-trigger">/);
+  assert.match(header, /<summary className="accessibility-trigger" data-guide="reading-desktop"/);
   assert.match(header, /Escuchar pantalla/);
   assert.match(header, /Tamaño del texto/);
   assert.match(header, /Activar contraste alto/);
