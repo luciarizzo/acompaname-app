@@ -6,11 +6,14 @@ const json = (statusCode, body) => ({ statusCode, headers, body: JSON.stringify(
 export function parseShowcaseMovies(html) {
   const result = [];
   const seen = new Set();
-  const pattern = /<a\s+href=['"](?:\/showcase\/)?pelicula\.aspx\?filmid=(\d+)['"][\s\S]*?<h3\s+class=['"]name['"]>([^<]+)<\/h3>/gi;
+  const pattern = /<a\s+href=['"](?:\/showcase\/)?pelicula\.aspx\?filmid=(\d+)['"]([^>]*)>([\s\S]*?)<\/a>/gi;
   for (const match of html.matchAll(pattern)) {
     if (seen.has(match[1])) continue;
+    const name = match[3].match(/<h3\s+class=['"]name['"]>([^<]+)<\/h3>/i)?.[1];
+    if (!name) continue;
+    const image = match[3].match(/<img\b[^>]*\bsrc=['"](https:\/\/static\.voyalcine\.net\/Uploads\/[\w.-]+)['"]/i)?.[1] || '';
     seen.add(match[1]);
-    result.push({ id: match[1], name: match[2].trim().replace(/&amp;/g, '&').replace(/&quot;/g, '"') });
+    result.push({ id: match[1], name: name.trim().replace(/&amp;/g, '&').replace(/&quot;/g, '"'), image });
   }
   return result;
 }

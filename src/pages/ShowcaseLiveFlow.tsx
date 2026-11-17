@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, Clapperboard, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Clapperboard, ExternalLink, Search, Film } from 'lucide-react';
+import { CinemaDateCalendar } from '../components/CinemaDateCalendar';
 import { functionRequest } from '../services/common';
 import { formatCinemaDate, ticketAmounts } from '../data/cinemaOptions';
 import type { SavedTask } from '../types';
@@ -7,7 +8,7 @@ import { saveTask } from '../utils/storage';
 import { isAccountMode } from '../utils/storageMode';
 import { loadFlowDraft, removeFlowDraft, saveFlowDraft } from '../utils/flowDraft';
 
-type Movie = { id: string; name: string };
+type Movie = { id: string; name: string; image?: string };
 type Showtime = { id: string; theaterId: string; theater: string; date: string; time: string; format: string; houseId: string };
 type Step = 'movie' | 'theater' | 'date' | 'time' | 'tickets' | 'review' | 'done';
 type Draft = { step: Step; movieId: string; theaterId: string; date: string; timeId: string; count: string };
@@ -87,9 +88,9 @@ export function ShowcaseLiveFlow({ city, onBack, onHome, onSaved, onStepChange }
         {busy && <p role="status">Consultando cartelera…</p>}
         {error && <p role="alert" className="inline-message">{error}</p>}
         {(!!error || (!busy && step === 'theater' && !theaters.length)) && <p><a href="https://www.voyalcine.net/showcase/Default.aspx" target="_blank" rel="noopener noreferrer">Consultar la cartelera de Showcase <ExternalLink size={15}/></a></p>}
-        {step === 'movie' && <><label htmlFor="showcase-search">Buscar película</label><input id="showcase-search" className="text-input" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Escribí el nombre"/><div className="cinema-choices">{!busy && movies.filter(x=>normalize(x.name).includes(normalize(query))).map(x=><div key={x.id}>{choose(x.name,'',movieId===x.id,()=>{setMovieId(x.id);setTheaterId('');setDate('');setTimeId('');})}</div>)}</div></>}
+        {step === 'movie' && <><label htmlFor="showcase-search" className="cinema-search-label">Buscar película</label><div className="cinema-search"><Search size={21} aria-hidden="true"/><input id="showcase-search" type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Escribí parte del título…"/></div><p className="cinema-result-count">{movies.filter(x=>normalize(x.name).includes(normalize(query.trim()))).length} películas encontradas</p><div className="cinema-movie-grid">{!busy && movies.filter(x=>normalize(x.name).includes(normalize(query.trim()))).map(x=><button key={x.id} type="button" className={`cinema-movie-card${movieId === x.id ? ' selected' : ''}`} aria-pressed={movieId===x.id} onClick={()=>{setMovieId(x.id);setTheaterId('');setDate('');setTimeId('');}}>{x.image ? <img loading="lazy" src={x.image} alt=""/> : <span className="cinema-movie-placeholder"><Film size={36}/></span>}<span className="cinema-movie-title">{x.name}</span>{movieId===x.id && <span className="cinema-movie-selected">✓ Elegida</span>}</button>)}</div>{!busy && movies.length > 0 && !movies.some(x=>normalize(x.name).includes(normalize(query.trim()))) && <p>No encontramos películas con ese título. Probá con otra palabra.</p>}</>}
         {step === 'theater' && !busy && <div className="cinema-choices">{theaters.sort((a,b)=>Number(normalize(b.name).includes(normalize(city)))-Number(normalize(a.name).includes(normalize(city)))).map(x=><div key={x.id}>{choose(x.name,'',theaterId===x.id,()=>{setTheaterId(x.id);setDate('');setTimeId('');})}</div>)}{!theaters.length && !error && <p>No hay funciones publicadas para esta película.</p>}</div>}
-        {step === 'date' && !busy && <div className="cinema-choices">{dates.map(x=><div key={x}>{choose(formatCinemaDate(x),'',date===x,()=>{setDate(x);setTimeId('');})}</div>)}</div>}
+        {step === 'date' && !busy && <CinemaDateCalendar dates={dates} selected={date} onSelect={x=>{setDate(x);setTimeId('');}}/>}
         {step === 'time' && !busy && <div className="cinema-choices">{times.map(x=><div key={x.id}>{choose(x.time,x.format,timeId===x.id,()=>setTimeId(x.id))}</div>)}</div>}
         {step === 'tickets' && <div className="cinema-choices cinema-quantity">{ticketAmounts.map(x=><button key={x} type="button" aria-pressed={count===x} className={`choice-button${count===x?' chosen':''}`} onClick={()=>setCount(x)}>{x} {x==='1'?'entrada':'entradas'}</button>)}</div>}
         <p className="cinema-honesty">La disponibilidad de butacas se consulta durante el pago en Showcase.</p>

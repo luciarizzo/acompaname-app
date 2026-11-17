@@ -12,8 +12,8 @@ test('Cinemark normaliza complejos y funciones sin convertir la hora local', () 
 });
 
 test('Showcase extrae películas publicadas sin repetir IDs', () => {
-  const html = "<a href='pelicula.aspx?filmid=6330'><h3 class='name'>Película uno</h3></a><a href='pelicula.aspx?filmid=6330'><h3 class='name'>Película uno</h3></a>";
-  assert.deepEqual(parseShowcaseMovies(html), [{ id: '6330', name: 'Película uno' }]);
+  const html = "<a href='pelicula.aspx?filmid=6330'><img src='https://static.voyalcine.net/Uploads/i6330.jpg'><h3 class='name'>Película uno</h3></a><a href='pelicula.aspx?filmid=6330'><h3 class='name'>Película uno</h3></a>";
+  assert.deepEqual(parseShowcaseMovies(html), [{ id: '6330', name: 'Película uno', image: 'https://static.voyalcine.net/Uploads/i6330.jpg' }]);
 });
 
 test('Showcase normaliza fechas, salas y formatos reales', () => {
