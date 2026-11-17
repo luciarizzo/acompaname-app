@@ -48,3 +48,17 @@ test('HU19: la confirmación de borrado reemplaza las acciones del plan', () => 
   assert.match(plans, /Esto no cancela ninguna compra, reserva ni solicitud externa\./);
   assert.match(plans, /deleteOriginRef\.current = event\.currentTarget/);
 });
+
+
+test('HU19: alto contraste muestra un único borde en la confirmación del plan', () => {
+  const parent = styles.match(/html\.high-contrast \.saved-card-confirming\s*\{([^}]*)\}/)?.[1];
+  const confirmation = styles.match(/html\.high-contrast \.saved-card-confirming \.saved-delete\s*\{([^}]*)\}/)?.[1];
+  assert.ok(parent, 'La tarjeta debe tener una regla específica para alto contraste');
+  assert.ok(confirmation, 'La confirmación debe tener una regla específica para alto contraste');
+  assert.match(parent, /border:\s*0\s*;/);
+  assert.match(parent, /padding:\s*0\s*;/);
+  assert.match(confirmation, /border:\s*2px solid #fff\s*;/);
+  assert.match(confirmation, /padding:\s*22px\s*;/);
+  assert.match(styles, /html\.high-contrast \.saved-card-confirming \.saved-delete\{padding:18px\}/);
+  assert.match(styles, /html\.high-contrast \.saved-delete,html\.high-contrast \.saved-danger/);
+});
