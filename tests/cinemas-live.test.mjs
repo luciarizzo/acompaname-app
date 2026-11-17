@@ -28,6 +28,14 @@ test('Showcase normaliza fechas, salas y formatos reales', () => {
   const rows = normalizeShowcaseTree({ days: { '2026-11-18': [{ id: 15, name: 'Showcase Quilmes', ewaveId: 3208, formats: [{ formatDescription: '2D', performances: [{ performanceId: 10, showTime: '22:25' }] }] }] } });
   assert.equal(rows[0].theater, 'Showcase Quilmes');
   assert.equal(rows[0].time, '22:25');
+  assert.equal(rows[0].houseId, '3208');
+});
+
+test('Showcase deriva al dominio de entradas con película y complejo', () => {
+  const page = readFileSync(new URL('../src/pages/ShowcaseLiveFlow.tsx', import.meta.url), 'utf8');
+  assert.match(page, /entradas\.todoshowcase\.com\/showcase\/pelicula\?filmid=/);
+  assert.match(page, /house_id=\$\{encodeURIComponent\(selected\.houseId\)\}/);
+  assert.doesNotMatch(page, /voyalcine\.net\/showcase\/pelicula\.aspx/);
 });
 
 test('rechaza parámetros no válidos sin consultar proveedores', async () => {

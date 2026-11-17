@@ -27,7 +27,8 @@ export function matchesShowcaseCity(city: string, theaterName: string) {
   return false;
 }
 
-export function cinemarkMovieUrl(movieName: string) {
+export function cinemarkMovieUrl(movieName: string, theaterSlug?: string) {
   const slug = normalize(movieName).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  return slug ? `https://www.cinemark.com.ar/pelicula/${slug}` : 'https://www.cinemark.com.ar/elegi-pelicula';
+  const base = slug ? `https://www.cinemark.com.ar/pelicula/${slug}` : 'https://www.cinemark.com.ar/elegi-pelicula';
+  return theaterSlug ? `${base}?cine=${encodeURIComponent(theaterSlug)}` : base;
 }
