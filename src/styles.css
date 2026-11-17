@@ -540,6 +540,7 @@ html.high-contrast .home-account-button{background:#000;color:#ffeb3b;border:2px
 html.high-contrast .home-account-button :is(span,svg){color:#ffeb3b}
 html.high-contrast .home-account-button:hover{background:#ffeb3b;color:#000}
 html.high-contrast .home-account-button:hover :is(span,svg){color:#000}
+
 /* HU16: una sola vista a la vez y acción principal por encima de Editar/Eliminar. */
 .trusted-delete-screen{padding:19px 1px 4px}
 .trusted-delete-screen>p{margin:0;line-height:1.6;font-size:calc(17px * var(--text-scale,1))}
