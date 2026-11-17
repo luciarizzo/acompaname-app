@@ -440,24 +440,16 @@ html.large-text :is(.form-card,.confirm-card,.onboarding-step,.saved-card){min-w
 html.high-contrast .selected-indicator,html.high-contrast .trust-note-label{color:#000}
 @media(max-width:650px){.trust-note{flex-wrap:wrap;gap:4px 9px}.selected-indicator{font-size:calc(12px * var(--text-scale,1))}}
 
-/* HU13 · Cabecera más liviana: destinos visibles, ajustes agrupados sin hover obligatorio. */
+/* HU13 · Cabecera liviana con navegación y tres ajustes directos, sin menú oculto. */
 @media (min-width:651px) {
   .topbar:has(.header-main-nav){gap:clamp(12px,2vw,28px)}
   .header-main-nav{gap:4px;margin-inline:auto;padding:0;flex:0 1 auto;min-width:0}
   .header-nav-item{min-height:46px;padding:8px 12px;gap:7px;border:0;border-bottom:3px solid transparent;border-radius:9px;background:transparent;color:var(--green);font-size:calc(15px * var(--text-scale,1));font-weight:750}
   .header-nav-item:hover{background:#f1f7f3;border-color:#c1d8cc}
   .header-nav-item.active,.header-nav-item.active:hover{background:#eaf4ee;color:var(--green-dark);border-color:var(--green)}
-  .desktop-access-menu{position:relative}
-  .accessibility-trigger{min-height:46px;padding:0 13px;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid #ccdcd4;border-radius:13px;background:#fff;color:var(--green);font-size:calc(15px * var(--text-scale,1));font-weight:800;list-style:none;cursor:pointer;white-space:nowrap}
-  .accessibility-trigger::-webkit-details-marker{display:none}
-  .accessibility-trigger:hover,.desktop-access-menu[open] .accessibility-trigger{background:#f0f7f3}
-  .accessibility-trigger:focus-visible{outline:3px solid #e7a13a;outline-offset:3px}
-  .accessibility-chevron{transition:transform .18s ease}
-  .desktop-access-menu[open] .accessibility-chevron{transform:rotate(180deg)}
-  .accessibility-panel{position:absolute;top:calc(100% + 10px);right:0;width:max-content;min-width:260px;max-width:min(92vw,360px);padding:10px;background:#fff;border:1px solid #d1e0d9;border-radius:16px;box-shadow:0 12px 38px rgba(24,67,59,.15);z-index:45;display:grid;gap:3px}
-  .accessibility-option{min-height:48px;padding:9px 12px;display:flex;align-items:center;gap:11px;border:0;border-radius:10px;text-align:left;background:transparent;color:var(--ink);font-weight:750;white-space:nowrap}
-  .accessibility-option:hover,.accessibility-option:focus-visible{background:#eaf4ef}
-  .mobile-top-actions{display:none}
+  /* Tres controles directos, como en móvil: no requieren desplegar un menú. */
+  .header-reading-actions{gap:6px}
+  .header-reading-actions .icon-action{min-width:48px;min-height:48px;justify-content:center;padding-inline:10px}
   /* En escritorio el acceso principal no se duplica encima del contenido. */
   .home-saved-entry{display:none}
   /* Acción de emergencia compacta, sin ocultar todo el texto detrás de un hover. */
@@ -470,17 +462,11 @@ html.high-contrast .selected-indicator,html.high-contrast .trust-note-label{colo
   .header-main-nav{order:3;flex:1 0 100%;justify-content:center;padding:0}
 }
 @media (max-width:650px){
-  .desktop-access-menu{display:none}
-  .mobile-top-actions{display:flex;align-items:center;gap:4px}
   .trusted-label-short{display:none}
   .trusted-label-full{display:inline}
 }
 html.high-contrast .header-nav-item{background:transparent;border:2px solid transparent;color:#000}
 html.high-contrast .header-nav-item.active{background:#000;color:#fff;border:2px solid #000}
-html.high-contrast .accessibility-trigger{background:#fff;color:#000;border:2px solid #000}
-html.high-contrast .accessibility-panel{background:#fff;border:2px solid #000}
-html.high-contrast .accessibility-option{color:#000}
-html.high-contrast .accessibility-option:hover{background:#ddd}
 
 /* Con texto grande, reacomodar la cabecera en dos filas antes de que se superponga. */
 @media (min-width:651px){
@@ -507,13 +493,8 @@ html.high-contrast .accessibility-option:hover{background:#ddd}
 .first-use-guide-prev{display:flex;align-items:center;gap:3px;padding:8px 10px;border:1px solid #c2d6cc;background:#f4faf6;color:var(--green)}
 .first-use-guide-next{display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 13px;border:2px solid var(--green);background:var(--green);color:#fff}
 .first-use-guide-controls button:focus-visible,.first-use-guide-close:focus-visible{outline:4px solid #f3bf43;outline-offset:3px}
-.accessibility-panel-intro{font-size:calc(14px * var(--text-scale,1));font-weight:650;line-height:1.35;color:#49685e;padding:8px 10px 4px;margin:0;max-width:300px;white-space:normal}
 
-/* En contraste alto: menú y guía mantienen texto legible sobre superficies oscuras. */
-html.high-contrast .accessibility-trigger,html.high-contrast .accessibility-panel{background:#000;color:#fff;border:2px solid #ffeb3b}
-html.high-contrast .accessibility-trigger :is(span,svg),html.high-contrast .accessibility-panel :is(span,p,svg),html.high-contrast .accessibility-option{color:#fff}
-html.high-contrast .accessibility-option:hover,html.high-contrast .accessibility-option:focus-visible{background:#ffeb3b;color:#000}
-html.high-contrast .accessibility-option:hover :is(span,svg),html.high-contrast .accessibility-option:focus-visible :is(span,svg){color:#000}
+/* En contraste alto: la guía y sus controles siguen legibles. */
 html.high-contrast .header-nav-item{color:#fff}
 html.high-contrast .header-nav-item :is(span,svg){color:#fff}
 html.high-contrast .header-nav-item.active,html.high-contrast .header-nav-item.active:hover{background:#ffeb3b;border:2px solid #ffeb3b;color:#000}
@@ -529,7 +510,6 @@ html.high-contrast .first-use-guide-card .first-use-guide-next :is(span,svg){col
 @media(max-width:650px){.first-use-guide-card{padding:14px 15px}.first-use-guide-card h2{font-size:calc(21px * var(--text-scale,1))}.first-use-guide-progress{gap:5px}.first-use-guide-prev{padding-inline:7px}.first-use-guide-next{padding-inline:11px}}
 @media(prefers-reduced-motion:reduce){.first-use-guide *{transition:none!important;animation:none!important}}
 
-html.high-contrast .desktop-access-menu[open] .accessibility-trigger,html.high-contrast .accessibility-trigger:hover{background:#000;color:#fff;border-color:#ffeb3b}
 
 /* Guía contextual: movimiento suave entre las zonas sin depender de animaciones para entender el contenido. */
 .first-use-guide-spotlight{transition:top .3s ease-in-out,left .3s ease-in-out,width .3s ease-in-out,height .3s ease-in-out}
@@ -545,3 +525,9 @@ html.high-contrast .first-use-guide-steps span.completed{background:#ffeb3b;bord
   .first-use-guide-spotlight,.first-use-guide-card,.first-use-guide-steps span{transition:none!important}
   .first-use-guide-step{animation:none!important}
 }
+
+/* Los mismos accesos de lectura están visibles en escritorio y celular. */
+.header-reading-actions{display:flex;align-items:center;gap:4px}
+html.high-contrast .header-reading-actions .icon-action{background:#000;color:#fff;border:2px solid #ffeb3b}
+html.high-contrast .header-reading-actions .icon-action[aria-pressed="true"]{background:#ffeb3b;color:#000}
+@media(max-width:650px){.header-reading-actions{gap:4px}}

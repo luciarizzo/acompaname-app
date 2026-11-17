@@ -41,11 +41,10 @@ export const GUIDE_STEPS: TourStep[] = [
     mobile: '[data-guide="settings-mobile"]',
   },
   {
-    title: 'Leer y escuchar',
-    description: 'Tocá «Leer y escuchar» para abrir este menú. Acá te mostramos las tres opciones: escuchar la pantalla, agrandar las letras o activar el contraste alto.',
-    mobileDescription: 'Estos tres botones permiten escuchar la pantalla, agrandar las letras y activar el contraste alto.',
-    desktop: '[data-guide="reading-desktop"]',
-    mobile: '[data-guide="reading-mobile"]',
+    title: 'Escuchar, texto y contraste',
+    description: 'Estos tres botones sirven para escuchar la pantalla, agrandar las letras y activar el contraste alto.',
+    desktop: '[data-guide="reading-controls"]',
+    mobile: '[data-guide="reading-controls"]',
   },
   {
     title: 'Podés pedir ayuda',
@@ -60,20 +59,11 @@ interface Layout { target: Rect | null; top: number; left: number; width: number
 
 const SPACING = 16;
 const VIEWPORT_MARGIN = 12;
-const DESKTOP_READING_STEP = 4;
 
-/** El área iluminada incluye también el menú abierto, no solamente su botón. */
-function highlightedRect(target: HTMLElement, showReadingMenu: boolean): Rect {
-  const regions = [target.getBoundingClientRect()];
-  if (showReadingMenu) {
-    const panel = target.closest('details')?.querySelector<HTMLElement>('.accessibility-panel');
-    if (panel) regions.push(panel.getBoundingClientRect());
-  }
-  const left = Math.min(...regions.map(rect => rect.left));
-  const top = Math.min(...regions.map(rect => rect.top));
-  const right = Math.max(...regions.map(rect => rect.right));
-  const bottom = Math.max(...regions.map(rect => rect.bottom));
-  return { left, top, right, bottom, width: right - left, height: bottom - top };
+/** Resalta los tres controles visibles, sin abrir un menú adicional. */
+function highlightedRect(target: HTMLElement): Rect {
+  const { left, top, right, bottom, width, height } = target.getBoundingClientRect();
+  return { left, top, right, bottom, width, height };
 }
 
 function clamp(value: number, low: number, high: number) {
@@ -96,7 +86,7 @@ function placeGuide(rect: Rect, cardWidth: number, cardHeight: number, viewportW
   if (rect.bottom + cardHeight + SPACING <= viewportHeight - VIEWPORT_MARGIN) {
     return { target: rect, top: rect.bottom + SPACING, left, width };
   }
-  // Especialmente útil para el menú «Leer y escuchar» abierto a la derecha.
+  // Si falta espacio vertical, también se puede ubicar la explicación a un costado.
   if (rect.left - width - SPACING >= VIEWPORT_MARGIN) {
     return { target: rect, top: clamp(rect.top, VIEWPORT_MARGIN, maxTop), left: rect.left - width - SPACING, width };
   }
@@ -125,21 +115,11 @@ export function FirstUseGuide({ onFinish }: Props) {
     };
   }, []);
 
-  // Al explicar el menú, lo abrimos solo durante ese paso para enseñar sus opciones.
-  useLayoutEffect(() => {
-    if (index !== DESKTOP_READING_STEP || isMobile) return;
-    const menu = document.querySelector<HTMLDetailsElement>('.desktop-access-menu');
-    if (!menu) return;
-    menu.open = true;
-    return () => { menu.open = false; };
-  }, [index, isMobile]);
-
   useLayoutEffect(() => {
     let frame = 0;
     let attemptedScroll = false;
     const targetSelector = isMobile ? step.mobile : step.desktop;
     const getTarget = () => document.querySelector<HTMLElement>(targetSelector);
-    const showMenu = index === DESKTOP_READING_STEP && !isMobile;
 
     const updatePosition = () => {
       const element = getTarget();
@@ -151,7 +131,7 @@ export function FirstUseGuide({ onFinish }: Props) {
         setLayout({ target: null, top: clamp((window.innerHeight - height) / 2, 10, window.innerHeight - height - 10), left: (window.innerWidth - width) / 2, width });
         return;
       }
-      let target = highlightedRect(element, showMenu);
+      let target = highlightedRect(element);
       let placement = placeGuide(target, width, height, window.innerWidth, window.innerHeight);
       if (!placement && !attemptedScroll) {
         attemptedScroll = true;
@@ -163,7 +143,7 @@ export function FirstUseGuide({ onFinish }: Props) {
         const distance = Math.min(requiredScroll, maximumScroll);
         if (distance > 0) {
           window.scrollBy({ top: distance, behavior: 'auto' });
-          target = highlightedRect(element, showMenu);
+          target = highlightedRect(element);
           placement = placeGuide(target, width, height, window.innerWidth, window.innerHeight);
         }
       }
@@ -190,10 +170,6 @@ export function FirstUseGuide({ onFinish }: Props) {
     if (dialogRef.current) observer?.observe(dialogRef.current);
     const element = getTarget();
     if (element) observer?.observe(element);
-    if (showMenu) {
-      const panel = element?.closest('details')?.querySelector('.accessibility-panel');
-      if (panel) observer?.observe(panel);
-    }
     window.addEventListener('resize', schedule);
     window.addEventListener('scroll', schedule, true);
     return () => {

@@ -1,5 +1,4 @@
-import { BookOpenText, ChevronDown, ClipboardList, House, Settings, Volume2 } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { ClipboardList, House, Settings, Volume2 } from 'lucide-react';
 
 interface Props {
   onHome: () => void;
@@ -14,30 +13,6 @@ interface Props {
 }
 
 export function BrandHeader({ onHome, onText, onRead, speaking, highContrast, onToggleContrast, onTasks, onSettings, currentSection }: Props) {
-  const menuRef = useRef<HTMLDetailsElement>(null);
-
-  useEffect(() => {
-    const closeWhenOutside = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) menuRef.current?.removeAttribute('open');
-    };
-    const closeWithEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape' || !menuRef.current?.open) return;
-      menuRef.current.removeAttribute('open');
-      menuRef.current.querySelector('summary')?.focus();
-    };
-    document.addEventListener('pointerdown', closeWhenOutside);
-    document.addEventListener('keydown', closeWithEscape);
-    return () => {
-      document.removeEventListener('pointerdown', closeWhenOutside);
-      document.removeEventListener('keydown', closeWithEscape);
-    };
-  }, []);
-
-  const runFromMenu = (action: () => void) => {
-    menuRef.current?.removeAttribute('open');
-    action();
-  };
-
   return <header className="topbar">
     <button className="brand" type="button" onClick={onHome} aria-label="Ir al inicio · Acompáñame versión 1.0.1">
       <span className="brand-mark">A</span>
@@ -51,19 +26,10 @@ export function BrandHeader({ onHome, onText, onRead, speaking, highContrast, on
     </nav>}
 
     <div className="top-actions">
-      <details ref={menuRef} className="desktop-access-menu">
-        <summary className="accessibility-trigger" data-guide="reading-desktop" aria-label="Abrir opciones para leer y escuchar: texto, voz y contraste"><BookOpenText size={21}/><span>Leer y escuchar</span><ChevronDown size={17} className="accessibility-chevron"/></summary>
-        <div className="accessibility-panel" role="group" aria-label="Opciones para leer y escuchar">
-          <p className="accessibility-panel-intro">Elegí cómo querés ver o escuchar la pantalla:</p>
-          <button className="accessibility-option" type="button" onClick={() => runFromMenu(onRead)} aria-label={speaking ? 'Detener lectura en voz alta' : 'Escuchar la pantalla'}><Volume2 size={21}/><span>{speaking ? 'Detener lectura' : 'Escuchar pantalla'}</span></button>
-          <button className="accessibility-option" type="button" onClick={() => runFromMenu(onText)} aria-label="Cambiar tamaño del texto"><span className="aa">Aa</span><span>Tamaño del texto</span></button>
-          <button className="accessibility-option" type="button" onClick={() => runFromMenu(onToggleContrast)} aria-pressed={highContrast} aria-label="Activar o desactivar contraste alto"><span className="contrast-glyph">◐</span><span>{highContrast ? 'Desactivar contraste alto' : 'Activar contraste alto'}</span></button>
-        </div>
-      </details>
-      <div className="mobile-top-actions" data-guide="reading-mobile">
-        <button className="icon-action" type="button" onClick={onRead} aria-label={speaking ? 'Detener lectura' : 'Leer pantalla'} title={speaking ? 'Detener lectura' : 'Leer pantalla'}><Volume2 size={21}/></button>
+      <div className="header-reading-actions" role="group" aria-label="Opciones para escuchar, cambiar el texto y el contraste" data-guide="reading-controls">
+        <button className="icon-action" type="button" onClick={onRead} aria-label={speaking ? 'Detener lectura en voz alta' : 'Escuchar la pantalla'} title={speaking ? 'Detener lectura' : 'Escuchar pantalla'}><Volume2 size={21}/></button>
         <button className="icon-action" type="button" onClick={onText} aria-label="Cambiar tamaño del texto" title="Tamaño del texto"><span className="aa">Aa</span></button>
-        <button className="icon-action contrast-action" type="button" onClick={onToggleContrast} aria-pressed={highContrast} aria-label="Activar o desactivar contraste alto" title="Contraste alto"><span className="contrast-glyph">◐</span></button>
+        <button className="icon-action contrast-action" type="button" onClick={onToggleContrast} aria-pressed={highContrast} aria-label={highContrast ? 'Desactivar contraste alto' : 'Activar contraste alto'} title={highContrast ? 'Desactivar contraste alto' : 'Activar contraste alto'}><span className="contrast-glyph" aria-hidden="true">◐</span></button>
       </div>
     </div>
   </header>;
