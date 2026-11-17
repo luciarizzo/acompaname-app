@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { handler as cinemark, normalizeTheaters, normalizeShowtimes } from '../netlify/functions/cinemark-live.mjs';
+import { handler as cinemark, normalizeTheaters, normalizeShowtimes, enrichShowtimesWithMovies } from '../netlify/functions/cinemark-live.mjs';
 import { handler as showcase, parseShowcaseMovies, normalizeShowcaseTree } from '../netlify/functions/showcase-live.mjs';
 
 test('Cinemark normaliza complejos y funciones sin convertir la hora local', () => {
@@ -14,9 +14,21 @@ test('Cinemark normaliza complejos y funciones sin convertir la hora local', () 
 
 test('Cinemark agrupa tarjetas por título y conserva todos los horarios de sus variantes', () => {
   const page = readFileSync(new URL('../src/pages/CinemarkLiveFlow.tsx', import.meta.url), 'utf8');
-  assert.match(page, /new Map\(showtimes\.map\(x => \[movieKey\(x\.movie\)/);
+  assert.match(page, /const key = movieKey\(session\.movie\)/);
   assert.match(page, /showtimes\.filter\(x => movieKey\(x\.movie\) === movieId\)/);
   assert.match(page, /showtimes\.filter\(x => movieKey\(x\.movie\) === movieId && x\.date === date\)/);
+});
+
+test('Cinemark usa afiches y slugs del catálogo oficial, sin aceptar dominios externos', () => {
+  const sessions = [{ movie: 'ANIQUILACIÓN', id: '1' }];
+  const good = enrichShowtimesWithMovies(sessions, [{ title: 'Aniquilacion', slug: 'aniquilacion', posterUrl: 'https://cdn.cinemark.com.ar/content/posters/HO123.jpg' }]);
+  assert.equal(good[0].poster, 'https://cdn.cinemark.com.ar/content/posters/HO123.jpg');
+  assert.equal(good[0].slug, 'aniquilacion');
+  const bad = enrichShowtimesWithMovies(sessions, [{ title: 'Aniquilacion', slug: '../../bad', posterUrl: 'https://malicioso.test/poster.jpg' }]);
+  assert.equal(bad[0].poster, '');
+  assert.equal(bad[0].slug, '');
+  const abbreviated = enrichShowtimesWithMovies([{ movie: 'LOS JUEGOS DEL HAMBRE: AMANECER' }], [{ title: 'LOS JUEGOS DEL HAMBRE: AMANECER EN LA COSECHA', slug: 'los-juegos-del-hambre-amanecer-en-la-cosecha', posterUrl: 'https://cdn.cinemark.com.ar/content/posters/HO00013353.jpg' }]);
+  assert.equal(abbreviated[0].slug, 'los-juegos-del-hambre-amanecer-en-la-cosecha');
 });
 
 test('Showcase extrae películas publicadas sin repetir IDs', () => {
