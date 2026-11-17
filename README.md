@@ -43,7 +43,11 @@ Nunca subas el archivo `.env` ni pegues la clave secreta en el código, en el RE
 
 ## Proveedores de datos
 
-La búsqueda de salidas usa una interfaz en `src/services/events/` y, al activar `VITE_ENABLE_LIVE_APIS=true`, consulta una Netlify Function. Los turnos médicos son siempre una simulación local: nunca consultan agendas ni reservan una visita. Los viajes y la búsqueda de lugares no forman parte de esta versión.
+La búsqueda de salidas usa una interfaz en `src/services/events/` y, al activar `VITE_ENABLE_LIVE_APIS=true`, consulta una Netlify Function para **Todas las actividades, Música, Teatro, Deportes y Otras salidas**. La función lee el listado estructurado publicado en el buscador oficial de Turismo Buenos Aires, aplica las categorías que publica el organismo y muestra el horario informado junto al enlace de cada organizador. La agenda se actualiza periódicamente; por eso solo se permiten búsquedas fechadas en los próximos siete días, y se recomienda confirmar los horarios en la fuente. En Rosario, donde no se expone un rubro estructurado en las tarjetas, se clasifica de manera conservadora por palabras del título; los casos ambiguos quedan en «Otras salidas» y también aparecen en «Todas». Los turnos médicos son siempre una simulación local: nunca consultan agendas ni reservan una visita. Los viajes y la búsqueda de lugares no forman parte de esta versión.
+
+También se puede cambiar la ciudad en el buscador de eventos culturales. La agenda de Rosario se obtiene del sitio oficial municipal; para Córdoba Capital, Mendoza Capital y La Plata se enlaza la fuente municipal correspondiente cuando no existe un feed verificado de actividades. Para cualquier otra ciudad, se informa que todavía no hay proveedor local automático, sin mostrar datos inventados. Las fuentes se resuelven en `netlify/lib/cultural-regions.mjs`.
+
+Para activar eventos reales en Netlify, configurar `VITE_ENABLE_LIVE_APIS=true` en el entorno de compilación y volver a desplegar. **No hace falta API Key.** La fuente es la página pública de Turismo BA: https://turismo.buenosaires.gob.ar/es/article/que-hacer-esta-semana. Su listado estructurado **no es una API pública documentada**; si el sitio cambia, la función informa un error en vez de presentar resultados falsos. No se realiza reserva ni compra de entradas.
 
 Copiá `.env.example` a `.env` si querés configurar la búsqueda real de salidas. No guardes claves reales en archivos versionados ni uses prefijo `VITE_` para secretos.
 
