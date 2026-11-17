@@ -27,15 +27,16 @@ test('HU21: se usa una sola confirmación compartida para cabecera y barra móvi
   assert.match(main, /puedas retomarlo despu[eé]s/);
 });
 
-test('HU13: el menú accesible permite elegir las tres opciones sin hover', () => {
+test('HU13: las tres acciones de lectura son accesibles sin abrir menú', () => {
   const header = read('components/BrandHeader.tsx');
   const css = read('styles.css');
-  assert.match(header, /<details ref=\{menuRef\} className="desktop-access-menu">/);
-  assert.match(header, /<summary className="accessibility-trigger" data-guide="reading-desktop"/);
+  assert.match(header, /<div className="header-reading-actions" role="group"/);
+  assert.match(header, /data-guide="reading-controls"/);
+  assert.doesNotMatch(header, /<details|<summary/);
   assert.match(header, /Escuchar pantalla/);
   assert.match(header, /Tamaño del texto/);
   assert.match(header, /Activar contraste alto/);
-  assert.match(css, /\.accessibility-trigger:focus-visible/);
+  assert.match(css, /\.header-reading-actions\{display:flex/);
   assert.match(header, /aria-current=\{currentSection === 'tasks'/);
 });
 

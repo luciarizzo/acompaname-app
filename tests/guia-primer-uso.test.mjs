@@ -19,7 +19,7 @@ test('Guía de primer uso: destaca controles reales en escritorio y móvil', () 
   const home = read('pages/HomePage.tsx');
   const bottom = read('components/BottomNav.tsx');
   assert.equal((guide.match(/title: '/g) || []).length, 6);
-  for (const selector of ['ask','quick','tasks-desktop','tasks-mobile','settings-desktop','settings-mobile','reading-desktop','reading-mobile','trusted-call']) {
+  for (const selector of ['ask','quick','tasks-desktop','tasks-mobile','settings-desktop','settings-mobile','reading-controls','trusted-call']) {
     assert.match(guide, new RegExp(`data-guide=\\"${selector}\\"`));
     assert.ok([header, home, bottom, read('main.tsx')].some(source => source.includes(`data-guide="${selector}"`) || (selector === 'quick' && source.includes("data-guide={kind === 'event'"))), `Falta el elemento destacado: ${selector}`);
   }
@@ -38,19 +38,20 @@ test('Guía accesible: diálogo modal, foco controlado y salida libre', () => {
   assert.match(guide, /Anterior/);
 });
 
-test('Menú de lectura y configuración con iconos diferentes y nombres claros', () => {
+test('Controles de lectura visibles y configuración con engranaje', () => {
   const header = read('components/BrandHeader.tsx');
   const css = read('styles.css');
-  assert.match(header, /Leer y escuchar/);
-  assert.match(header, /BookOpenText/);
+  assert.match(header, /className="header-reading-actions"/);
+  assert.match(header, /<Volume2 size=\{21\}/);
   assert.match(header, /<Settings size=\{20\}/);
   assert.match(read('components/BottomNav.tsx'), /<Settings size=\{22\}/);
   assert.doesNotMatch(header, /<Accessibility\b/);
   assert.match(header, /Escuchar pantalla/);
   assert.match(header, /Tamaño del texto/);
-  assert.match(header, /Contraste alto/);
-  assert.match(css, /html\.high-contrast \.accessibility-panel :is\(span,p,svg\)/);
-  assert.match(css, /html\.high-contrast \.accessibility-option:hover :is\(span,svg\)/);
+  assert.match(header, /Activar contraste alto/);
+  assert.match(header, /role="group" aria-label=/);
+  assert.doesNotMatch(header, /<details|<summary|accessibility-panel/);
+  assert.match(css, /html\.high-contrast \.header-reading-actions \.icon-action/);
 });
 
 test('Animación del tutorial: pasos separados, progreso visual y movimiento reducido', () => {
@@ -60,8 +61,8 @@ test('Animación del tutorial: pasos separados, progreso visual y movimiento red
   assert.match(guide, /settings-desktop/);
   assert.match(guide, /settings-mobile/);
   assert.match(guide, /mobileDescription/);
-  assert.match(guide, /Tocá «Leer y escuchar»/);
-  assert.match(guide, /Estos tres botones permiten/);
+  assert.match(guide, /Estos tres botones sirven/);
+  assert.match(guide, /reading-controls/);
   assert.match(guide, /key=\{index\}/);
   assert.match(guide, /first-use-guide-steps/);
   assert.match(css, /prefers-reduced-motion:reduce/);
@@ -83,16 +84,15 @@ test('Guía: se posiciona con su altura medida y no depende de desplazar manualm
   assert.match(guide, /visibility: layout \? 'visible' : 'hidden'/);
 });
 
-test('Guía: despliega Leer y escuchar solo durante su paso y resalta las tres opciones', () => {
+test('Guía: destaca directamente los tres controles de lectura sin abrir menús', () => {
   const guide = read('components/FirstUseGuide.tsx');
   const header = read('components/BrandHeader.tsx');
-  assert.match(guide, /const DESKTOP_READING_STEP = 4/);
-  assert.match(guide, /menu\.open = true/);
-  assert.match(guide, /menu\.open = false/);
-  assert.match(guide, /highlightedRect\(element, showMenu\)/);
-  assert.match(guide, /accessibility-panel/);
-  assert.match(guide, /mobileDescription: 'Estos tres botones permiten/);
-  for (const name of ['Escuchar pantalla', 'Tamaño del texto', 'Contraste alto']) {
+  assert.match(guide, /desktop: '\[data-guide="reading-controls"\]'/);
+  assert.match(guide, /mobile: '\[data-guide="reading-controls"\]'/);
+  assert.match(guide, /highlightedRect\(element\)/);
+  assert.doesNotMatch(guide, /DESKTOP_READING_STEP|menu\.open|accessibility-panel/);
+  assert.equal((header.match(/className="icon-action/g) || []).length, 3);
+  for (const name of ['Escuchar pantalla', 'Tamaño del texto', 'Activar contraste alto']) {
     assert.match(header, new RegExp(name));
   }
 });
