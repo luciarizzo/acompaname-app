@@ -35,7 +35,22 @@ export function CinemaFlow({ city: profileCity, onBack, onHome, onSaved, onStepC
     if (step === 'done' || (step === 'theater' && !theater)) { removeFlowDraft('cinema'); return; }
     saveFlowDraft('cinema', { step, theater, ticketCount } satisfies Draft);
   }, [resume, step, theater, ticketCount]);
-  const reset = () => { removeFlowDraft('cinema'); setStep('theater'); setTheater(''); setTicketCount('1'); setResume(false); };
+  const reset = () => {
+    removeFlowDraft('cinema'); removeFlowDraft('cinemark-live'); removeFlowDraft('showcase-live');
+    setStep('theater'); setTheater(''); setTicketCount('1'); setResume(false);
+  };
+  const continueToCinema = () => {
+    if (!cinema) return;
+    if (cinema.id === 'cinemark' || cinema.id === 'showcase') {
+      // El selector es solo navegación: no debe quedar un borrador padre pendiente.
+      removeFlowDraft('cinema');
+      setTheater('');
+      if (cinema.id === 'cinemark') setCinemarkLive(true);
+      else setShowcaseLive(true);
+      return;
+    }
+    setStep('tickets');
+  };
   const back = () => { if (step === 'done') onHome(); else if (!index) onBack(); else setStep(steps[index - 1]); };
   useBrowserBack(back);
   const savePlan = () => {
@@ -60,7 +75,7 @@ export function CinemaFlow({ city: profileCity, onBack, onHome, onSaved, onStepC
           <span className="cinema-pick-copy"><strong>{option.name}</strong><small>{option.detail}</small></span>{theater === option.id && <span className="selected-indicator" aria-hidden="true">Elegido</span>}
         </button>)}</div>
         <p className="privacy-note"><MapPin size={18}/> Las cadenas no están disponibles en todas las localidades. La cartelera oficial te permitirá comprobar qué complejos tienen funciones.</p>
-        <button className="primary-button full-button" disabled={!cinema} onClick={() => cinema?.id === 'cinemark' ? setCinemarkLive(true) : cinema?.id === 'showcase' ? setShowcaseLive(true) : setStep('tickets')}>Continuar <ArrowRight size={19}/></button>
+        <button className="primary-button full-button" disabled={!cinema} onClick={continueToCinema}>Continuar <ArrowRight size={19}/></button>
       </section>
     </>}
     {!resume && step === 'tickets' && <>

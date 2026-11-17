@@ -74,7 +74,7 @@ export function ShowcaseLiveFlow({ city, onBack, onHome, onSaved, onStepChange }
   const busy = step === 'movie' ? moviesLoading : ['theater','date','time'].includes(step) ? showtimesLoading : false;
   const error = step === 'movie' ? moviesError : ['theater','date','time'].includes(step) ? showtimesError : '';
   const allowed = step === 'movie' ? !!movie : step === 'theater' ? !!theater : step === 'date' ? dates.includes(date) : step === 'time' ? !!selected : true;
-  const reset = () => { removeFlowDraft('showcase-live'); setStep('movie'); setMovieId(''); setTheaterId(''); setDate(''); setTimeId(''); setCount('1'); setResume(false); };
+  const reset = () => { removeFlowDraft('cinema'); removeFlowDraft('showcase-live'); setStep('movie'); setMovieId(''); setTheaterId(''); setDate(''); setTimeId(''); setCount('1'); setResume(false); };
   const save = () => {
     if (!movie || !theater || !selected || saved) return;
     const task: SavedTask = { id: crypto.randomUUID(), kind: 'cinema', title: 'Plan de cine',

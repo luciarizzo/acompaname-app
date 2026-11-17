@@ -84,7 +84,7 @@ export function CinemarkLiveFlow({ city, onBack, onHome, onSaved, onStepChange }
   const busy = step === 'theater' ? theatersLoading : ['movie','date','time'].includes(step) ? showtimesLoading : false;
   const error = step === 'theater' ? theatersError : ['movie','date','time'].includes(step) ? showtimesError : '';
   const allowed = step === 'theater' ? !!theater : step === 'movie' ? !!selectedMovie : step === 'date' ? dates.includes(date) : step === 'time' ? !!selectedTime && selectedTime.available !== 0 : true;
-  const reset = () => { removeFlowDraft('cinemark-live'); setStep('theater'); setTheaterId(''); setMovieId(''); setDate(''); setTimeId(''); setCount('1'); setResume(false); };
+  const reset = () => { removeFlowDraft('cinema'); removeFlowDraft('cinemark-live'); setStep('theater'); setTheaterId(''); setMovieId(''); setDate(''); setTimeId(''); setCount('1'); setResume(false); };
   const save = () => {
     if (!theater || !selectedMovie || !selectedTime || saved) return;
     const task: SavedTask = { id: crypto.randomUUID(), kind: 'cinema', title: 'Plan de cine',
