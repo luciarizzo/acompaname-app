@@ -60,12 +60,39 @@ test('Animación del tutorial: pasos separados, progreso visual y movimiento red
   assert.match(guide, /settings-desktop/);
   assert.match(guide, /settings-mobile/);
   assert.match(guide, /mobileDescription/);
-  assert.match(guide, /menu se abre al tocarlo|Tocá «Leer y escuchar»/);
+  assert.match(guide, /Tocá «Leer y escuchar»/);
   assert.match(guide, /Estos tres botones permiten/);
   assert.match(guide, /key=\{index\}/);
   assert.match(guide, /first-use-guide-steps/);
-  assert.match(guide, /prefers-reduced-motion: reduce/);
+  assert.match(css, /prefers-reduced-motion:reduce/);
   assert.match(css, /@keyframes guide-step-appear/);
   assert.match(css, /first-use-guide-spotlight\{transition/);
   assert.match(css, /prefers-reduced-motion:reduce/);
+});
+
+
+test('Guía: se posiciona con su altura medida y no depende de desplazar manualmente la pantalla', () => {
+  const guide = read('components/FirstUseGuide.tsx');
+  assert.match(guide, /useLayoutEffect/);
+  assert.match(guide, /card\.offsetHeight/);
+  assert.match(guide, /function placeGuide/);
+  assert.match(guide, /const requiredScroll/);
+  assert.match(guide, /window\.scrollBy\(\{ top: distance, behavior: 'auto' \}\)/);
+  assert.match(guide, /ResizeObserver/);
+  assert.doesNotMatch(guide, /panelHeightEstimate/);
+  assert.match(guide, /visibility: layout \? 'visible' : 'hidden'/);
+});
+
+test('Guía: despliega Leer y escuchar solo durante su paso y resalta las tres opciones', () => {
+  const guide = read('components/FirstUseGuide.tsx');
+  const header = read('components/BrandHeader.tsx');
+  assert.match(guide, /const DESKTOP_READING_STEP = 4/);
+  assert.match(guide, /menu\.open = true/);
+  assert.match(guide, /menu\.open = false/);
+  assert.match(guide, /highlightedRect\(element, showMenu\)/);
+  assert.match(guide, /accessibility-panel/);
+  assert.match(guide, /mobileDescription: 'Estos tres botones permiten/);
+  for (const name of ['Escuchar pantalla', 'Tamaño del texto', 'Contraste alto']) {
+    assert.match(header, new RegExp(name));
+  }
 });
