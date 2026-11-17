@@ -25,7 +25,7 @@ const profileKey = () => storageKey(BASE_PROFILE_KEY);
 export const defaultProfile: OnboardingProfile = {
   role: 'self',
   name: '',
-  city: 'Mendoza',
+  city: '',
   accessibility: '',
   largerText: false,
   highContrast: false,

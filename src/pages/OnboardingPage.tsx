@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Check, CreditCard, Eye, Mic, Volume2 } from 'luc
 import { useEffect, useState } from 'react';
 import type { OnboardingProfile } from '../utils/profile';
 import { isAccountMode } from '../utils/storageMode';
+import { LocalityAutocomplete } from '../components/LocalityAutocomplete';
 
 interface Props { onComplete: (profile: OnboardingProfile) => void; onCancel: () => void; onStepChange: () => void; onPreferencesPreview: (preferences: Pick<OnboardingProfile, 'largerText' | 'highContrast'>) => void; initialProfile: OnboardingProfile; initialStep?: number }
 const steps = ['Quién la usa', 'Perfil', 'Preferencias', 'Medio de pago', 'Contactos de confianza', 'Revisar'];
@@ -57,8 +58,8 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
       <label className="field-label" htmlFor="profile-name">{profile.role === 'self' ? '¿Cómo querés que te llamemos?' : '¿Cómo se llama la persona que usará la app?'} <span className="optional-label">(opcional)</span></label>
       <input id="profile-name" className="form-control" value={profile.name} maxLength={40} placeholder="Solo el nombre" onChange={(event) => update({ name: event.target.value })}/>
       <label className="field-label" htmlFor="profile-city">¿En qué ciudad estás?</label>
-      <input id="profile-city" className="form-control" value={profile.city} maxLength={60} placeholder="Por ejemplo: Mendoza" onChange={(event) => update({ city: event.target.value })}/>
-      <p className="onboarding-privacy">Usamos tu ciudad para mostrar salidas y sedes cercanas. Podés corregirla antes de guardar.</p>
+      <LocalityAutocomplete id="profile-city" value={profile.city} onChange={city => update({ city })} placeholder="Escribí tu ciudad o localidad"/>
+      <p className="onboarding-privacy">Escribí al menos dos letras y elegí tu localidad de las sugerencias oficiales. Si no hay conexión, podés ingresarla manualmente.</p>
       <fieldset className="onboarding-fieldset"><legend>¿Qué opción te representa mejor? <span className="optional-label">(opcional)</span></legend>
         <div className="onboarding-choices compact">
           {([
@@ -113,7 +114,7 @@ export function OnboardingPage({ onComplete, onCancel, onStepChange, onPreferenc
       <dl className="onboarding-summary">
         <div><dt>La app está preparada para</dt><dd>{profile.role === 'self' ? 'La voy a usar yo' : 'Estoy ayudando a otra persona'}</dd></div>
         <div><dt>Nombre</dt><dd>{profile.name.trim() || 'Sin nombre por ahora'}</dd></div>
-        <div><dt>Ciudad</dt><dd>{profile.city.trim() || 'Mendoza'}</dd></div>
+        <div><dt>Ciudad</dt><dd>{profile.city.trim() || 'Sin seleccionar'}</dd></div>
         <div><dt>Contactos de confianza</dt><dd>{profile.trustedContacts.filter(contact => contact.name.trim() && contact.phone.trim()).length || 'Ninguno'}</dd></div>
         <div><dt>Preferencias de accesibilidad</dt><dd>{[
           profile.accessibility === 'older-adult' ? 'Persona mayor' : '',

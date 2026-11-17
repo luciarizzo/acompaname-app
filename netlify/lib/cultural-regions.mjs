@@ -1,5 +1,5 @@
 const sources = [
-  { id: 'caba', name: 'Ciudad de Buenos Aires', match: /^(caba|capital federal|ciudad (autonoma de )?buenos aires|buenos aires)$/i, url: 'https://turismo.buenosaires.gob.ar/es/article/que-hacer-esta-semana', automatic: true },
+  { id: 'caba', name: 'Ciudad de Buenos Aires', match: /^(caba|capital federal|ciudad (?:autonoma de |de )?buenos aires|buenos aires)(?:,? argentina)?$/i, url: 'https://turismo.buenosaires.gob.ar/es/article/que-hacer-esta-semana', automatic: true },
   { id: 'rosario', name: 'Rosario (Santa Fe)', match: /^rosario(?:,? santa fe)?$/i, url: 'https://www.rosario.gob.ar/inicio/agenda', automatic: true },
   { id: 'cordoba', name: 'Córdoba Capital', match: /^(cordoba|cordoba capital|ciudad de cordoba)$/i, url: 'https://cultura.cordoba.gob.ar/agenda/', automatic: false },
   { id: 'mendoza', name: 'Mendoza Capital', match: /^(mendoza|ciudad de mendoza|mendoza capital)$/i, url: 'https://ciudaddemendoza.gob.ar/servicios/agenda-de-la-ciudad-de-mendoza/', automatic: false },
