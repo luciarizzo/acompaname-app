@@ -136,10 +136,12 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
       <div className="flow-heading"><h1>{kind === 'event' ? '¿Qué te gustaría hacer?' : '¿Qué tipo de atención buscás?'}</h1><p>{kind === 'event' ? 'Buscamos actividades usando los servicios disponibles.' : 'Elegí una especialidad para ver opciones. Las agendas de los prestadores todavía no están conectadas.'}</p></div>
       <div className="form-card">
         {kind === 'event' && <>
-          <label className="field-label" htmlFor="event-query">¿Ya sabés cómo se llama el evento?</label>
-          <input id="event-query" type="search" className="form-control" value={eventQuery} maxLength={120} onChange={e => setEventQuery(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && searchCity.trim() && (eventQuery.trim() || eventCategory)) void startSearch(); }} placeholder="Ej.: concierto, obra o nombre del espectáculo" autoComplete="off"/>
-          <p className="form-intro">O elegí una categoría para descubrir actividades. Podés combinar ambas opciones.</p>
-          <div className="choice-grid">{Object.entries(eventCategories).map(([key, value]) => <button key={key} className={eventCategory === key ? 'choice-button chosen' : 'choice-button'} onClick={() => setEventCategory(key)}>{value}{eventCategory === key && <span className="selected-indicator" aria-hidden="true">Elegido</span>}</button>)}</div>
+          <p className="form-intro">Primero elegí el tipo de actividad.</p>
+          <div className="choice-grid">{Object.entries(eventCategories).map(([key, value]) => <button key={key} className={eventCategory === key ? 'choice-button chosen' : 'choice-button'} onClick={() => { setEventCategory(key); if (eventCategory !== key) setEventQuery(''); }}>{value}{eventCategory === key && <span className="selected-indicator" aria-hidden="true">Elegido</span>}</button>)}</div>
+          {eventCategory && <div>
+            <label className="field-label" htmlFor="event-query">Buscar por nombre en {eventCategories[eventCategory as keyof typeof eventCategories].toLowerCase()}</label>
+            <input id="event-query" type="search" className="form-control" value={eventQuery} maxLength={120} onChange={e => setEventQuery(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && searchCity.trim()) void startSearch(); }} placeholder="Escribí el nombre si ya conocés la actividad (opcional)" autoComplete="off"/>
+          </div>}
           <label className="field-label" htmlFor="event-city">Ciudad donde querés buscar actividades</label>
           <input id="event-city" className="form-control" value={searchCity} maxLength={100} onChange={e => setSearchCity(e.target.value)} placeholder="Ej.: Rosario, Córdoba, Mendoza o Buenos Aires"/>
           <div className="privacy-note"><MapPin size={18}/><span>La disponibilidad de eventos reales depende de la agenda oficial de cada ciudad.</span></div>
@@ -153,7 +155,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
           <div className="privacy-note"><ShieldCheck size={18}/><span>OSDE, PAMI y otros prestadores todavía no están conectados. No compartimos tus datos ni reservamos turnos.</span></div>
         </>}
         {error && <StatusMessage kind="error">{error}</StatusMessage>}
-        <button className="primary-button full-button" onClick={() => void startSearch()} disabled={kind === 'event' && (!(eventCategory || eventQuery.trim()) || !searchCity.trim())}><Search size={19}/>{kind === 'appointment' ? 'Ver opciones de turno' : 'Buscar opciones'}<ArrowRight size={19}/></button>
+        <button className="primary-button full-button" onClick={() => void startSearch()} disabled={kind === 'event' && (!eventCategory || !searchCity.trim())}><Search size={19}/>{kind === 'appointment' ? 'Ver opciones de turno' : 'Buscar opciones'}<ArrowRight size={19}/></button>
       </div>
     </>}
 
