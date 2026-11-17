@@ -3,6 +3,9 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[build.environment]
+  VITE_ENABLE_LIVE_APIS = "true"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
