@@ -552,3 +552,10 @@ html.high-contrast .trusted-delete-screen{color:#fff}
 @media(max-width:440px){.trusted-delete-actions{flex-direction:column}.trusted-delete-actions button{width:100%}}
 @media(max-width:350px){.trusted-contact-actions{grid-template-columns:1fr}.trusted-contact-actions .trusted-call{grid-column:auto}}
 
+/* HU19: al confirmar se reemplaza la tarjeta, sin botones ni paneles detrás. */
+.saved-card-confirming{display:block;padding:22px;min-width:0}
+.saved-card-confirming .saved-delete{margin:0;padding:0;border:0;background:transparent}
+.saved-delete-screen h2{margin:0 0 12px;font-size:calc(23px * var(--text-scale,1));color:var(--ink)}
+.saved-delete-screen p{line-height:1.6}
+html.high-contrast .saved-delete-screen h2{color:#fff}
+@media(max-width:650px){.saved-card-confirming{padding:18px}}

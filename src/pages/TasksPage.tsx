@@ -1,5 +1,5 @@
 import { useBrowserBack } from '../utils/useBrowserBack';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, CalendarHeart, Car, Clapperboard, ClipboardList, Eye, Pencil, Theater, Trash2 } from 'lucide-react';
 import { StatusMessage } from '../components/StatusMessage';
 import { TaskEditForm } from '../components/TaskEditForm';
@@ -21,6 +21,15 @@ export function TasksPage({ items, onHome, onUpdate, onDelete }: Props) {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState('');
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const deleteTitleRef = useRef<HTMLHeadingElement>(null);
+  const deleteOriginRef = useRef<HTMLButtonElement | null>(null);
+  const noticeRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (pendingDeleteId) deleteTitleRef.current?.focus();
+    else if (!notice && deleteOriginRef.current?.isConnected) deleteOriginRef.current.focus();
+  }, [pendingDeleteId]);
+  useEffect(() => { if (notice) noticeRef.current?.focus(); }, [notice]);
   const confirmDelete = async (item: SavedTask) => {
     setDeleteBusy(true);
     setDeleteError('');
@@ -36,10 +45,18 @@ export function TasksPage({ items, onHome, onUpdate, onDelete }: Props) {
   return <main id="main" className="page tasks-page">
     <div className="flow-top"><button className="back-button" onClick={onHome}><ArrowLeft size={20}/> Inicio</button></div>
     <div className="flow-heading"><p className="eyebrow">TUS CONSULTAS, EN UN SOLO LUGAR</p><h1>Mis gestiones</h1><p>Acá encontrás los planes y consultas que guardaste {isAccountMode() ? 'en tu cuenta' : 'en este dispositivo'}.</p></div>
-    {notice && <p className="saved-notice" role="status">{notice}</p>}
+    {notice && <p className="saved-notice" role="status" tabIndex={-1} ref={noticeRef}>{notice}</p>}
     {items.length === 0 ? <section className="empty-state"><span className="empty-icon"><ClipboardList size={30}/></span><h2>Todavía no hay gestiones guardadas</h2><p>Cuando consultes una salida, una opción de turno u otra gestión, podés guardarla para encontrarla acá.</p><button className="primary-button" onClick={onHome}>Volver al inicio <ArrowRight size={18}/></button></section>
       : <div className="saved-list">{items.map(item => {
         const expanded = expandedId === item.id;
+        if (pendingDeleteId === item.id) return <article key={item.id} className="saved-card saved-card-confirming">
+          <section className="saved-delete saved-delete-screen" aria-labelledby={`delete-plan-${item.id}`}>
+            <h2 id={`delete-plan-${item.id}`} ref={deleteTitleRef} tabIndex={-1}>¿Eliminar este plan?</h2>
+            <p>Vas a quitar <strong>«{item.title}»</strong> de Mis gestiones. Esto no cancela ninguna compra, reserva ni solicitud externa.</p>
+            {deleteError && <StatusMessage kind="error">{deleteError}</StatusMessage>}
+            <div className="saved-form-actions"><button type="button" className="secondary-button" disabled={deleteBusy} onClick={() => setPendingDeleteId(null)}>Cancelar</button><button type="button" className="saved-delete-button" disabled={deleteBusy} onClick={() => void confirmDelete(item)}><Trash2 size={18}/>{deleteBusy ? 'Eliminando…' : 'Sí, eliminar plan'}</button></div>
+          </section>
+        </article>;
         return <article key={item.id} className="saved-card saved-card-detailed">
           <span className={`saved-icon ${item.kind}`} aria-hidden="true"><TaskIcon kind={item.kind}/></span>
           <div className="saved-copy">
@@ -51,15 +68,9 @@ export function TasksPage({ items, onHome, onUpdate, onDelete }: Props) {
             <button type="button" className="secondary-button saved-action saved-detail-toggle" aria-expanded={expanded} aria-controls={expanded ? `task-detail-${item.id}` : undefined} onClick={() => { setExpandedId(expanded ? null : item.id); setEditingId(null); setPendingDeleteId(null); }}><Eye size={18}/>{expanded ? 'Ocultar detalle' : 'Ver detalle'}</button>
             <div className="saved-secondary-controls">
               <button type="button" className="secondary-button saved-action" aria-label={`Editar ${item.title}`} onClick={() => { setEditingId(item.id); setExpandedId(null); setPendingDeleteId(null); setNotice(''); }}><Pencil size={18}/> Editar</button>
-              <button type="button" className="secondary-button saved-action saved-danger" aria-label={`Eliminar ${item.title}`} onClick={() => { setPendingDeleteId(item.id); setEditingId(null); setExpandedId(null); setDeleteError(''); setNotice(''); }}><Trash2 size={18}/> Eliminar</button>
+              <button type="button" className="secondary-button saved-action saved-danger" aria-label={`Eliminar ${item.title}`} onClick={event => { deleteOriginRef.current = event.currentTarget; setPendingDeleteId(item.id); setEditingId(null); setExpandedId(null); setDeleteError(''); setNotice(''); }}><Trash2 size={18}/> Eliminar</button>
             </div>
           </div>
-          {pendingDeleteId === item.id && <section className="saved-delete" aria-label={`Confirmar eliminación de ${item.title}`}>
-            <h3>¿Eliminar este plan?</h3>
-            <p>Vas a quitar <strong>«{item.title}»</strong> de Mis gestiones. Esto no cancela ninguna compra, reserva ni solicitud externa.</p>
-            {deleteError && <StatusMessage kind="error">{deleteError}</StatusMessage>}
-            <div className="saved-form-actions"><button type="button" className="secondary-button" disabled={deleteBusy} onClick={() => setPendingDeleteId(null)}>Cancelar</button><button type="button" className="saved-delete-button" disabled={deleteBusy} onClick={() => void confirmDelete(item)}><Trash2 size={18}/>{deleteBusy ? 'Eliminando…' : 'Sí, eliminar plan'}</button></div>
-          </section>}
           {editingId === item.id && <TaskEditForm key={item.id} task={item} onCancel={() => setEditingId(null)} onSave={async updated => { await onUpdate(updated); setEditingId(null); setNotice('Guardaste los cambios del plan.'); }}/>}
           {expanded && <section id={`task-detail-${item.id}`} className="saved-detail" aria-label={`Detalle de ${item.title}`}>
             <h3>Detalle de tu gestión</h3>
