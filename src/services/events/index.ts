@@ -6,11 +6,15 @@ export async function searchEvents(input: EventSearch): Promise<SearchResult<Eve
     music: [`Música en vivo · ${input.city}`, `Recital acústico · ${input.city}`],
     theater: [`Función de teatro · ${input.city}`, `Comedia en vivo · ${input.city}`],
     sports: [`Encuentro deportivo · ${input.city}`, `Partido de fútbol · ${input.city}`],
+    culture: [`Actividad cultural · ${input.city}`, `Muestra o espectáculo · ${input.city}`],
+    all: [`Actividad cultural · ${input.city}`, `Salida para compartir · ${input.city}`],
     other: [`Feria cultural · ${input.city}`, `Actividad al aire libre · ${input.city}`]
   };
   const names = eventNames[input.category] || eventNames.other;
-  return { mode: 'demo', items: [
+  const items: EventResult[] = [
     { id: 'idea-1', name: names[0], date: input.date || 'Elegí el día que te quede cómodo', venue: 'Mendoza · lugar a elección', url: '' },
     { id: 'idea-2', name: names[1], date: input.date || 'Elegí el día que te quede cómodo', venue: 'Mendoza · lugar a elección', url: '' }
-  ] };
+  ];
+  const query = (input.query || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  return { mode: 'demo', items: query ? items.filter(item => item.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(query)) : items };
 }
