@@ -7,6 +7,7 @@ import type { SavedTask } from '../types';
 import { saveTask } from '../utils/storage';
 import { isAccountMode } from '../utils/storageMode';
 import { loadFlowDraft, removeFlowDraft, saveFlowDraft } from '../utils/flowDraft';
+import { matchesShowcaseCity } from '../utils/cinemaLocation';
 
 type Movie = { id: string; name: string; image?: string };
 type Showtime = { id: string; theaterId: string; theater: string; date: string; time: string; format: string; houseId: string };
@@ -25,6 +26,7 @@ export function ShowcaseLiveFlow({ city, onBack, onHome, onSaved, onStepChange }
   const [timeId, setTimeId] = useState(previous?.timeId || '');
   const [count, setCount] = useState(previous?.count || '1');
   const [query, setQuery] = useState('');
+  const [showAllTheaters, setShowAllTheaters] = useState(false);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [showtimes, setShowtimes] = useState<Showtime[]>([]);
   const [moviesLoading, setMoviesLoading] = useState(false);
@@ -34,6 +36,8 @@ export function ShowcaseLiveFlow({ city, onBack, onHome, onSaved, onStepChange }
   const [saved, setSaved] = useState(false);
   const movie = movies.find(x => x.id === movieId);
   const theaters = useMemo(() => [...new Map(showtimes.map(x => [x.theaterId,{ id: x.theaterId, name: x.theater }])).values()], [showtimes]);
+  const localTheaters = theaters.filter(x => matchesShowcaseCity(city, x.name));
+  const visibleTheaters = showAllTheaters ? theaters : localTheaters;
   const theater = theaters.find(x => x.id === theaterId);
   const dates = [...new Set(showtimes.filter(x => x.theaterId === theaterId).map(x => x.date))].sort();
   const times = showtimes.filter(x => x.theaterId === theaterId && x.date === date).sort((a,b)=>a.time.localeCompare(b.time));
@@ -89,7 +93,7 @@ export function ShowcaseLiveFlow({ city, onBack, onHome, onSaved, onStepChange }
         {error && <p role="alert" className="inline-message">{error}</p>}
         {(!!error || (!busy && step === 'theater' && !theaters.length)) && <p><a href="https://www.voyalcine.net/showcase/Default.aspx" target="_blank" rel="noopener noreferrer">Consultar la cartelera de Showcase <ExternalLink size={15}/></a></p>}
         {step === 'movie' && <><label htmlFor="showcase-search" className="cinema-search-label">Buscar película</label><div className="cinema-search"><Search size={21} aria-hidden="true"/><input id="showcase-search" type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Escribí parte del título…"/></div><p className="cinema-result-count">{movies.filter(x=>normalize(x.name).includes(normalize(query.trim()))).length} películas encontradas</p><div className="cinema-movie-grid">{!busy && movies.filter(x=>normalize(x.name).includes(normalize(query.trim()))).map(x=><button key={x.id} type="button" className={`cinema-movie-card${movieId === x.id ? ' selected' : ''}`} aria-pressed={movieId===x.id} onClick={()=>{setMovieId(x.id);setTheaterId('');setDate('');setTimeId('');}}>{x.image ? <img loading="lazy" src={x.image} alt=""/> : <span className="cinema-movie-placeholder"><Film size={36}/></span>}<span className="cinema-movie-title">{x.name}</span>{movieId===x.id && <span className="cinema-movie-selected">✓ Elegida</span>}</button>)}</div>{!busy && movies.length > 0 && !movies.some(x=>normalize(x.name).includes(normalize(query.trim()))) && <p>No encontramos películas con ese título. Probá con otra palabra.</p>}</>}
-        {step === 'theater' && !busy && <div className="cinema-choices">{theaters.sort((a,b)=>Number(normalize(b.name).includes(normalize(city)))-Number(normalize(a.name).includes(normalize(city)))).map(x=><div key={x.id}>{choose(x.name,'',theaterId===x.id,()=>{setTheaterId(x.id);setDate('');setTimeId('');})}</div>)}{!theaters.length && !error && <p>No hay funciones publicadas para esta película.</p>}</div>}
+        {step === 'theater' && !busy && <><p className="cinema-result-count">{showAllTheaters ? 'Todos los complejos' : `Complejos de ${city || 'tu zona'}`} · {visibleTheaters.length} resultados</p><div className="cinema-choices cinema-theater-choices">{visibleTheaters.map(x=><div key={x.id}>{choose(x.name,'',theaterId===x.id,()=>{setTheaterId(x.id);setDate('');setTimeId('');})}</div>)}{!visibleTheaters.length && !error && <p>No hay funciones publicadas para esta película en tu zona.</p>}</div><button type="button" className="text-button cinema-location-toggle" onClick={()=>setShowAllTheaters(value=>!value)}>{showAllTheaters ? 'Mostrar solo mi zona' : 'Ver complejos de otras zonas'}</button></>}
         {step === 'date' && !busy && <CinemaDateCalendar dates={dates} selected={date} onSelect={x=>{setDate(x);setTimeId('');}}/>}
         {step === 'time' && !busy && <div className="cinema-choices">{times.map(x=><div key={x.id}>{choose(x.time,x.format,timeId===x.id,()=>setTimeId(x.id))}</div>)}</div>}
         {step === 'tickets' && <div className="cinema-choices cinema-quantity">{ticketAmounts.map(x=><button key={x} type="button" aria-pressed={count===x} className={`choice-button${count===x?' chosen':''}`} onClick={()=>setCount(x)}>{x} {x==='1'?'entrada':'entradas'}</button>)}</div>}

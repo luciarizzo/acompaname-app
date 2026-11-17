@@ -619,3 +619,6 @@ html.high-contrast .saved-card-confirming .saved-delete{
 .cinema-calendar-help { display: flex; align-items: center; gap: .55rem; font-size: .89rem; color: #54746c; margin-top: 1rem; }
 .cinema-calendar-help span { width: 13px; height: 13px; background: #e1f4ed; border: 1px solid #8fceb9; border-radius: 4px; }
 @media (max-width: 520px) { .cinema-movie-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; } .cinema-calendar-grid { gap: .15rem; } }
+.cinema-theater-choices { margin-top: 1rem; }
+.cinema-location-toggle { display: inline-flex; margin-top: 1.1rem; padding: .6rem .25rem; }
+.cinema-theater-choices .cinema-pick { min-height: 84px; }
