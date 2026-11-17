@@ -2,6 +2,33 @@ const HOME = 'https://www.voyalcine.net/showcase/Default.aspx';
 const API = 'https://api.voyalcine.net';
 const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=600' };
 const json = (statusCode, body) => ({ statusCode, headers, body: JSON.stringify(body) });
+const catalogCache = new Map();
+const theaterNames = ['Belgrano', 'Norte', 'Haedo', 'Quilmes', 'Córdoba', 'Rosario', 'Villa Allende'];
+const normalizeName = value => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+export function belongsToShowcaseTheater(name, selectedName) {
+  const selected = normalizeName(selectedName).replace(/^showcase\s+/, '');
+  return theaterNames.some(value => normalizeName(value) === selected) && normalizeName(name).includes(selected);
+}
+async function getMoviesForTheater(theaterName) {
+  const key = normalizeName(theaterName);
+  const cached = catalogCache.get(key);
+  if (cached && Date.now() - cached.at < 600000) return cached.movies;
+  const response = await fetch(HOME, { signal: AbortSignal.timeout(10000) });
+  if (!response.ok) throw new Error('Cartelera no disponible');
+  const movies = parseShowcaseMovies(await response.text());
+  if (!movies.length) throw new Error('Cartelera vacía');
+  // Verificamos cada película contra funciones reales de la sede. Si una consulta
+  // falla, no presentamos una lista incompleta como si fuera la cartelera completa.
+  const checks = await Promise.all(movies.map(async movie => {
+    const result = await fetch(`${API}/films/${movie.id}/tree/showcase`, { signal: AbortSignal.timeout(10000) });
+    if (!result.ok) throw new Error('Funciones no disponibles');
+    const showtimes = normalizeShowcaseTree(await result.json());
+    return showtimes.some(row => belongsToShowcaseTheater(row.theater, theaterName)) ? movie : null;
+  }));
+  const available = checks.filter(Boolean);
+  catalogCache.set(key, { at: Date.now(), movies: available });
+  return available;
+}
 
 export function parseShowcaseMovies(html) {
   const result = [];
@@ -39,9 +66,11 @@ export const handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Método no permitido.' });
   let input;
   try { input = JSON.parse(event.body || '{}'); } catch { return json(400, { error: 'Solicitud inválida.' }); }
-  if (!['movies', 'showtimes'].includes(input?.action)) return json(400, { error: 'Operación inválida.' });
+  if (!['movies', 'showtimes', 'theater-movies'].includes(input?.action)) return json(400, { error: 'Operación inválida.' });
   if (input.action === 'showtimes' && !/^\d{1,8}$/.test(String(input.movieId))) return json(400, { error: 'Película inválida.' });
+  if (input.action === 'theater-movies' && !theaterNames.some(name => normalizeName(name) === normalizeName(input.theaterName))) return json(400, { error: 'Complejo inválido.' });
   try {
+    if (input.action === 'theater-movies') return json(200, { mode: 'real', movies: await getMoviesForTheater(input.theaterName) });
     const endpoint = input.action === 'movies' ? HOME : `${API}/films/${input.movieId}/tree/showcase`;
     const response = await fetch(endpoint, { headers: { Accept: input.action === 'movies' ? 'text/html' : 'application/json' }, signal: AbortSignal.timeout(12000) });
     if (!response.ok) throw new Error(`Showcase ${response.status}`);

@@ -10,6 +10,10 @@ import { saveTask } from '../utils/storage';
 import { isAccountMode } from '../utils/storageMode';
 import { useBrowserBack } from '../utils/useBrowserBack';
 import { loadFlowDraft, removeFlowDraft, saveFlowDraft } from '../utils/flowDraft';
+import { showcaseTheaters } from '../data/showcaseTheaters';
+import { matchesCinemarkCity, matchesShowcaseCity } from '../utils/cinemaLocation';
+import { functionRequest } from '../services/common';
+import { CinemaLoading } from '../components/CinemaLoading';
 
 type Step = 'theater' | 'tickets' | 'review' | 'done';
 type Draft = { step: Step; theater: string; ticketCount: string };
@@ -25,11 +29,23 @@ export function CinemaFlow({ city: profileCity, onBack, onHome, onSaved, onStepC
   const [saved, setSaved] = useState(false);
   const [cinemarkLive, setCinemarkLive] = useState(false);
   const [showcaseLive, setShowcaseLive] = useState(false);
+  const [cinemarkInZone, setCinemarkInZone] = useState<boolean | null>(null);
   const city = profileCity.trim();
+  const showcaseInZone = !city || showcaseTheaters.some(option => matchesShowcaseCity(city, option.name));
+  const availableCinemas = officialCinemas.filter(option => option.id === 'showcase' ? showcaseInZone : cinemarkInZone === true);
   const cinema = officialCinemas.find(option => option.id === theater);
   const index = steps.indexOf(step);
 
   useEffect(() => { onStepChange(); }, [step]);
+  useEffect(() => {
+    if (!city) { setCinemarkInZone(true); return; }
+    let active = true;
+    setCinemarkInZone(null);
+    functionRequest<{ theaters: { name: string; city: string; region: string; address: string }[] }>('cinemark-live', { action: 'theaters' })
+      .then(result => { if (active) setCinemarkInZone(result.theaters.some(item => matchesCinemarkCity(city, item))); })
+      .catch(() => { if (active) setCinemarkInZone(false); });
+    return () => { active = false; };
+  }, [city]);
   useEffect(() => {
     if (resume) return;
     if (step === 'done' || (step === 'theater' && !theater)) { removeFlowDraft('cinema'); return; }
@@ -70,12 +86,13 @@ export function CinemaFlow({ city: profileCity, onBack, onHome, onSaved, onStepC
     <div className="flow-progress"><span className="flow-mark"><Clapperboard size={20}/></span><span>Ir al cine · carteleras oficiales</span><span className="step-label">{step === 'done' ? 'Listo' : step === 'review' ? 'Revisar' : `Paso ${index + 1} de 2`}</span></div>
     {!resume && step === 'theater' && <>
       <div className="flow-heading"><h1>¿Qué cadena de cines querés consultar?</h1><p>Estas dos cadenas tienen cartelera y funciones reales integradas. Elegí una para consultar películas y horarios cerca de {city || 'tu localidad'}; las butacas y el pago se gestionan en la web oficial.</p></div>
-      <section className="form-card"><div className="cinema-choices">{officialCinemas.map(option =>
+      <section className="form-card">{cinemarkInZone === null && <CinemaLoading message="Comprobando qué cadenas tienen complejos en tu zona…"/>}<div className="cinema-choices">{availableCinemas.map(option =>
         <button key={option.id} type="button" aria-pressed={theater === option.id} className={`cinema-pick${theater === option.id ? ' selected' : ''}`} onClick={() => setTheater(option.id)}>
           <span className="cinema-pick-copy"><strong>{option.name}</strong><small>{option.detail}</small></span>{theater === option.id && <span className="selected-indicator" aria-hidden="true">Elegido</span>}
         </button>)}</div>
-        <p className="privacy-note"><MapPin size={18}/> Las cadenas no están disponibles en todas las localidades. La cartelera oficial te permitirá comprobar qué complejos tienen funciones.</p>
-        <button className="primary-button full-button" disabled={!cinema} onClick={continueToCinema}>Continuar <ArrowRight size={19}/></button>
+        <p className="privacy-note"><MapPin size={18}/> Mostramos cadenas con complejos registrados en tu zona. La disponibilidad de funciones se confirma al consultar cada sede.</p>
+        {!availableCinemas.length && cinemarkInZone !== null && <p>No encontramos cadenas integradas para {city}. Podés cambiar tu localidad en Mi configuración.</p>}
+        <button className="primary-button full-button" disabled={!cinema || !availableCinemas.some(option => option.id === cinema.id) || cinemarkInZone === null} onClick={continueToCinema}>Continuar <ArrowRight size={19}/></button>
       </section>
     </>}
     {!resume && step === 'tickets' && <>

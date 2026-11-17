@@ -20,7 +20,9 @@ export function matchesShowcaseCity(city: string, theaterName: string) {
   const theater = normalize(theaterName);
   if (theater.includes(location)) return true;
   if (caba.test(location)) return /belgrano|caballito|capital|caba/.test(theater);
-  if (gba.test(location)) return !/rosario|cordoba|santa fe|mendoza/.test(theater);
+  if (location === 'cordoba' || location === 'provincia de cordoba') return /cordoba|villa allende/.test(theater);
+  if (location === 'villa allende') return theater.includes('villa allende');
+  if (gba.test(location)) return !/rosario|cordoba|villa allende|santa fe|mendoza/.test(theater);
   if (/^(claypole|adrogue|banfield|lanus|lomas de zamora|temperley|avellaneda|quilmes)$/.test(location)) return /quilmes|haedo|norcenter|norte/.test(theater);
   if (/^(moron|haedo|ramos mejia|san justo|moreno)$/.test(location)) return /haedo|norcenter|norte|quilmes/.test(theater);
   if (location === 'santa fe') return theater.includes('rosario');

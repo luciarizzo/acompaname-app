@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { handler as cinemark, normalizeTheaters, normalizeShowtimes, enrichShowtimesWithMovies } from '../netlify/functions/cinemark-live.mjs';
-import { handler as showcase, parseShowcaseMovies, normalizeShowcaseTree } from '../netlify/functions/showcase-live.mjs';
+import { handler as showcase, parseShowcaseMovies, normalizeShowcaseTree, belongsToShowcaseTheater } from '../netlify/functions/showcase-live.mjs';
 
 test('Cinemark normaliza complejos y funciones sin convertir la hora local', () => {
   const theaters = normalizeTheaters([{ id: 103, name: 'Abasto', slug: 'abasto', city: 'CABA', location: { name: 'Ciudad de Buenos Aires' } }]);
@@ -41,6 +41,21 @@ test('Showcase normaliza fechas, salas y formatos reales', () => {
   assert.equal(rows[0].theater, 'Showcase Quilmes');
   assert.equal(rows[0].time, '22:25');
   assert.equal(rows[0].houseId, '3208');
+});
+
+test('Showcase identifica sede Córdoba sin confundirla con Villa Allende', () => {
+  assert.equal(belongsToShowcaseTheater('Showcase Córdoba', 'Córdoba'), true);
+  assert.equal(belongsToShowcaseTheater('Showcase Villa Allende', 'Córdoba'), false);
+  assert.equal(belongsToShowcaseTheater('Showcase Villa Allende', 'Villa Allende'), true);
+  assert.equal(belongsToShowcaseTheater('Showcase Rosario', 'Córdoba'), false);
+});
+
+test('Showcase elige primero la sede y consulta solo películas con funciones allí', () => {
+  const page = readFileSync(new URL('../src/pages/ShowcaseLiveFlow.tsx', import.meta.url), 'utf8');
+  const backend = readFileSync(new URL('../netlify/functions/showcase-live.mjs', import.meta.url), 'utf8');
+  assert.match(page, /const steps: Step\[\] = \['theater', 'movie'/);
+  assert.match(page, /action: 'theater-movies'/);
+  assert.match(backend, /showtimes\.some\(row => belongsToShowcaseTheater/);
 });
 
 test('Showcase deriva al dominio de entradas con película y complejo', () => {
