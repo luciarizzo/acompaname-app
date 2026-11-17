@@ -622,3 +622,10 @@ html.high-contrast .saved-card-confirming .saved-delete{
 .cinema-theater-choices { margin-top: 1rem; }
 .cinema-location-toggle { display: inline-flex; margin-top: 1.1rem; padding: .6rem .25rem; }
 .cinema-theater-choices .cinema-pick { min-height: 84px; }
+/* Estado de espera visible en la consulta de carteleras */
+.cinema-loading { display: flex; align-items: center; gap: 1.15rem; min-height: 120px; padding: 1.4rem; margin-bottom: 1rem; border: 1px solid #b7d7cc; border-radius: 17px; background: #edf7f2; color: #124b43; }
+.cinema-loading strong { font-size: calc(18px * var(--text-scale, 1)); }
+.cinema-loading p { margin: .35rem 0 0; color: #496961; line-height: 1.5; }
+.cinema-loading-spinner { width: 52px; height: 52px; display: grid; flex: 0 0 auto; place-items: center; border: 4px solid #bfddd3; border-top-color: #116c5e; border-radius: 50%; animation: cinema-spin .9s linear infinite; }
+@keyframes cinema-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .cinema-loading-spinner { animation: none; } }

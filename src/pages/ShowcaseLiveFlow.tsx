@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Clapperboard, ExternalLink, Search, Film } from 'lucide-react';
 import { CinemaDateCalendar } from '../components/CinemaDateCalendar';
+import { CinemaLoading } from '../components/CinemaLoading';
 import { functionRequest } from '../services/common';
 import { formatCinemaDate, ticketAmounts } from '../data/cinemaOptions';
 import type { SavedTask } from '../types';
@@ -29,7 +30,7 @@ export function ShowcaseLiveFlow({ city, onBack, onHome, onSaved, onStepChange }
   const [showAllTheaters, setShowAllTheaters] = useState(false);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [showtimes, setShowtimes] = useState<Showtime[]>([]);
-  const [moviesLoading, setMoviesLoading] = useState(false);
+  const [moviesLoading, setMoviesLoading] = useState(true);
   const [showtimesLoading, setShowtimesLoading] = useState(false);
   const [moviesError, setMoviesError] = useState('');
   const [showtimesError, setShowtimesError] = useState('');
@@ -89,10 +90,10 @@ export function ShowcaseLiveFlow({ city, onBack, onHome, onSaved, onStepChange }
     {!resume && !['review','done'].includes(step) && <>
       <div className="flow-heading"><h1>{({ movie:'¿Qué película querés ver?', theater:'¿En qué Showcase?', date:'¿Qué día querés ir?', time:'¿Qué horario preferís?', tickets:'¿Cuántas entradas?' } as Record<string,string>)[step]}</h1><p>Funciones publicadas por Showcase. Confirmá los datos al comprar.</p></div>
       <section className="form-card">
-        {busy && <p role="status">Consultando cartelera…</p>}
+        {busy && <CinemaLoading message={step === 'movie' ? 'Cargando películas de Showcase…' : 'Buscando cines, fechas y horarios…'}/>}
         {error && <p role="alert" className="inline-message">{error}</p>}
         {(!!error || (!busy && step === 'theater' && !theaters.length)) && <p><a href="https://www.todoshowcase.com/" target="_blank" rel="noopener noreferrer">Consultar la cartelera de Showcase <ExternalLink size={15}/></a></p>}
-        {step === 'movie' && <><label htmlFor="showcase-search" className="cinema-search-label">Buscar película</label><div className="cinema-search"><Search size={21} aria-hidden="true"/><input id="showcase-search" type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Escribí parte del título…"/></div><p className="cinema-result-count">{movies.filter(x=>normalize(x.name).includes(normalize(query.trim()))).length} películas encontradas</p><div className="cinema-movie-grid">{!busy && movies.filter(x=>normalize(x.name).includes(normalize(query.trim()))).map(x=><button key={x.id} type="button" className={`cinema-movie-card${movieId === x.id ? ' selected' : ''}`} aria-pressed={movieId===x.id} onClick={()=>{setMovieId(x.id);setTheaterId('');setDate('');setTimeId('');}}>{x.image ? <img loading="lazy" src={x.image} alt=""/> : <span className="cinema-movie-placeholder"><Film size={36}/></span>}<span className="cinema-movie-title">{x.name}</span>{movieId===x.id && <span className="cinema-movie-selected">✓ Elegida</span>}</button>)}</div>{!busy && movies.length > 0 && !movies.some(x=>normalize(x.name).includes(normalize(query.trim()))) && <p>No encontramos películas con ese título. Probá con otra palabra.</p>}</>}
+        {step === 'movie' && !busy && <><label htmlFor="showcase-search" className="cinema-search-label">Buscar película</label><div className="cinema-search"><Search size={21} aria-hidden="true"/><input id="showcase-search" type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Escribí parte del título…"/></div><p className="cinema-result-count">{movies.filter(x=>normalize(x.name).includes(normalize(query.trim()))).length} películas encontradas</p><div className="cinema-movie-grid">{movies.filter(x=>normalize(x.name).includes(normalize(query.trim()))).map(x=><button key={x.id} type="button" className={`cinema-movie-card${movieId === x.id ? ' selected' : ''}`} aria-pressed={movieId===x.id} onClick={()=>{setMovieId(x.id);setTheaterId('');setDate('');setTimeId('');}}>{x.image ? <img loading="lazy" src={x.image} alt=""/> : <span className="cinema-movie-placeholder"><Film size={36}/></span>}<span className="cinema-movie-title">{x.name}</span>{movieId===x.id && <span className="cinema-movie-selected">✓ Elegida</span>}</button>)}</div>{movies.length > 0 && !movies.some(x=>normalize(x.name).includes(normalize(query.trim()))) && <p>No encontramos películas con ese título. Probá con otra palabra.</p>}</>}
         {step === 'theater' && !busy && <><p className="cinema-result-count">{showAllTheaters ? 'Todos los complejos' : `Complejos de ${city || 'tu zona'}`} · {visibleTheaters.length} resultados</p><div className="cinema-choices cinema-theater-choices">{visibleTheaters.map(x=><div key={x.id}>{choose(x.name,'',theaterId===x.id,()=>{setTheaterId(x.id);setDate('');setTimeId('');})}</div>)}{!visibleTheaters.length && !error && <p>No hay funciones publicadas para esta película en tu zona.</p>}</div><button type="button" className="text-button cinema-location-toggle" onClick={()=>setShowAllTheaters(value=>!value)}>{showAllTheaters ? 'Mostrar solo mi zona' : 'Ver complejos de otras zonas'}</button></>}
         {step === 'date' && !busy && <CinemaDateCalendar dates={dates} selected={date} onSelect={x=>{setDate(x);setTimeId('');}}/>}
         {step === 'time' && !busy && <div className="cinema-choices">{times.map(x=><div key={x.id}>{choose(x.time,x.format,timeId===x.id,()=>setTimeId(x.id))}</div>)}</div>}
