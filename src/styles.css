@@ -540,3 +540,15 @@ html.high-contrast .home-account-button{background:#000;color:#ffeb3b;border:2px
 html.high-contrast .home-account-button :is(span,svg){color:#ffeb3b}
 html.high-contrast .home-account-button:hover{background:#ffeb3b;color:#000}
 html.high-contrast .home-account-button:hover :is(span,svg){color:#000}
+/* HU16: una sola vista a la vez y acción principal por encima de Editar/Eliminar. */
+.trusted-delete-screen{padding:19px 1px 4px}
+.trusted-delete-screen>p{margin:0;line-height:1.6;font-size:calc(17px * var(--text-scale,1))}
+.trusted-delete-actions{margin-top:26px;gap:14px}
+.trusted-delete-actions button{min-width:135px}
+.trusted-contact-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.trusted-contact-actions .trusted-call{grid-column:1/-1;grid-row:1;width:100%;justify-content:center}
+.trusted-contact-actions .trusted-manage{width:100%;padding:0 8px;min-width:0}
+html.high-contrast .trusted-delete-screen{color:#fff}
+@media(max-width:440px){.trusted-delete-actions{flex-direction:column}.trusted-delete-actions button{width:100%}}
+@media(max-width:350px){.trusted-contact-actions{grid-template-columns:1fr}.trusted-contact-actions .trusted-call{grid-column:auto}}
+
