@@ -488,3 +488,45 @@ html.high-contrast .accessibility-option:hover{background:#ddd}
   html.large-text .header-main-nav{order:3;flex:1 0 100%;justify-content:center;flex-wrap:wrap}
 }
 @media (min-width:651px) and (max-width:780px){.header-main-nav{flex-wrap:wrap}}
+
+/* Guía de primera visita: destaca una zona real sin exigir hover ni taps en el fondo. */
+.first-use-guide{position:fixed;inset:0;z-index:1000;pointer-events:none}
+.first-use-guide-backdrop{position:fixed;inset:0;z-index:1;pointer-events:auto}
+.first-use-guide-spotlight{position:fixed;z-index:2;pointer-events:none;border:3px solid #f8e36e;border-radius:19px;box-shadow:0 0 0 150vmax rgba(8,29,26,.77)}
+.first-use-guide-card{position:fixed;z-index:3;pointer-events:auto;max-width:calc(100vw - 28px);max-height:calc(100vh - 20px);overflow:auto;border:2px solid var(--green);border-radius:20px;padding:19px 21px 20px;background:#fff;color:var(--ink);box-shadow:0 12px 36px rgba(0,0,0,.25);font-size:calc(16px * var(--text-scale,1));line-height:1.45}
+.first-use-guide-card:focus{outline:none}
+.first-use-guide-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.first-use-guide-count{font-size:calc(14px * var(--text-scale,1));font-weight:800;color:#315b50}
+.first-use-guide-close{width:42px;height:42px;display:grid;place-items:center;border:1px solid #c9d9d2;border-radius:12px;background:#fff;color:var(--ink)}
+.first-use-guide-card h2{margin:12px 0 6px;font-size:calc(23px * var(--text-scale,1));line-height:1.18;color:var(--ink);font-weight:900}
+.first-use-guide-card p{margin:0 0 19px;color:#35564e;font-size:calc(16px * var(--text-scale,1));line-height:1.55}
+.first-use-guide-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.first-use-guide-progress{display:flex;gap:8px;margin-left:auto;align-items:center;flex-wrap:wrap}
+.first-use-guide-controls button{min-height:46px;border-radius:11px;font-size:calc(15px * var(--text-scale,1));font-weight:800}
+.first-use-guide-skip{padding:8px;border:0;background:transparent;color:var(--green);text-decoration:underline;text-underline-offset:3px}
+.first-use-guide-prev{display:flex;align-items:center;gap:3px;padding:8px 10px;border:1px solid #c2d6cc;background:#f4faf6;color:var(--green)}
+.first-use-guide-next{display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 13px;border:2px solid var(--green);background:var(--green);color:#fff}
+.first-use-guide-controls button:focus-visible,.first-use-guide-close:focus-visible{outline:4px solid #f3bf43;outline-offset:3px}
+.accessibility-panel-intro{font-size:calc(14px * var(--text-scale,1));font-weight:650;line-height:1.35;color:#49685e;padding:8px 10px 4px;margin:0;max-width:300px;white-space:normal}
+
+/* En contraste alto: menú y guía mantienen texto legible sobre superficies oscuras. */
+html.high-contrast .accessibility-trigger,html.high-contrast .accessibility-panel{background:#000;color:#fff;border:2px solid #ffeb3b}
+html.high-contrast .accessibility-trigger :is(span,svg),html.high-contrast .accessibility-panel :is(span,p,svg),html.high-contrast .accessibility-option{color:#fff}
+html.high-contrast .accessibility-option:hover,html.high-contrast .accessibility-option:focus-visible{background:#ffeb3b;color:#000}
+html.high-contrast .accessibility-option:hover :is(span,svg),html.high-contrast .accessibility-option:focus-visible :is(span,svg){color:#000}
+html.high-contrast .header-nav-item{color:#fff}
+html.high-contrast .header-nav-item :is(span,svg){color:#fff}
+html.high-contrast .header-nav-item.active,html.high-contrast .header-nav-item.active:hover{background:#ffeb3b;border:2px solid #ffeb3b;color:#000}
+html.high-contrast .header-nav-item.active :is(span,svg){color:#000}
+html.high-contrast .first-use-guide-spotlight{border-color:#ffeb3b;box-shadow:0 0 0 150vmax rgba(0,0,0,.85)}
+html.high-contrast .first-use-guide-card{background:#000;color:#fff;border:3px solid #ffeb3b}
+html.high-contrast .first-use-guide-card :is(h2,p,span){color:#fff}
+html.high-contrast .first-use-guide-card .first-use-guide-count{color:#ffeb3b}
+html.high-contrast .first-use-guide-card .first-use-guide-close,html.high-contrast .first-use-guide-card .first-use-guide-prev{background:#000;color:#fff;border:2px solid #fff}
+html.high-contrast .first-use-guide-card .first-use-guide-skip{color:#ffeb3b}
+html.high-contrast .first-use-guide-card .first-use-guide-next{background:#ffeb3b;color:#000;border:2px solid #ffeb3b}
+html.high-contrast .first-use-guide-card .first-use-guide-next :is(span,svg){color:#000}
+@media(max-width:650px){.first-use-guide-card{padding:14px 15px}.first-use-guide-card h2{font-size:calc(21px * var(--text-scale,1))}.first-use-guide-progress{gap:5px}.first-use-guide-prev{padding-inline:7px}.first-use-guide-next{padding-inline:11px}}
+@media(prefers-reduced-motion:reduce){.first-use-guide *{transition:none!important;animation:none!important}}
+
+html.high-contrast .desktop-access-menu[open] .accessibility-trigger,html.high-contrast .accessibility-trigger:hover{background:#000;color:#fff;border-color:#ffeb3b}

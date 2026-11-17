@@ -1,4 +1,4 @@
-import { Accessibility, ChevronDown, ClipboardList, House, Settings2, Volume2 } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, ClipboardList, House, Settings2, Volume2 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 interface Props {
@@ -46,20 +46,21 @@ export function BrandHeader({ onHome, onText, onRead, speaking, highContrast, on
 
     {onTasks && <nav className="header-main-nav" aria-label="Navegación principal de escritorio">
       <button className={`header-nav-item ${currentSection === 'home' ? 'active' : ''}`} type="button" onClick={onHome} aria-current={currentSection === 'home' ? 'page' : undefined}><House size={20}/><span>Inicio</span></button>
-      <button className={`header-nav-item ${currentSection === 'tasks' ? 'active' : ''}`} type="button" onClick={onTasks} aria-current={currentSection === 'tasks' ? 'page' : undefined}><ClipboardList size={20}/><span>Mis gestiones</span></button>
+      <button data-guide="tasks-desktop" className={`header-nav-item ${currentSection === 'tasks' ? 'active' : ''}`} type="button" onClick={onTasks} aria-current={currentSection === 'tasks' ? 'page' : undefined}><ClipboardList size={20}/><span>Mis gestiones</span></button>
       {onSettings && <button className={`header-nav-item ${currentSection === 'settings' ? 'active' : ''}`} type="button" onClick={onSettings} aria-current={currentSection === 'settings' ? 'page' : undefined}><Settings2 size={20}/><span>Configuración</span></button>}
     </nav>}
 
     <div className="top-actions">
       <details ref={menuRef} className="desktop-access-menu">
-        <summary className="accessibility-trigger"><Accessibility size={21}/><span>Accesibilidad</span><ChevronDown size={17} className="accessibility-chevron"/></summary>
-        <div className="accessibility-panel" role="group" aria-label="Opciones de accesibilidad">
+        <summary className="accessibility-trigger" data-guide="reading-desktop" aria-label="Ver y escuchar mejor: escuchar pantalla, texto y contraste"><SlidersHorizontal size={21}/><span>Ver y escuchar mejor</span><ChevronDown size={17} className="accessibility-chevron"/></summary>
+        <div className="accessibility-panel" role="group" aria-label="Opciones para ver y escuchar mejor">
+          <p className="accessibility-panel-intro">Elegí cómo querés ver o escuchar la pantalla:</p>
           <button className="accessibility-option" type="button" onClick={() => runFromMenu(onRead)} aria-label={speaking ? 'Detener lectura en voz alta' : 'Escuchar la pantalla'}><Volume2 size={21}/><span>{speaking ? 'Detener lectura' : 'Escuchar pantalla'}</span></button>
           <button className="accessibility-option" type="button" onClick={() => runFromMenu(onText)} aria-label="Cambiar tamaño del texto"><span className="aa">Aa</span><span>Tamaño del texto</span></button>
           <button className="accessibility-option" type="button" onClick={() => runFromMenu(onToggleContrast)} aria-pressed={highContrast} aria-label="Activar o desactivar contraste alto"><span className="contrast-glyph">◐</span><span>{highContrast ? 'Desactivar contraste alto' : 'Activar contraste alto'}</span></button>
         </div>
       </details>
-      <div className="mobile-top-actions">
+      <div className="mobile-top-actions" data-guide="reading-mobile">
         <button className="icon-action" type="button" onClick={onRead} aria-label={speaking ? 'Detener lectura' : 'Leer pantalla'} title={speaking ? 'Detener lectura' : 'Leer pantalla'}><Volume2 size={21}/></button>
         <button className="icon-action" type="button" onClick={onText} aria-label="Cambiar tamaño del texto" title="Tamaño del texto"><span className="aa">Aa</span></button>
         <button className="icon-action contrast-action" type="button" onClick={onToggleContrast} aria-pressed={highContrast} aria-label="Activar o desactivar contraste alto" title="Contraste alto"><span className="contrast-glyph">◐</span></button>
