@@ -454,16 +454,10 @@ html.high-contrast .selected-indicator,html.high-contrast .trust-note-label{colo
   .home-saved-entry{display:none}
   /* Acción de emergencia compacta, sin ocultar todo el texto detrás de un hover. */
   .trusted-launcher{right:18px;bottom:20px;min-height:52px;padding:0 15px;gap:8px;font-size:calc(15px * var(--text-scale,1));border-radius:15px}
-  .trusted-label-full{display:none}
-  .trusted-label-short{display:inline}
 }
 @media (min-width:651px) and (max-width:1060px){
   .topbar:has(.header-main-nav){height:auto;min-height:78px;flex-wrap:wrap;gap:6px 12px;padding-block:9px}
   .header-main-nav{order:3;flex:1 0 100%;justify-content:center;padding:0}
-}
-@media (max-width:650px){
-  .trusted-label-short{display:none}
-  .trusted-label-full{display:inline}
 }
 html.high-contrast .header-nav-item{background:transparent;border:2px solid transparent;color:#000}
 html.high-contrast .header-nav-item.active{background:#000;color:#fff;border:2px solid #000}
@@ -531,3 +525,7 @@ html.high-contrast .first-use-guide-steps span.completed{background:#ffeb3b;bord
 html.high-contrast .header-reading-actions .icon-action{background:#000;color:#fff;border:2px solid #ffeb3b}
 html.high-contrast .header-reading-actions .icon-action[aria-pressed="true"]{background:#ffeb3b;color:#000}
 @media(max-width:650px){.header-reading-actions{gap:4px}}
+
+/* HU13: un único nombre de la acción de ayuda para escritorio y celular. */
+.trusted-launcher{white-space:nowrap;max-width:calc(100vw - 28px)}
+html.high-contrast .trusted-launcher{outline-offset:3px}

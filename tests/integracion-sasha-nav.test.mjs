@@ -40,14 +40,13 @@ test('HU13: las tres acciones de lectura son accesibles sin abrir menú', () => 
   assert.match(header, /aria-current=\{currentSection === 'tasks'/);
 });
 
-test('HU13: el acceso a llamada conserva una etiqueta visible y accesible', () => {
+test('HU13: el botón de ayuda mantiene el mismo nombre en escritorio y celular', () => {
   const main = read('main.tsx');
   const css = read('styles.css');
-  assert.match(main, /aria-label="Llamar a alguien de confianza"/);
-  assert.match(main, /trusted-label-short">Llamar</);
-  assert.match(main, /trusted-label-full">Llamar a alguien/);
-  assert.match(css, /\.trusted-label-full\{display:none\}/);
-  assert.match(css, /\.trusted-label-short\{display:none\}/);
+  assert.match(main, /aria-label="Pedir ayuda: elegir a quién llamar"/);
+  assert.match(main, /<PhoneCall size=\{21\}\/><span>Pedir ayuda<\/span><\/button>/);
+  assert.doesNotMatch(main, /trusted-label-short|trusted-label-full/);
+  assert.doesNotMatch(css, /\.trusted-label-short|\.trusted-label-full/);
 });
 
 test('HU13: el acceso móvil a Mis gestiones conserva la navegación existente', () => {
