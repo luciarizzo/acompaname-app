@@ -29,8 +29,9 @@ export function matchesShowcaseCity(city: string, theaterName: string) {
   return false;
 }
 
-export function cinemarkMovieUrl(movieName: string, theaterSlug?: string, officialSlug?: string) {
+export function cinemarkMovieUrl(movieName: string, theaterId?: string, officialSlug?: string) {
   const slug = officialSlug || normalize(movieName).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const base = slug ? `https://www.cinemark.com.ar/pelicula/${slug}` : 'https://www.cinemark.com.ar/elegi-pelicula';
-  return theaterSlug ? `${base}?cine=${encodeURIComponent(theaterSlug)}` : base;
+  // La URL del sitio utiliza CinemaId numérico; ?cine=slug no asegura la sede.
+  return theaterId && /^\d{1,8}$/.test(theaterId) ? `${base}?CinemaId=${theaterId}` : base;
 }

@@ -17,7 +17,7 @@ type Draft = { step: Step; theaterId: string; movieId: string; date: string; tim
 const steps: Step[] = ['theater', 'movie', 'date', 'time', 'tickets', 'review', 'done'];
 const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const movieKey = (value: string) => normalize(value).replace(/\s+/g, ' ').trim();
-const officialUrl = (slug: string) => `https://www.cinemark.com.ar/?cine=${encodeURIComponent(slug)}`;
+const officialUrl = (theaterId: string) => /^\d{1,8}$/.test(theaterId) ? `https://www.cinemark.com.ar/?CinemaId=${theaterId}` : 'https://www.cinemark.com.ar/';
 
 export function CinemarkLiveFlow({ city, onBack, onHome, onSaved, onStepChange }: { city: string; onBack: () => void; onHome: () => void; onSaved: () => void; onStepChange: () => void }) {
   const [previous] = useState(() => loadFlowDraft<Draft>('cinemark-live'));
@@ -122,9 +122,9 @@ export function CinemarkLiveFlow({ city, onBack, onHome, onSaved, onStepChange }
       </section>
     </>}
     {!resume && step === 'review' && <><div className="flow-heading"><h1>Tu función de cine</h1><p>Revisá los datos y seguí al sitio de Cinemark para elegir butacas y pagar.</p></div><section className="confirm-card"><div className="confirm-icon"><Clapperboard size={24}/></div><h2>{selectedMovie?.name}</h2><div className="confirm-details"><p><span>Cine</span><strong>Cinemark {theater?.name}</strong></p><p><span>Fecha y hora</span><strong>{formatCinemaDate(date)} · {selectedTime?.time}</strong></p><p><span>Sala / formato</span><strong>{selectedTime?.room || 'No informada'} · {selectedTime?.format}</strong></p><p><span>Entradas previstas</span><strong>{count}</strong></p></div>
-      <p className="cinema-honesty">Esta consulta es informativa. Acompáñame no bloquea butacas ni realiza pagos. El sitio de Cinemark puede solicitar que vuelvas a seleccionar la función.</p>
-      {theater && selectedMovie && <a href={cinemarkMovieUrl(selectedMovie.name, theater.slug, selectedMovie.slug)} className="primary-button full-button" target="_blank" rel="noopener noreferrer">Ver película y elegir butacas <ExternalLink size={18}/></a>}
-      {theater && <a href={officialUrl(theater.slug)} className="text-button" target="_blank" rel="noopener noreferrer">Ver cartelera del complejo <ExternalLink size={16}/></a>}
+      <p className="cinema-honesty">Esta consulta es informativa. Acompáñame no bloquea butacas ni realiza pagos. Al abrir Cinemark, verificá que figure <strong>{theater?.name}</strong>: el sitio puede recordar otra sede del navegador y pedirte que vuelvas a elegirla.</p>
+      {theater && selectedMovie && <a href={cinemarkMovieUrl(selectedMovie.name, theater.id, selectedMovie.slug)} className="primary-button full-button" target="_blank" rel="noopener noreferrer">Ver película y elegir butacas <ExternalLink size={18}/></a>}
+      {theater && <a href={officialUrl(theater.id)} className="text-button" target="_blank" rel="noopener noreferrer">Ver cartelera del complejo <ExternalLink size={16}/></a>}
       <button className="secondary-button full-button" onClick={save}><Check size={19}/> Guardar plan (sin reservar)</button><button className="text-button" onClick={()=>setStep('time')}>Cambiar horario</button></section></>}
     {!resume && step === 'done' && <section className="done-card"><span className="done-check"><Check size={28}/></span><h1>Plan guardado</h1><p>Todavía tenés que confirmar la función, seleccionar las butacas y pagar en Cinemark.</p>{saved && <div className="inline-message">Guardado {isAccountMode() ? 'en tu cuenta' : 'en este dispositivo'}.</div>}<button className="primary-button full-button" onClick={onSaved}>Ir a Mis gestiones <ArrowRight size={18}/></button><button className="text-button" onClick={onHome}>Volver al inicio</button></section>}
   </main>;

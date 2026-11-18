@@ -11,6 +11,9 @@ test('la zona del usuario filtra los complejos y permite ampliar la búsqueda', 
 });
 test('la derivación a Cinemark va a la película y conserva el enlace alternativo al cine', () => {
   const page = readFileSync(new URL('../src/pages/CinemarkLiveFlow.tsx', import.meta.url), 'utf8');
-  assert.match(page, /cinemarkMovieUrl\(selectedMovie\.name, theater\.slug, selectedMovie\.slug\)/);
-  assert.match(page, /officialUrl\(theater\.slug\)/);
+  assert.match(page, /cinemarkMovieUrl\(selectedMovie\.name, theater\.id, selectedMovie\.slug\)/);
+  assert.match(page, /officialUrl\(theater\.id\)/);
+  assert.match(page, /verificá que figure/);
+  assert.match(source, /\?CinemaId=\$\{theaterId\}/);
+  assert.doesNotMatch(source, /\?cine=\$\{encodeURIComponent\(theaterSlug\)\}/);
 });
