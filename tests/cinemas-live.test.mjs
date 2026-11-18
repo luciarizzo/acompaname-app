@@ -56,6 +56,9 @@ test('Showcase elige primero la sede y consulta solo películas con funciones al
   assert.match(page, /const steps: Step\[\] = \['theater', 'movie'/);
   assert.match(page, /action: 'theater-movies'/);
   assert.match(backend, /showtimes\.some\(row => belongsToShowcaseTheater/);
+  // Al cambiar de película se reinician fecha y hora, pero nunca la sede ya elegida.
+  assert.match(page, /onClick=\{\(\)=>\{setMovieId\(x\.id\);setDate\(''\);setTimeId\(''\);\}\}/);
+  assert.doesNotMatch(page, /setMovieId\(x\.id\);setTheaterId\(''\)/);
 });
 
 test('Showcase deriva al dominio de entradas con película y complejo', () => {
