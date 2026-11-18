@@ -29,8 +29,24 @@ export function matchesShowcaseCity(city: string, theaterName: string) {
   return false;
 }
 
-export function cinemarkMovieUrl(movieName: string, theaterSlug?: string, officialSlug?: string) {
+export function cinemarkTheaterQuery(theaterSlug: string, theaterName = '') {
+  if (!/^[a-z0-9-]+$/i.test(theaterSlug)) return '';
+  const slug = theaterSlug.toLowerCase();
+  if (slug.includes('-')) return slug;
+
+  // Algunos slugs de la API vienen unidos (sanjusto), aunque la web requiere
+  // los términos separados (san-justo). Recuperamos el separador del nombre.
+  const words = normalize(theaterName).match(/[a-z0-9]+/g) || [];
+  for (let length = words.length; length >= 2; length--) {
+    const suffix = words.slice(-length);
+    if (suffix.join('') === slug) return suffix.join('-');
+  }
+  return slug;
+}
+
+export function cinemarkMovieUrl(movieName: string, theaterSlug?: string, officialSlug?: string, theaterName = '') {
   const slug = officialSlug || normalize(movieName).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const base = slug ? `https://www.cinemark.com.ar/pelicula/${slug}` : 'https://www.cinemark.com.ar/elegi-pelicula';
-  return theaterSlug ? `${base}?cine=${encodeURIComponent(theaterSlug)}` : base;
+  const cinema = theaterSlug ? cinemarkTheaterQuery(theaterSlug, theaterName) : '';
+  return cinema ? `${base}?cine=${encodeURIComponent(cinema)}` : base;
 }
