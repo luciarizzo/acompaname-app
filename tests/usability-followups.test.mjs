@@ -99,7 +99,7 @@ test('HU21: la barra móvil se presenta incluso durante una gestión', () => {
 test('HU26: los indicadores seleccionados no son controles separados', () => {
   const cinema = readFileSync(new URL('../src/pages/CinemaFlow.tsx', import.meta.url), 'utf8');
   const home = readFileSync(new URL('../src/pages/HomePage.tsx', import.meta.url), 'utf8');
-  assert.match(cinema, /aria-pressed=\{chosen\}/);
+  assert.match(cinema, /aria-pressed=\{theater === option\.id\}/);
   assert.match(cinema, /className="selected-indicator" aria-hidden="true"/);
   assert.match(home, /trust-note-label/);
   assert.doesNotMatch(home, /trust-check">✓/);

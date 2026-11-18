@@ -589,3 +589,43 @@ html.high-contrast .saved-card-confirming .saved-delete{
   html.high-contrast .saved-card-confirming .saved-delete{padding:18px}
 }
 @media(max-width:650px){.saved-card-confirming{padding:18px}}
+/* Cine: búsqueda, afiches y fechas disponibles */
+.cinema-search-label { display: block; margin-bottom: .55rem; font-weight: 700; }
+.cinema-search { display: flex; align-items: center; gap: .65rem; padding: .75rem 1rem; border: 1px solid #aecdc5; border-radius: 15px; background: #fff; color: #226b60; }
+.cinema-search:focus-within { outline: 3px solid #b5e6dc; border-color: #176e61; }
+.cinema-search input { width: 100%; min-width: 0; padding: .2rem 0; background: transparent; border: 0; outline: none; color: #113e39; font: inherit; }
+.cinema-result-count { margin: .8rem 0; color: #526d68; font-size: .94rem; }
+.cinema-movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: .85rem; max-height: 620px; overflow-y: auto; padding: .25rem; }
+.cinema-movie-card { position: relative; display: flex; flex-direction: column; align-items: stretch; text-align: left; overflow: hidden; border: 2px solid #d4e3df; border-radius: 14px; background: #fff; color: #123f3b; cursor: pointer; padding: 0; transition: border-color .15s, box-shadow .15s; }
+.cinema-movie-card:hover { border-color: #328778; }
+.cinema-movie-card:focus-visible { outline: 3px solid #4cbaa5; outline-offset: 2px; }
+.cinema-movie-card.selected { border-color: #077764; box-shadow: 0 0 0 2px #b6e4d9; }
+.cinema-movie-card img, .cinema-movie-placeholder { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; background: #e5f1ed; }
+.cinema-movie-placeholder { display: flex; align-items: center; justify-content: center; color: #377d70; }
+.cinema-movie-title { display: block; padding: .75rem .65rem; font-size: .9rem; font-weight: 750; line-height: 1.3; overflow-wrap: anywhere; }
+.cinema-movie-selected { margin: auto .65rem .65rem; font-size: .8rem; color: #077764; font-weight: 750; }
+.cinema-movie-card.no-poster .cinema-movie-placeholder { aspect-ratio: 2 / 1; }
+.cinema-calendar { max-width: 470px; margin: 0 auto; }
+.cinema-calendar-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: 1rem; text-transform: capitalize; }
+.cinema-calendar-header button { display: grid; place-items: center; width: 44px; height: 44px; background: #eef7f4; border: 0; border-radius: 12px; color: #115c50; cursor: pointer; }
+.cinema-calendar-header button:disabled { opacity: .25; cursor: default; }
+.cinema-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .35rem; }
+.cinema-calendar-weekday { text-align: center; font-weight: 750; color: #4d716b; padding: .55rem 0; }
+.cinema-calendar-day { aspect-ratio: 1; min-width: 0; border: 1px solid transparent; border-radius: 11px; background: transparent; color: #8a9c98; font: inherit; }
+.cinema-calendar-day.has-showtime { background: #e1f4ed; color: #145d4f; border-color: #8fceb9; font-weight: 750; cursor: pointer; }
+.cinema-calendar-day.has-showtime:hover { background: #cbebdf; }
+.cinema-calendar-day.selected { background: #086f5e; border-color: #086f5e; color: #fff; }
+.cinema-calendar-day:focus-visible { outline: 3px solid #4cbaa5; outline-offset: 1px; }
+.cinema-calendar-help { display: flex; align-items: center; gap: .55rem; font-size: .89rem; color: #54746c; margin-top: 1rem; }
+.cinema-calendar-help span { width: 13px; height: 13px; background: #e1f4ed; border: 1px solid #8fceb9; border-radius: 4px; }
+@media (max-width: 520px) { .cinema-movie-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; } .cinema-calendar-grid { gap: .15rem; } }
+.cinema-theater-choices { margin-top: 1rem; }
+.cinema-location-toggle { display: inline-flex; margin-top: 1.1rem; padding: .6rem .25rem; }
+.cinema-theater-choices .cinema-pick { min-height: 84px; }
+/* Estado de espera visible en la consulta de carteleras */
+.cinema-loading { display: flex; align-items: center; gap: 1.15rem; min-height: 120px; padding: 1.4rem; margin-bottom: 1rem; border: 1px solid #b7d7cc; border-radius: 17px; background: #edf7f2; color: #124b43; }
+.cinema-loading strong { font-size: calc(18px * var(--text-scale, 1)); }
+.cinema-loading p { margin: .35rem 0 0; color: #496961; line-height: 1.5; }
+.cinema-loading-spinner { width: 52px; height: 52px; display: grid; flex: 0 0 auto; place-items: center; border: 4px solid #bfddd3; border-top-color: #116c5e; border-radius: 50%; animation: cinema-spin .9s linear infinite; }
+@keyframes cinema-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .cinema-loading-spinner { animation: none; } }
