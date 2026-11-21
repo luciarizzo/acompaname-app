@@ -53,7 +53,7 @@ export function OtherRequestPage({ initialPrompt = '', onChoose, onHome, onLogin
       <div className="other-features-grid">{availableFeatures.map(feature => <button type="button" className="other-feature-card" key={feature.kind} onClick={() => onChoose(feature.kind)}>
         <span><strong>{feature.title}</strong><small>{feature.description}</small></span><ArrowRight aria-hidden="true" size={23}/>
       </button>)}</div>
-      <p className="suggestion-privacy">Los turnos y las compras se muestran en modo demostración cuando no existe una integración real.</p>
+      <p className="suggestion-privacy">Las compras se muestran en modo demostración cuando no existe una integración real.</p>
     </section>
 
     <section className="other-suggestion-card" aria-labelledby="suggestion-title">

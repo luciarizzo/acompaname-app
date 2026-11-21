@@ -1,6 +1,6 @@
 import type { SavedTask } from '../types';
 import { storageKey } from './storageMode';
-import { deleteTaskOnAccount, pushTask, updateTaskOnAccount, TASKS_KEY } from '../services/accountData';
+import { cancelAppointment, deleteTaskOnAccount, pushTask, updateTaskOnAccount, TASKS_KEY } from '../services/accountData';
 // Invitado: guarda en localStorage como siempre. Con cuenta: guarda en la copia local y además envía la gestión a la base.
 const key = () => storageKey(TASKS_KEY);
 export function getSavedTasks(): SavedTask[] {
@@ -30,6 +30,22 @@ export async function deleteSavedTask(id: string): Promise<SavedTask[]> {
   if (!tasks.some(item => item.id === id)) throw new Error('No encontramos esa gestión guardada.');
   await deleteTaskOnAccount(id);
   const updated = tasks.filter(item => item.id !== id);
+  localStorage.setItem(key(), JSON.stringify(updated));
+  return updated;
+}
+
+// Un turno reservado ya quedó guardado en la base por el back: solo se agrega a la copia local.
+export function addLocalTask(task: SavedTask) {
+  const tasks = [task, ...getSavedTasks().filter(item => item.id !== task.id)].slice(0, 50);
+  localStorage.setItem(key(), JSON.stringify(tasks));
+  return tasks;
+}
+
+// Cancela el turno en el back (libera el horario y borra la gestión) y después lo quita de la copia local.
+export async function cancelBookedTask(task: SavedTask): Promise<SavedTask[]> {
+  if (!task.booking) throw new Error('Esta gestión no tiene un turno reservado.');
+  await cancelAppointment(task.booking.slotId);
+  const updated = getSavedTasks().filter(item => item.id !== task.id);
   localStorage.setItem(key(), JSON.stringify(updated));
   return updated;
 }

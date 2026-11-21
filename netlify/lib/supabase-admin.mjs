@@ -7,7 +7,7 @@ const headers = { 'Content-Type': 'application/json' };
 export const json = (statusCode, body) => ({ statusCode, headers, body: JSON.stringify(body) });
 
 let admin = null;
-function getAdmin() {
+export function getAdmin() {
   const url = process.env.SUPABASE_URL;
   const secretKey = process.env.SUPABASE_SECRET_KEY;
   if (!url || !secretKey) return null;

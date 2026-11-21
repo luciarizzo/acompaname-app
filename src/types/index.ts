@@ -5,4 +5,6 @@ export interface AppointmentOption { id: string; specialty: AppointmentSpecialty
 export interface EventSearch { category: string; city: string; date?: string; query?: string }
 export interface EventResult { id: string; name: string; date: string; venue: string; image?: string; url: string; localDate?: string; localTime?: string }
 export interface SearchResult<T> { mode: SourceMode; items: T[]; source?: string; notice?: string; agendaUrl?: string | null }
-export interface SavedTask { id: string; kind: FlowKind; title: string; description: string; createdAt: string; mode: SourceMode; editChoices?: { appointmentSlots: AppointmentOption[] } }
+/** Turno reservado de verdad con la API de turnos: slotId identifica el horario y code es el código para mostrar al llegar. */
+export interface AppointmentBooking { slotId: string; code: string }
+export interface SavedTask { id: string; kind: FlowKind; title: string; description: string; createdAt: string; mode: SourceMode; editChoices?: { appointmentSlots: AppointmentOption[] }; booking?: AppointmentBooking }

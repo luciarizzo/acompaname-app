@@ -12,7 +12,12 @@ function validAppointmentChoices(value) {
   if (!value || !Array.isArray(value.appointmentSlots) || !value.appointmentSlots.length || value.appointmentSlots.length > 8) return false;
   return value.appointmentSlots.every(slot => slot && ['id','specialty','professional','date','time','location'].every(key => typeof slot[key] === 'string' && slot[key].trim() && slot[key].length <= 160));
 }
-const toFront = (row) => ({ id: row.id, kind: row.tipo, title: row.titulo, description: row.descripcion, createdAt: row.creado_en, mode: row.modo, ...(row.opciones_edicion ? { editChoices: row.opciones_edicion } : {}) });
+const toFront = (row) => ({
+  id: row.id, kind: row.tipo, title: row.titulo, description: row.descripcion, createdAt: row.creado_en, mode: row.modo,
+  ...(row.opciones_edicion ? { editChoices: row.opciones_edicion } : {}),
+  // Turno reservado con la API de turnos (netlify/functions/turnos.mjs).
+  ...(row.turno_id && row.turnos_horarios?.codigo ? { booking: { slotId: row.turno_id, code: row.turnos_horarios.codigo } } : {}),
+});
 
 export const handler = async (event) => {
   try {
@@ -21,7 +26,7 @@ export const handler = async (event) => {
     const { db, user } = auth;
 
     if (event.httpMethod === 'GET') {
-      const { data, error } = await db.from('gestiones').select('*').eq('usuario_id', user.id).order('creado_en', { ascending: false }).limit(50);
+      const { data, error } = await db.from('gestiones').select('*, turnos_horarios(codigo)').eq('usuario_id', user.id).order('creado_en', { ascending: false }).limit(50);
       if (error) throw error;
       return json(200, { tasks: data.map(toFront) });
     }
@@ -71,6 +76,9 @@ export const handler = async (event) => {
     if (event.httpMethod === 'DELETE') {
       const { id } = JSON.parse(event.body || '{}');
       if (!uuid.test(String(id || ''))) return json(400, { error: 'La gestión no tiene un identificador válido.' });
+      const { data: existing, error: lookupError } = await db.from('gestiones').select('turno_id').eq('usuario_id', user.id).eq('id', id).maybeSingle();
+      if (lookupError) throw lookupError;
+      if (existing?.turno_id) return json(409, { error: 'Este turno está reservado. Para quitarlo, primero cancelá el turno.' });
       const { data, error } = await db.from('gestiones').delete()
         .eq('usuario_id', user.id).eq('id', id).select('id').maybeSingle();
       if (error) throw error;

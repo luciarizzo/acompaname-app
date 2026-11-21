@@ -23,7 +23,7 @@ npm run preview
 
 Los resultados demo están identificados en la interfaz y son ejemplos ficticios. Si una integración configurada falla, se muestra el error y no se reemplazan los datos silenciosamente.
 
-La primera visita incluye una configuración de uso de cuatro pasos: para quién se prepara la app, un nombre y perfil opcionales, la ciudad, preferencias de accesibilidad y una revisión antes de guardar. La ciudad configurada (Mendoza por defecto) se reutiliza en salidas y sedes de turnos para no volver a pedirla en cada flujo. Estos datos se guardan solo en `localStorage` de este dispositivo. V1 no crea cuentas ni guarda credenciales, datos de salud ni medios de pago.
+La primera visita incluye una configuración de uso de cuatro pasos: para quién se prepara la app, un nombre y perfil opcionales, la ciudad, preferencias de accesibilidad y una revisión antes de guardar. La ciudad configurada (Mendoza por defecto) se reutiliza en salidas y sedes de turnos para no volver a pedirla en cada flujo. Estos datos se guardan solo en `localStorage` de este dispositivo. La app no guarda credenciales ni medios de pago. El único dato de salud que se guarda es el turno médico reservado (especialidad, día, horario y sede), y solo si la persona inicia sesión y lo reserva; ver «API de turnos médicos».
 
 Durante el onboarding se pueden guardar hasta dos contactos de confianza, ambos opcionales. Los perfiles V1 existentes ven ese paso una sola vez. Después, la app muestra esos contactos y permite llamar desde el marcador del teléfono; sus datos quedan guardados solo en el dispositivo y la lista no ofrece agregar ni quitar contactos desde el uso diario. Abrir o cerrar esta ayuda no reinicia el flujo en curso. Al escribir una solicitud de salida que menciona “sábado”, la fecha se completa con el próximo sábado; el usuario puede cambiarla antes de buscar.
 
@@ -43,7 +43,7 @@ Nunca subas el archivo `.env` ni pegues la clave secreta en el código, en el RE
 
 ## Proveedores de datos
 
-La búsqueda de salidas usa una interfaz en `src/services/events/` y, al activar `VITE_ENABLE_LIVE_APIS=true`, consulta una Netlify Function para **Todas las actividades, Música, Teatro, Deportes y Otras salidas**. La función lee el listado estructurado publicado en el buscador oficial de Turismo Buenos Aires, aplica las categorías que publica el organismo y muestra el horario informado junto al enlace de cada organizador. La agenda se actualiza periódicamente; por eso solo se permiten búsquedas fechadas en los próximos siete días, y se recomienda confirmar los horarios en la fuente. En Rosario, donde no se expone un rubro estructurado en las tarjetas, se clasifica de manera conservadora por palabras del título; los casos ambiguos quedan en «Otras salidas» y también aparecen en «Todas». Los turnos médicos son siempre una simulación local: nunca consultan agendas ni reservan una visita. Los viajes y la búsqueda de lugares no forman parte de esta versión.
+La búsqueda de salidas usa una interfaz en `src/services/events/` y, al activar `VITE_ENABLE_LIVE_APIS=true`, consulta una Netlify Function para **Todas las actividades, Música, Teatro, Deportes y Otras salidas**. La función lee el listado estructurado publicado en el buscador oficial de Turismo Buenos Aires, aplica las categorías que publica el organismo y muestra el horario informado junto al enlace de cada organizador. La agenda se actualiza periódicamente; por eso solo se permiten búsquedas fechadas en los próximos siete días, y se recomienda confirmar los horarios en la fuente. En Rosario, donde no se expone un rubro estructurado en las tarjetas, se clasifica de manera conservadora por palabras del título; los casos ambiguos quedan en «Otras salidas» y también aparecen en «Todas». Los turnos médicos usan la API de turnos propia (ver más abajo) cuando la base está configurada; sin base, se muestran opciones de demostración. Los viajes y la búsqueda de lugares no forman parte de esta versión.
 
 También se puede cambiar la ciudad en el buscador de eventos culturales. La agenda de Rosario se obtiene del sitio oficial municipal; para Córdoba Capital, Mendoza Capital y La Plata se enlaza la fuente municipal correspondiente cuando no existe un feed verificado de actividades. Para cualquier otra ciudad, se informa que todavía no hay proveedor local automático, sin mostrar datos inventados. Las fuentes se resuelven en `netlify/lib/cultural-regions.mjs`.
 
@@ -58,9 +58,29 @@ La sección **Cine** utiliza carteleras oficiales verificadas de Cinemark Hoyts,
 Copiá `.env.example` a `.env` si querés configurar la búsqueda real de salidas. No guardes claves reales en archivos versionados ni uses prefijo `VITE_` para secretos.
 
 - **Ticketmaster Discovery API** (`TICKETMASTER_API_KEY`): requiere una API key del portal de desarrolladores. Los eventos reales se abren en su página oficial; Acompáñame no procesa entradas. Sin clave, se muestran eventos ficticios identificados como demostración.
-- **Turnos médicos**: muestra profesionales, horarios y consultorios ficticios. OSDE, PAMI y prestadores médicos se consideran integraciones futuras; no hay conexión ni reserva real.
+- **Turnos médicos**: API propia con consultorios de prueba (ver «API de turnos médicos»). OSDE, PAMI y otros prestadores no tienen una API pública para terceros; se consideran integraciones futuras.
 
 Netlify Functions evita exponer las llaves al navegador. `netlify.toml` configura build, funciones y fallback de rutas SPA.
+
+## API de turnos médicos
+
+La app tiene su propia API de turnos (`netlify/functions/turnos.mjs`) sobre Supabase. Reserva turnos en la red de consultorios **Centro Médico Acompáñame**, cargada por el equipo como datos de ejemplo para el prototipo (no corresponde a prestadores reales).
+
+**Puesta en marcha (una sola vez):** en Supabase, abrí **SQL Editor**, pegá el contenido de `supabase/migrations/20261118_turnos_medicos.sql` y tocá **Run**. Crea las tablas, un Centro Médico Acompáñame en Mendoza, Buenos Aires, Córdoba, Rosario y La Plata (un profesional por especialidad) y horarios de lunes a viernes para las próximas tres semanas. Cuando quedan pocos horarios libres, la API genera los de las semanas siguientes sola.
+
+| Pedido | Qué hace | ¿Necesita sesión? |
+| --- | --- | --- |
+| `GET /.netlify/functions/turnos?especialidad=Cardiología&ciudad=Mendoza` | Hasta 6 horarios libres, como máximo 2 por día y con al menos 2 horas de anticipación | No |
+| `POST /.netlify/functions/turnos` con `{ "slotId": "…" }` | Reserva el horario, genera un código de 6 caracteres y lo guarda en Mis gestiones | Sí |
+| `DELETE /.netlify/functions/turnos` con `{ "slotId": "…" }` | Cancela el turno, libera el horario y lo quita de Mis gestiones | Sí |
+
+Reglas:
+
+- La reserva es un único `UPDATE` que solo toma el horario si sigue libre: si dos personas eligen el mismo horario a la vez, solo una lo consigue y la otra ve «Ese horario ya no está disponible».
+- Cada cuenta puede tener hasta 3 turnos futuros reservados.
+- Una persona sin cuenta puede ver los horarios, pero para reservar tiene que iniciar sesión. También puede guardarlo solo como consulta, sin reservarlo.
+- Por privacidad (Ley 25.326, los datos de salud son sensibles) no se pide obra social, motivo de consulta ni diagnóstico. Las tablas solo son accesibles desde el back (`service_role`).
+- Las tablas siguen la idea de los recursos `Schedule`, `Slot` y `Appointment` del estándar de salud FHIR, para que un prestador real pueda conectarse en el futuro sin rehacer la app.
 
 ## Estructura
 

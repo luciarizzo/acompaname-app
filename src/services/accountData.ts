@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js';
-import type { SavedTask } from '../types';
+import type { AppointmentOption, SavedTask } from '../types';
 import type { OnboardingProfile } from '../utils/profile';
 import { isAccountMode, setAccountMode, storageKey } from '../utils/storageMode';
 import { supabase } from './supabase';
@@ -94,4 +94,16 @@ export function deactivateAccount() {
 export async function sendFeatureSuggestion(text: string): Promise<void> {
   if (!isAccountMode() || !supabase) throw new Error('Para enviar la sugerencia necesitás iniciar sesión.');
   await request('sugerencias', 'POST', { text: text.trim() });
+}
+
+// Turnos médicos (netlify/functions/turnos.mjs). Reservar y cancelar necesitan una cuenta:
+// así el consultorio sabe a nombre de quién está el turno y nadie más puede cancelarlo.
+export interface BookingResult { task: SavedTask; appointment: AppointmentOption; code: string }
+export async function bookAppointment(slotId: string): Promise<BookingResult> {
+  if (!isAccountMode() || !supabase) throw new Error('Para reservar un turno necesitás iniciar sesión.');
+  return request<BookingResult>('turnos', 'POST', { slotId });
+}
+export async function cancelAppointment(slotId: string): Promise<void> {
+  if (!isAccountMode() || !supabase) throw new Error('Para cancelar un turno necesitás iniciar sesión.');
+  await request('turnos', 'DELETE', { slotId });
 }

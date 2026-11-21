@@ -69,3 +69,7 @@ create table public.sugerencias_funcionalidades (
 create index sugerencias_usuario_fecha_idx on public.sugerencias_funcionalidades (usuario_id, creado_en desc);
 alter table public.sugerencias_funcionalidades enable row level security;
 grant select, insert on public.sugerencias_funcionalidades to service_role;
+
+-- 7. TURNOS MÉDICOS
+-- Las tablas de turnos, el generador de horarios y los datos de prueba están en
+-- supabase/migrations/20261118_turnos_medicos.sql. Ejecutalo después de este archivo.

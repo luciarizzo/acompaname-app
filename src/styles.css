@@ -629,3 +629,9 @@ html.high-contrast .saved-card-confirming .saved-delete{
 .cinema-loading-spinner { width: 52px; height: 52px; display: grid; flex: 0 0 auto; place-items: center; border: 4px solid #bfddd3; border-top-color: #116c5e; border-radius: 50%; animation: cinema-spin .9s linear infinite; }
 @keyframes cinema-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .cinema-loading-spinner { animation: none; } }
+
+/* Turnos médicos reservados con la API de turnos */
+.booking-code{font-size:calc(26px * var(--text-scale, 1));letter-spacing:.16em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--green-dark)}
+.saved-state.booked{background:#dcefe3;color:#1f5c43}
+.saved-code{margin-top:8px;font-size:calc(15px * var(--text-scale, 1));color:var(--ink)}
+.saved-code strong{letter-spacing:.12em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
