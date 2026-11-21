@@ -15,7 +15,8 @@ self.addEventListener('message', (event) => {
 });
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin || url.pathname.startsWith('/.netlify/')) return;
+  // Las páginas estáticas (por ejemplo /privacidad.html) no reemplazan la copia offline de la app.
+  if (url.origin !== self.location.origin || url.pathname.startsWith('/.netlify/') || url.pathname.endsWith('.html')) return;
   if (event.request.mode === 'navigate') {
     event.respondWith(fetch(event.request).then((response) => {
       if (response.ok) caches.open(CACHE).then((cache) => cache.put('/', response.clone()));

@@ -635,3 +635,11 @@ html.high-contrast .saved-card-confirming .saved-delete{
 .saved-state.booked{background:#dcefe3;color:#1f5c43}
 .saved-code{margin-top:8px;font-size:calc(15px * var(--text-scale, 1));color:var(--ink)}
 .saved-code strong{letter-spacing:.12em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
+/* Pantalla de cuenta: entrar con Google o con mail */
+.google-button{margin-top:0;background:#fff;border:1px solid #bfcec9;color:var(--ink)}
+.google-button:hover{background:#f6f9f7}
+.login-divider{display:flex;align-items:center;gap:12px;margin:20px 0 4px;color:var(--muted);font-size:calc(15px * var(--text-scale, 1))}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--line)}
+.field-hint{margin:8px 0 0;color:var(--muted);font-size:calc(14px * var(--text-scale, 1))}
+html.high-contrast .google-button{background:#fff;color:#000;border:2px solid #000}
