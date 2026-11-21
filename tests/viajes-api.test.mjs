@@ -102,3 +102,15 @@ test('Direcciones API: sin ciudad en el perfil pide elegirla', async () => {
   assert.equal(res.statusCode, 400);
   assert.match(JSON.parse(res.body).error, /ciudad/);
 });
+
+test('Direcciones: primero lo de la ciudad del perfil, después lo de ciudades vecinas por cercanía', async () => {
+  const { ordenarPorCercania } = await import('../netlify/functions/search-addresses.mjs');
+  const lanus = { nombre: 'Lanús', censal: 'Lanus', lat: -34.7076, lon: -58.3911 };
+  const items = [
+    { id: 'borda', label: 'Hospital Borda', zona: 'Ciudad Autónoma de Buenos Aires', lat: -34.64, lon: -58.39 },
+    { id: 'temperley', label: 'Hospital Español', zona: 'Temperley', lat: -34.77, lon: -58.39 },
+    { id: 'evita', label: 'Hospital Evita', zona: 'Lanús|Lanús Oeste', lat: -34.70, lon: -58.40 },
+    { id: 'avellaneda', label: 'Hospital Fiorito', zona: 'Avellaneda', lat: -34.67, lon: -58.36 },
+  ];
+  assert.deepEqual(ordenarPorCercania(items, lanus, lanus).map(i => i.id), ['evita', 'avellaneda', 'temperley', 'borda']);
+});

@@ -9,7 +9,7 @@ import { kmEntre, normalizar, prolijo, resolverCiudad } from '../lib/ciudad.mjs'
 const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=300' };
 const reply = (statusCode, body) => ({ statusCode, headers, body: JSON.stringify(body) });
 const UA = 'AcompanameApp/1.0 (proyecto academico)';
-const RADIO_KM = 35;
+const RADIO_KM = 30;
 const cache = new Map(); // respuestas recientes: evita repetir consultas a Photon
 const CACHE_MS = 10 * 60 * 1000;
 
@@ -30,7 +30,17 @@ export function aSugerencia(feature) {
   const titulo = p.name || calle;
   if (!titulo) return null;
   const detalle = [p.name && calle ? calle : '', lugar].filter(Boolean).join(', ');
-  return { id: `${p.osm_type || 'x'}${p.osm_id || `${lat},${lon}`}`, label: titulo, detail: detalle, lat, lon };
+  return { id: `${p.osm_type || 'x'}${p.osm_id || `${lat},${lon}`}`, label: titulo, detail: detalle, lat, lon, zona: [p.city, p.district, p.county, p.locality].filter(Boolean).join('|') };
+}
+
+// Primero lo que queda en la misma ciudad (en el orden de relevancia de Photon);
+// después lo de ciudades vecinas, del más cercano al más lejano.
+export function ordenarPorCercania(items, ciudad, centro) {
+  const nombres = ciudad ? [ciudad.nombre, ciudad.censal].map(normalizar) : [];
+  const enLaCiudad = (item) => nombres.length > 0 && normalizar(item.zona || '').split('|').some(z => nombres.some(n => z === n || z.startsWith(`${n} `)));
+  const propios = items.filter(enLaCiudad);
+  const vecinos = items.filter(item => !enLaCiudad(item)).sort((a, b) => kmEntre(centro, a) - kmEntre(centro, b));
+  return [...propios, ...vecinos];
 }
 
 // Recuadro de unos 40 km alrededor del centro de la ciudad.
@@ -72,11 +82,11 @@ export const handler = async (event) => {
 
   try {
     const vistos = new Set();
-    const items = (await photon({ q, limit: '20', bbox: recuadro(centro), lat: String(centro.lat), lon: String(centro.lon), location_bias_scale: '0.2' }))
+    const cercanos = (await photon({ q, limit: '40', bbox: recuadro(centro), lat: String(centro.lat), lon: String(centro.lon), location_bias_scale: '0.1' }))
       .map(aSugerencia).filter(Boolean)
       .filter(item => kmEntre(centro, item) <= RADIO_KM)
-      .filter(item => { const key = `${item.label}|${item.detail}`; return !vistos.has(key) && vistos.add(key); })
-      .slice(0, 6);
+      .filter(item => { const key = `${item.label}|${item.detail}`; return !vistos.has(key) && vistos.add(key); });
+    const items = ordenarPorCercania(cercanos, ciudad, centro).slice(0, 6).map(({ zona, ...item }) => item);
     if (cache.size > 500) cache.clear();
     cache.set(cacheKey, { at: Date.now(), items });
     return reply(200, { items });
