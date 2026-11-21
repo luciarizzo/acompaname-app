@@ -1,14 +1,16 @@
 import { authenticate, ensureProfileRow, getAdmin, json } from '../lib/supabase-admin.mjs';
 import {
   ANTICIPACION_MINIMA_MS, MAX_OPCIONES, MAX_TURNOS_ACTIVOS,
-  aOpcionDeTurno, centrosDeLaCiudad, descripcionDelTurno, elegirHorarios, generarCodigo,
+  aOpcionDeTurno, centrosDeLaCiudad, datosDeSede, descripcionDelTurno, elegirHorarios, generarCodigo,
   validarBusqueda, validarIdDeHorario,
 } from '../lib/turnos.mjs';
+import { normalizar, prolijo, resolverCiudad } from '../lib/ciudad.mjs';
 
 // API de turnos médicos de Acompáñame.
 //
-//   GET    /.netlify/functions/turnos?especialidad=Cardiología&ciudad=Mendoza
-//          Horarios libres. No necesita sesión: la disponibilidad no es un dato personal.
+//   GET    /.netlify/functions/turnos?especialidad=Cardiología&ciudad=Lanús&provincia=Buenos Aires
+//          Horarios libres en la ciudad del perfil. Si todavía no hay sede ahí, la crea (con una calle real de esa ciudad).
+//          No necesita sesión: la disponibilidad no es un dato personal.
 //   POST   /.netlify/functions/turnos   { "slotId": "<id del horario>" }
 //          Reserva el horario a nombre del usuario y lo guarda en Mis gestiones. Necesita sesión.
 //   DELETE /.netlify/functions/turnos   { "slotId": "<id del horario>" }
@@ -18,21 +20,61 @@ import {
 
 const desde = () => new Date(Date.now() + ANTICIPACION_MINIMA_MS).toISOString();
 
-async function buscarHorarios(db, especialidad, ciudad) {
-  const { data: centros, error: centrosError } = await db.from('turnos_centros').select('id, nombre, direccion, ciudad');
-  if (centrosError) throw centrosError;
-  const enLaCiudad = centrosDeLaCiudad(centros, ciudad);
-  if (!enLaCiudad.length) {
-    const ciudades = [...new Set(centros.map(centro => centro.ciudad))].sort().join(', ');
-    return { items: [], notice: `Todavía no hay consultorios conectados en ${ciudad}.${ciudades ? ` Por ahora hay en: ${ciudades}.` : ''}` };
+// Una calle real de la ciudad (catálogo oficial Georef), para la dirección de la sede.
+// Se prefiere una avenida con nombre conocido; se descartan nombres abreviados o con letras sueltas.
+const CALLES_CONOCIDAS = ['san martin', 'belgrano', 'rivadavia', 'mitre', 'sarmiento', 'colon', 'libertador', 'hipolito yrigoyen', 'espana', 'moreno', 'italia', 'independencia', '9 de julio', '25 de mayo'];
+export function elegirCalle(nombres) {
+  const legibles = nombres.filter(n => n && !/^calle \d+$/i.test(n) && !/\b[a-z]\b/i.test(n.replace(/^(av|bv)\s+/i, '')) && n.length >= 6);
+  const conocida = legibles.find(n => CALLES_CONOCIDAS.some(c => normalizar(n).includes(c)));
+  return conocida || legibles[0] || null;
+}
+async function calleDe(ciudad) {
+  for (const categoria of ['AV', 'CALLE']) {
+    try {
+      const params = new URLSearchParams({ localidad_censal: ciudad.censal, provincia: ciudad.provincia, categoria, max: '100', campos: 'nombre' });
+      const response = await fetch(`https://apis.datos.gob.ar/georef/api/calles?${params}`, { signal: AbortSignal.timeout(6000) });
+      if (!response.ok) continue;
+      const { calles = [] } = await response.json();
+      const elegida = elegirCalle(calles.map(c => c.nombre));
+      if (elegida) return prolijo(elegida);
+    } catch { /* se prueba con la siguiente categoría */ }
   }
+  return 'Av. San Martín';
+}
+
+// Crea la sede, sus profesionales y sus horarios en la ciudad de la persona.
+async function crearSede(db, ciudad) {
+  const sede = datosDeSede(ciudad, await calleDe(ciudad));
+  const { error } = await db.from('turnos_centros').upsert(
+    { nombre: sede.nombre, direccion: sede.direccion, ciudad: sede.ciudad, provincia: sede.provincia },
+    { onConflict: 'nombre,ciudad,provincia', ignoreDuplicates: true });
+  if (error) throw error;
+  const { data: centro, error: lookupError } = await db.from('turnos_centros').select('id, nombre, direccion, ciudad, provincia')
+    .eq('nombre', sede.nombre).eq('ciudad', sede.ciudad).eq('provincia', sede.provincia).single();
+  if (lookupError) throw lookupError;
+  const { error: profError } = await db.from('turnos_profesionales').upsert(
+    sede.profesionales.map(p => ({ centro_id: centro.id, nombre: p.nombre, especialidad: p.especialidad })),
+    { onConflict: 'centro_id,especialidad', ignoreDuplicates: true });
+  if (profError) throw profError;
+  const { error: rpcError } = await db.rpc('generar_horarios_turnos', { dias: 21 });
+  if (rpcError) throw rpcError;
+  return centro;
+}
+
+async function buscarHorarios(db, especialidad, ciudadPedida, provinciaPedida) {
+  const ciudad = await resolverCiudad(ciudadPedida, provinciaPedida);
+  if (!ciudad) return { items: [], notice: `No encontramos «${ciudadPedida}» en el listado oficial de localidades. Revisá tu ciudad en Mi configuración.` };
+  const { data: centros, error: centrosError } = await db.from('turnos_centros').select('id, nombre, direccion, ciudad, provincia').eq('provincia', ciudad.provincia);
+  if (centrosError) throw centrosError;
+  let enLaCiudad = centrosDeLaCiudad(centros, ciudad);
+  if (!enLaCiudad.length) enLaCiudad = [await crearSede(db, ciudad)];
 
   const { data: profesionales, error: profesionalesError } = await db.from('turnos_profesionales')
     .select('id, nombre, especialidad, centro_id')
     .eq('especialidad', especialidad)
     .in('centro_id', enLaCiudad.map(centro => centro.id));
   if (profesionalesError) throw profesionalesError;
-  if (!profesionales.length) return { items: [], notice: `No hay profesionales de ${especialidad.toLowerCase()} en ${ciudad} por ahora.` };
+  if (!profesionales.length) return { items: [], notice: `No hay profesionales de ${especialidad.toLowerCase()} en ${ciudad.nombre} por ahora.` };
 
   const consultar = async () => {
     const { data, error } = await db.from('turnos_horarios')
@@ -145,7 +187,7 @@ export const handler = async (event) => {
       if (!db) return json(503, { error: 'El servidor no tiene configurada la base de datos de turnos.' });
       const busqueda = validarBusqueda(event.queryStringParameters);
       if (busqueda.error) return json(400, { error: busqueda.error });
-      const result = await buscarHorarios(db, busqueda.especialidad, busqueda.ciudad);
+      const result = await buscarHorarios(db, busqueda.especialidad, busqueda.ciudad, busqueda.provincia);
       return json(200, { mode: 'real', ...result });
     }
 

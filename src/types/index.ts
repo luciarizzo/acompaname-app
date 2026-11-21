@@ -8,3 +8,6 @@ export interface SearchResult<T> { mode: SourceMode; items: T[]; source?: string
 /** Turno reservado de verdad con la API de turnos: slotId identifica el horario y code es el código para mostrar al llegar. */
 export interface AppointmentBooking { slotId: string; code: string }
 export interface SavedTask { id: string; kind: FlowKind; title: string; description: string; createdAt: string; mode: SourceMode; editChoices?: { appointmentSlots: AppointmentOption[] }; booking?: AppointmentBooking }
+
+/** Ciudad del perfil: con ella se buscan sedes de turnos y direcciones de viajes cerca de la persona. */
+export interface UserLocation { city: string; province?: string; lat?: number; lon?: number }

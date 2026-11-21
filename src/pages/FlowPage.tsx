@@ -14,7 +14,7 @@ import { classifyNeed, extractRequestedDate } from '../utils/intent';
 import { useBrowserBack } from '../utils/useBrowserBack';
 import { loadFlowDraft, saveFlowDraft, removeFlowDraft } from '../utils/flowDraft';
 
-interface Props { kind: Extract<FlowKind, 'event' | 'appointment'>; initialPrompt?: string; city: string; onBack: () => void; onHome: () => void; onSaved: () => void; onStepChange: () => void; onLogin?: () => void }
+interface Props { kind: Extract<FlowKind, 'event' | 'appointment'>; initialPrompt?: string; city: string; province?: string; cityLat?: number; cityLon?: number; onEditCity?: () => void; onBack: () => void; onHome: () => void; onSaved: () => void; onStepChange: () => void; onLogin?: () => void }
 type Step = 'form' | 'loading' | 'results' | 'confirm' | 'done';
 type Result = EventResult | AppointmentOption;
 interface SearchDraft { step: Step; eventCategory: string | null; eventDate: string; specialty: AppointmentSpecialty; searchCity?: string; eventQuery?: string }
@@ -39,7 +39,7 @@ function demoAppointments(specialty: AppointmentSpecialty, city: string): Appoin
 }
 function isAppointment(item: Result): item is AppointmentOption { return 'specialty' in item; }
 
-export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, onHome, onSaved, onStepChange, onLogin }: Props) {
+export function FlowPage({ kind, initialPrompt = '', city: profileCity, province, cityLat, cityLon, onEditCity, onBack, onHome, onSaved, onStepChange, onLogin }: Props) {
   const [previous] = useState(() => loadFlowDraft<SearchDraft>(kind));
   const [resumePrompt, setResumePrompt] = useState(Boolean(previous));
   const [step, setStep] = useState<Step>('form');
@@ -58,7 +58,9 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
     const initialCategory = previous?.eventCategory ?? classifyNeed(initialPrompt).eventCategory ?? null;
     return initialCategory === 'culture' ? 'all' : initialCategory;
   });
-  const city = profileCity.trim() || 'Mendoza';
+  // La ciudad que la persona eligió en su perfil. Los turnos se buscan siempre ahí.
+  const city = profileCity.trim();
+  const needsCity = kind === 'appointment' && !city;
   const [searchCity, setSearchCity] = useState(() => previous?.searchCity || city);
   const [eventQuery, setEventQuery] = useState(() => previous?.eventQuery || '');
   const [eventSource, setEventSource] = useState('');
@@ -94,7 +96,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
         setEventNotice(result.notice || '');
         setEventAgendaUrl(result.agendaUrl || null);
       } else if (supabase) {
-        const result = await searchAppointments(specialty, city);
+        const result = await searchAppointments(specialty, { city, province, lat: cityLat, lon: cityLon });
         if (request !== currentRequest.current) return;
         setItems(result.items);
         setMode('real');
@@ -183,13 +185,14 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
           {dateFromPrompt && <p className="date-detected" role="status">Dejé seleccionado el sábado que mencionaste. Podés cambiarlo si querés.</p>}
         </>}
         {kind === 'appointment' && <>
-          <div className="privacy-note"><MapPin size={18}/><span>Mostramos sedes en {city}.</span></div>
+          {needsCity ? <><StatusMessage kind="info">Para mostrarte turnos cerca tuyo, primero contanos en qué ciudad estás.</StatusMessage>{onEditCity && <button type="button" className="secondary-button full-button" onClick={onEditCity}><MapPin size={18}/> Elegir mi ciudad</button>}</>
+            : <div className="privacy-note"><MapPin size={18}/><span>Mostramos sedes en {city}{province ? `, ${province}` : ''}.</span></div>}
           <label className="field-label" htmlFor="specialty">Elegí una especialidad</label>
           <select id="specialty" className="form-control" value={specialty} onChange={e => setSpecialty(e.target.value as AppointmentSpecialty)}>{specialties.map(option => <option key={option}>{option}</option>)}</select>
           {!supabase && <div className="privacy-note"><ShieldCheck size={18}/><span>OSDE, PAMI y otros prestadores todavía no están conectados. No compartimos tus datos ni reservamos turnos.</span></div>}
         </>}
         {error && <StatusMessage kind="error">{error}</StatusMessage>}
-        <button className="primary-button full-button" onClick={() => void startSearch()} disabled={kind === 'event' && (!eventCategory || !searchCity.trim())}><Search size={19}/>{kind === 'appointment' ? 'Ver opciones de turno' : 'Buscar opciones'}<ArrowRight size={19}/></button>
+        <button className="primary-button full-button" onClick={() => void startSearch()} disabled={needsCity || (kind === 'event' && (!eventCategory || !searchCity.trim()))}><Search size={19}/>{kind === 'appointment' ? 'Ver opciones de turno' : 'Buscar opciones'}<ArrowRight size={19}/></button>
       </div>
     </>}
 

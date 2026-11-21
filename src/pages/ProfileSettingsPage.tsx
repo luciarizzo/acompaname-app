@@ -37,7 +37,8 @@ export function ProfileSettingsPage({ profile, onSave, onCancel, onPreferencesPr
       <label className="field-label" htmlFor="settings-name">Nombre que querés usar</label>
       <input id="settings-name" className="form-control" maxLength={40} value={draft.name} onChange={event => change({ name: event.target.value })}/>
       <label className="field-label" htmlFor="settings-city">Ciudad</label>
-      <LocalityAutocomplete id="settings-city" value={draft.city} onChange={city => {change({ city });setError('');}} required/>
+      <LocalityAutocomplete id="settings-city" value={draft.city} onChange={city => {change({ city, province: '', cityLat: undefined, cityLon: undefined });setError('');}} onSelect={item => change({ city: item.name, province: item.province, cityLat: item.lat, cityLon: item.lon })} required/>
+      {draft.province && <p className="field-hint">{draft.city}, {draft.province}</p>}
       <label className="field-label" htmlFor="settings-role">¿Quién usa Acompáñame?</label>
       <select id="settings-role" className="form-control" value={draft.role} onChange={event => change({ role: event.target.value as OnboardingProfile['role'] })}>
         <option value="self">La voy a usar yo</option><option value="supporting">Estoy ayudando a otra persona</option>

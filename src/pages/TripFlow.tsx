@@ -25,6 +25,10 @@ const statusOrder: TripState['status'][] = ['searching', 'arriving', 'waiting', 
 
 interface Props {
   city: string;
+  province?: string;
+  cityLat?: number;
+  cityLon?: number;
+  onEditCity?: () => void;
   addresses: SavedAddress[];
   onAddressesChange: (addresses: SavedAddress[]) => void;
   onSave: (task: SavedTask) => void;
@@ -34,7 +38,7 @@ interface Props {
   onStepChange: () => void;
 }
 
-export function TripFlow({ city: profileCity, addresses, onAddressesChange, onSave, onBack, onHome, onSaved, onStepChange }: Props) {
+export function TripFlow({ city: profileCity, province, cityLat, cityLon, onEditCity, addresses, onAddressesChange, onSave, onBack, onHome, onSaved, onStepChange }: Props) {
   const [previous] = useState(() => {
     const saved = loadFlowDraft<TripDraft>('trip');
     if (saved && ((saved.toId && !addresses.some(item => item.id === saved.toId)) || (saved.fromId && !addresses.some(item => item.id === saved.fromId)))) {
@@ -56,7 +60,9 @@ export function TripFlow({ city: profileCity, addresses, onAddressesChange, onSa
   const [requestError, setRequestError] = useState('');
   const [trip, setTrip] = useState<{ token: string; trip: Trip; state: TripState } | null>(null);
   const savedTrip = useRef(false);
-  const city = profileCity.trim() || 'Mendoza';
+  // Las direcciones se buscan solo cerca de la ciudad del perfil.
+  const city = profileCity.trim();
+  const location = { city, province, lat: cityLat, lon: cityLon };
   const stepIndex = steps.indexOf(step);
   useEffect(() => { onStepChange(); }, [step, editor === null, managing]);
   useEffect(() => {
@@ -184,13 +190,13 @@ export function TripFlow({ city: profileCity, addresses, onAddressesChange, onSa
       <div className="flow-heading"><h1>{editor.id ? 'Editar dirección' : 'Nueva dirección'}</h1><p>Escribí la dirección y, si querés, un nombre para reconocerla fácil.</p></div>
       <form className="form-card" onSubmit={e => { e.preventDefault(); saveAddress(); }}>
         <label className="field-label" htmlFor="address-street">Dirección o lugar</label>
-        <AddressAutocomplete id="address-street" value={editor.address} city={city} selected={Number.isFinite(editor.lat)}
+        {!city ? <><StatusMessage kind="info">Para buscar direcciones cerca tuyo, primero contanos en qué ciudad estás.</StatusMessage>{onEditCity && <button type="button" className="secondary-button full-button" onClick={onEditCity}><MapPin size={18}/> Elegir mi ciudad</button>}</> : <AddressAutocomplete id="address-street" value={editor.address} location={location} selected={Number.isFinite(editor.lat)}
           onType={value => setEditor({ ...editor, address: value, lat: undefined, lon: undefined })}
-          onSelect={item => setEditor({ ...editor, address: item.detail ? `${item.label}, ${item.detail}` : item.label, lat: item.lat, lon: item.lon, name: editor.name || (/\d/.test(item.label) ? '' : item.label) })}/>
+          onSelect={item => setEditor({ ...editor, address: item.detail ? `${item.label}, ${item.detail}` : item.label, lat: item.lat, lon: item.lon, name: editor.name || (/\d/.test(item.label) ? '' : item.label) })}/>}
         {Number.isFinite(editor.lat) && <p className="address-selected"><Check size={18}/> Dirección encontrada</p>}
         <label className="field-label" htmlFor="address-name">Nombre (opcional)</label>
         <input id="address-name" className="form-control" value={editor.name} onChange={e => setEditor({ ...editor, name: e.target.value })} placeholder="Por ejemplo: Casa, Hospital, Club"/>
-        <div className="privacy-note"><MapPin size={18}/><span>Buscamos primero en {city}. Escribí y tocá la dirección correcta en la lista.</span></div>
+        <div className="privacy-note"><MapPin size={18}/><span>Buscamos en {city}{province ? `, ${province}` : ''}. Escribí y tocá la dirección correcta en la lista.</span></div>
         <button type="submit" className="primary-button full-button" disabled={!editor.address.trim() || !Number.isFinite(editor.lat)}><Check size={19}/> Guardar dirección</button>
         <button type="button" className="secondary-button full-button" onClick={() => setEditor(null)}>Cancelar</button>
       </form>

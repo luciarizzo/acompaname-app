@@ -9,6 +9,10 @@ export interface OnboardingProfile {
   role: 'self' | 'supporting';
   name: string;
   city: string;
+  // Provincia y centro de la ciudad, de la lista oficial de localidades: ubican los turnos y viajes cerca de la persona.
+  province?: string;
+  cityLat?: number;
+  cityLon?: number;
   accessibility: 'older-adult' | 'disability' | 'both' | 'prefer-not-to-say' | '';
   largerText: boolean;
   highContrast: boolean;

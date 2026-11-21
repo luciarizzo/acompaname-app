@@ -16,7 +16,8 @@ create table if not exists public.turnos_centros (
   nombre     text not null,
   direccion  text not null,
   ciudad     text not null,
-  unique (nombre, ciudad)
+  provincia  text not null default '',
+  unique (nombre, ciudad, provincia)
 );
 
 create table if not exists public.turnos_profesionales (
@@ -81,14 +82,14 @@ $$;
 revoke all on function public.generar_horarios_turnos(integer) from public, anon, authenticated;
 grant execute on function public.generar_horarios_turnos(integer) to service_role;
 
--- 4. DATOS DE PRUEBA
-insert into public.turnos_centros (nombre, direccion, ciudad) values
-  ('Centro Médico Acompáñame', 'Av. España 1340', 'Mendoza'),
-  ('Centro Médico Acompáñame', 'Av. Corrientes 2450', 'Buenos Aires'),
-  ('Centro Médico Acompáñame', 'Bv. San Juan 780', 'Córdoba'),
-  ('Centro Médico Acompáñame', 'Bv. Oroño 1150', 'Rosario'),
-  ('Centro Médico Acompáñame', 'Calle 7 N.º 1020', 'La Plata')
-on conflict (nombre, ciudad) do nothing;
+-- 4. SEDES INICIALES (la API crea sola la sede de cualquier otra ciudad la primera vez que alguien busca turnos ahí)
+insert into public.turnos_centros (nombre, direccion, ciudad, provincia) values
+  ('Centro Médico Acompáñame', 'Av. España 1340', 'Mendoza', 'Mendoza'),
+  ('Centro Médico Acompáñame', 'Av. Corrientes 2450', 'Ciudad de Buenos Aires', 'Ciudad Autónoma de Buenos Aires'),
+  ('Centro Médico Acompáñame', 'Bv. San Juan 780', 'Córdoba', 'Córdoba'),
+  ('Centro Médico Acompáñame', 'Bv. Oroño 1150', 'Rosario', 'Santa Fe'),
+  ('Centro Médico Acompáñame', 'Calle 7 N.º 1020', 'La Plata', 'Buenos Aires')
+on conflict (nombre, ciudad, provincia) do nothing;
 
 insert into public.turnos_profesionales (centro_id, nombre, especialidad)
 select c.id, p.nombre, p.especialidad
@@ -98,10 +99,10 @@ join (values
   ('Mendoza',      'Dr. Martín López',     'Cardiología'),
   ('Mendoza',      'Dra. Laura Acosta',    'Oftalmología'),
   ('Mendoza',      'Dr. Andrés Molina',    'Odontología'),
-  ('Buenos Aires', 'Dra. Sofía Benítez',   'Clínica médica'),
-  ('Buenos Aires', 'Dr. Ricardo Paz',      'Cardiología'),
-  ('Buenos Aires', 'Dra. Inés Gutiérrez',  'Oftalmología'),
-  ('Buenos Aires', 'Dr. Tomás Ferreyra',   'Odontología'),
+  ('Ciudad de Buenos Aires', 'Dra. Sofía Benítez',   'Clínica médica'),
+  ('Ciudad de Buenos Aires', 'Dr. Ricardo Paz',      'Cardiología'),
+  ('Ciudad de Buenos Aires', 'Dra. Inés Gutiérrez',  'Oftalmología'),
+  ('Ciudad de Buenos Aires', 'Dr. Tomás Ferreyra',   'Odontología'),
   ('Córdoba',      'Dra. Carla Medina',    'Clínica médica'),
   ('Córdoba',      'Dr. Julián Sosa',      'Cardiología'),
   ('Córdoba',      'Dra. Valeria Ortiz',   'Oftalmología'),

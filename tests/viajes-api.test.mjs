@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { MS_POR_MINUTO, aToken, cotizar, crearViaje, desdeToken, distanciaKm, estadoDelViaje, sePuedeCancelar, validarPunto } from '../netlify/lib/viajes.mjs';
 import { handler } from '../netlify/functions/viajes.mjs';
-import { aSugerencia, prolijo } from '../netlify/functions/search-addresses.mjs';
+import { aSugerencia, recuadro } from '../netlify/functions/search-addresses.mjs';
+import { prolijo } from '../netlify/lib/ciudad.mjs';
 
 const plaza = { lat: -32.8894, lon: -68.8446, label: 'Plaza Independencia' };
 const hospital = { lat: -32.8921, lon: -68.8329, label: 'Hospital Central' };
@@ -86,5 +87,18 @@ test('Direcciones: convierte resultados de Photon y Georef en sugerencias claras
   const calle = aSugerencia({ geometry: { coordinates: [-68.8, -32.9] }, properties: { countrycode: 'AR', street: 'San Martín', housenumber: '1250', city: 'Godoy Cruz', state: 'Mendoza' } });
   assert.equal(calle.label, 'San Martín 1250');
   assert.equal(aSugerencia({ geometry: { coordinates: [-3.7, 40.4] }, properties: { countrycode: 'ES', name: 'Madrid' } }), null);
-  assert.equal(prolijo('AV GRL SAN MARTIN 1250'), 'Av. Gral. San Martin 1250');
+  assert.equal(prolijo('AV GRL SAN MARTIN 1250'), 'Av. Gral. San Martín 1250');
+});
+
+test('Direcciones: se busca solo en un recuadro alrededor de la ciudad del perfil', () => {
+  const [oeste, sur, este, norte] = recuadro({ lat: -34.7076, lon: -58.3911 }).split(',').map(Number);
+  assert.ok(oeste < -58.3911 && este > -58.3911 && sur < -34.7076 && norte > -34.7076);
+  assert.ok(norte - sur < 1 && este - oeste < 1); // unos 40 km, no todo el país
+});
+
+test('Direcciones API: sin ciudad en el perfil pide elegirla', async () => {
+  const { handler } = await import('../netlify/functions/search-addresses.mjs');
+  const res = await handler({ httpMethod: 'GET', queryStringParameters: { q: 'hospital' } });
+  assert.equal(res.statusCode, 400);
+  assert.match(JSON.parse(res.body).error, /ciudad/);
 });

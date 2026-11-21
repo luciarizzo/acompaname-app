@@ -1,16 +1,17 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { MapPin } from 'lucide-react';
 import { searchAddresses, type AddressSuggestion } from '../services/trips';
+import type { UserLocation } from '../types';
 
 // Campo de dirección con sugerencias mientras se escribe (calles con altura y lugares conocidos).
 // La dirección queda lista cuando la persona toca una sugerencia: así sabemos dónde queda en el mapa.
-interface Props { id: string; value: string; city: string; onType: (value: string) => void; onSelect: (item: AddressSuggestion) => void; selected: boolean }
+interface Props { id: string; value: string; location: UserLocation; onType: (value: string) => void; onSelect: (item: AddressSuggestion) => void; selected: boolean }
 
-export function AddressAutocomplete({ id, value, city, onType, onSelect, selected }: Props) {
+export function AddressAutocomplete({ id, value, location, onType, onSelect, selected }: Props) {
   const listId = useId();
   const [results, setResults] = useState<AddressSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
-  const [unavailable, setUnavailable] = useState(false);
+  const [unavailable, setUnavailable] = useState('');
   const [active, setActive] = useState(-1);
   const [focused, setFocused] = useState(false);
   const requestId = useRef(0);
@@ -22,15 +23,15 @@ export function AddressAutocomplete({ id, value, city, onType, onSelect, selecte
     const timer = window.setTimeout(async () => {
       setLoading(true);
       try {
-        const items = await searchAddresses(value.trim(), city, controller.signal);
+        const items = await searchAddresses(value.trim(), location, controller.signal);
         if (request !== requestId.current) return;
-        setResults(items); setUnavailable(false); setActive(-1);
-      } catch {
-        if (!controller.signal.aborted && request === requestId.current) { setUnavailable(true); setResults([]); }
+        setResults(items); setUnavailable(''); setActive(-1);
+      } catch (error) {
+        if (!controller.signal.aborted && request === requestId.current) { setUnavailable(error instanceof Error && error.message !== 'Sin conexión' ? error.message : 'No pudimos buscar direcciones ahora. Probá de nuevo en un momento.'); setResults([]); }
       } finally { if (request === requestId.current) setLoading(false); }
     }, 450);
     return () => { window.clearTimeout(timer); controller.abort(); };
-  }, [value, city, selected]);
+  }, [value, location.city, location.province, location.lat, location.lon, selected]);
 
   const choose = (item: AddressSuggestion) => { onSelect(item); setResults([]); };
   const visible = !selected && value.trim().length >= 3;
@@ -48,8 +49,8 @@ export function AddressAutocomplete({ id, value, city, onType, onSelect, selecte
       }}/>
     {visible && (focused || results.length > 0) && <>
       {loading && <p className="locality-hint" role="status">Buscando direcciones…</p>}
-      {!loading && unavailable && <p className="locality-hint" role="status">No pudimos buscar direcciones ahora. Probá de nuevo en un momento.</p>}
-      {!loading && !unavailable && results.length === 0 && <p className="locality-hint" role="status">No encontramos esa dirección. Probá con la calle y el número, por ejemplo «San Martín 1200».</p>}
+      {!loading && unavailable && <p className="locality-hint" role="status">{unavailable}</p>}
+      {!loading && !unavailable && results.length === 0 && <p className="locality-hint" role="status">No encontramos esa dirección en {location.city}. Probá con la calle y el número, por ejemplo «San Martín 1200».</p>}
       {results.length > 0 && <ul className="locality-suggestions address-suggestions" id={listId} role="listbox" aria-label="Direcciones sugeridas">{results.map((item, index) =>
         <li id={`${listId}-${index}`} key={item.id} role="option" aria-selected={active === index}>
           <button type="button" className={active === index ? 'active' : ''} onMouseDown={event => event.preventDefault()} onClick={() => choose(item)}>

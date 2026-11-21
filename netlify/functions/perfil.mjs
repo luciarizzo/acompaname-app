@@ -8,6 +8,8 @@ const toFront = (row, contacts) => ({
   role: row.rol,
   name: row.nombre,
   city: row.ciudad,
+  province: row.provincia || '',
+  ...(row.ciudad_lat != null && row.ciudad_lon != null ? { cityLat: row.ciudad_lat, cityLon: row.ciudad_lon } : {}),
   accessibility: row.accesibilidad,
   largerText: row.texto_grande,
   highContrast: row.alto_contraste,
@@ -39,7 +41,10 @@ export const handler = async (event) => {
         id: user.id,
         rol: profile.role === 'supporting' ? 'supporting' : 'self',
         nombre: String(profile.name || ''),
-        ciudad: String(profile.city || 'Mendoza'),
+        ciudad: String(profile.city || '').trim().slice(0, 100),
+        provincia: String(profile.province || '').trim().slice(0, 100),
+        ciudad_lat: Number.isFinite(profile.cityLat) ? profile.cityLat : null,
+        ciudad_lon: Number.isFinite(profile.cityLon) ? profile.cityLon : null,
         accesibilidad: String(profile.accessibility || ''),
         texto_grande: Boolean(profile.largerText),
         alto_contraste: Boolean(profile.highContrast),
@@ -47,7 +52,9 @@ export const handler = async (event) => {
         medio_pago_preferido: String(profile.preferredPaymentMethod || ''),
         contactos_configurados: Boolean(profile.trustedContactsSetup),
         direcciones: (Array.isArray(profile.savedAddresses) ? profile.savedAddresses : []).slice(0, 30)
-          .map((item) => ({ id: String(item.id || ''), name: String(item.name || '').trim(), address: String(item.address || '').trim() }))
+          // Se conserva la ubicación de cada dirección: sin ella no se puede calcular un viaje.
+          .map((item) => ({ id: String(item.id || ''), name: String(item.name || '').trim(), address: String(item.address || '').trim(),
+            ...(Number.isFinite(item.lat) && Number.isFinite(item.lon) ? { lat: item.lat, lon: item.lon } : {}) }))
           .filter((item) => item.id && item.address),
         actualizado_en: new Date().toISOString(),
       });

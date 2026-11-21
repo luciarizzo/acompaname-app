@@ -1,3 +1,5 @@
+import type { UserLocation } from '../types';
+
 // Comunicación con la API de viajes (netlify/functions/viajes.mjs) y la búsqueda de direcciones.
 
 export interface AddressSuggestion { id: string; label: string; detail: string; lat: number; lon: number }
@@ -27,9 +29,11 @@ export const requestTrip = (origin: TripPoint, destination: TripPoint, rideType:
 export const tripStatus = (token: string) => call<{ state: TripState }>({ method: 'GET', query: new URLSearchParams({ token }).toString() });
 export const cancelTrip = (token: string) => call<TripResponse>({ method: 'POST', body: JSON.stringify({ action: 'cancel', token }) });
 
-export async function searchAddresses(q: string, city: string, signal?: AbortSignal): Promise<AddressSuggestion[]> {
-  const response = await fetch(`/.netlify/functions/search-addresses?${new URLSearchParams({ q, ciudad: city })}`, { signal });
-  if (!response.ok) throw new Error('Sin conexión');
+export async function searchAddresses(q: string, location: UserLocation, signal?: AbortSignal): Promise<AddressSuggestion[]> {
+  const params = new URLSearchParams({ q, ciudad: location.city, provincia: location.province || '' });
+  if (Number.isFinite(location.lat) && Number.isFinite(location.lon)) { params.set('lat', String(location.lat)); params.set('lon', String(location.lon)); }
+  const response = await fetch(`/.netlify/functions/search-addresses?${params}`, { signal });
+  if (!response.ok) { const payload = await response.json().catch(() => ({})); throw new Error(payload.error || 'Sin conexión'); }
   const data: { items?: AddressSuggestion[] } = await response.json();
   return Array.isArray(data.items) ? data.items : [];
 }

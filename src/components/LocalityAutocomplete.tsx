@@ -1,9 +1,10 @@
 import { useEffect, useId, useRef, useState } from 'react';
 
-interface Locality { id: string; name: string; province: string }
-interface Props { id: string; value: string; onChange: (value: string) => void; placeholder?: string; required?: boolean }
+export interface Locality { id: string; name: string; province: string; lat?: number; lon?: number }
+// onChange avisa cada vez que se escribe; onSelect, cuando se elige una localidad de la lista (con su provincia y ubicación).
+interface Props { id: string; value: string; onChange: (value: string) => void; onSelect?: (item: Locality) => void; placeholder?: string; required?: boolean }
 
-export function LocalityAutocomplete({ id, value, onChange, placeholder = 'Escribí tu ciudad o localidad', required }: Props) {
+export function LocalityAutocomplete({ id, value, onChange, onSelect, placeholder = 'Escribí tu ciudad o localidad', required }: Props) {
   const listId = useId();
   const [results, setResults] = useState<Locality[]>([]);
   const [opened, setOpened] = useState(false);
@@ -38,6 +39,7 @@ export function LocalityAutocomplete({ id, value, onChange, placeholder = 'Escri
   const choose = (item: Locality) => {
     selected.current = item.name;
     onChange(item.name);
+    onSelect?.(item);
     setOpened(false);
     setResults([]);
   };

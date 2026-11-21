@@ -1,4 +1,5 @@
 import { randomInt } from 'node:crypto';
+import { normalizar } from './ciudad.mjs';
 
 // Lógica pura de la API de turnos. No toca la base, así se puede probar sin Supabase (ver tests/turnos-api.test.mjs).
 
@@ -12,20 +13,34 @@ const ZONA = 'America/Argentina/Buenos_Aires';
 
 export const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-// "Ciudad Autónoma de Buenos Aires", "CABA", "Mendoza, Argentina" o "mendoza capital" se comparan igual.
-export function normalizarCiudad(value) {
-  let text = String(value || '').split(',')[0]
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase().replace(/\s+/g, ' ').trim();
-  if (text === 'caba' || text === 'capital federal' || text === 'ciudad autonoma de buenos aires' || text === 'ciudad de buenos aires') text = 'buenos aires';
-  text = text.replace(/^ciudad de /, '').replace(/ capital$/, '').trim();
-  return text;
+// Busca la sede de la ciudad que eligió la persona (misma ciudad y provincia, sin importar tildes ni mayúsculas).
+export function centrosDeLaCiudad(centros, ciudad) {
+  if (!ciudad) return [];
+  return centros.filter(centro => normalizar(centro.ciudad) === normalizar(ciudad.nombre) && normalizar(centro.provincia) === normalizar(ciudad.provincia));
 }
 
-export function centrosDeLaCiudad(centros, ciudad) {
-  const buscada = normalizarCiudad(ciudad);
-  if (!buscada) return [];
-  return centros.filter(centro => normalizarCiudad(centro.ciudad) === buscada);
+// Datos de la sede que se crea cuando todavía no hay una en la ciudad de la persona.
+// La calle es real (del catálogo oficial de esa ciudad); la altura y los profesionales se eligen siempre igual para cada ciudad.
+const PROFESIONALES = {
+  'Clínica médica': ['Dra. Paula Ríos', 'Dra. Sofía Benítez', 'Dra. Carla Medina', 'Dr. Ignacio Ferrari', 'Dra. Lucía Romero', 'Dr. Martín Aguirre'],
+  Cardiología: ['Dr. Martín López', 'Dr. Ricardo Paz', 'Dr. Julián Sosa', 'Dra. Verónica Ledesma', 'Dr. Diego Castro', 'Dra. Natalia Quiroga'],
+  Oftalmología: ['Dra. Laura Acosta', 'Dra. Inés Gutiérrez', 'Dra. Valeria Ortiz', 'Dr. Esteban Morales', 'Dra. Marta Giménez', 'Dr. Leandro Funes'],
+  Odontología: ['Dr. Andrés Molina', 'Dr. Tomás Ferreyra', 'Dr. Pablo Herrera', 'Dra. Florencia Vidal', 'Dr. Federico Vera', 'Dra. Camila Ojeda'],
+};
+function numeroDe(texto) {
+  let h = 0;
+  for (const c of texto) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return h;
+}
+export function datosDeSede(ciudad, calle) {
+  const semilla = numeroDe(`${ciudad.nombre}|${ciudad.provincia}`);
+  return {
+    nombre: 'Centro Médico Acompáñame',
+    direccion: `${calle} ${200 + (semilla % 1700)}`,
+    ciudad: ciudad.nombre,
+    provincia: ciudad.provincia,
+    profesionales: ESPECIALIDADES.map((especialidad, i) => ({ especialidad, nombre: PROFESIONALES[especialidad][(semilla >>> (i * 3)) % PROFESIONALES[especialidad].length] })),
+  };
 }
 
 // Ofrece pocas opciones y repartidas en distintos días: menos opciones = menos confusión.
@@ -77,9 +92,10 @@ export function generarCodigo(largo = 6) {
 export function validarBusqueda(params) {
   const especialidad = String(params?.especialidad || '');
   const ciudad = String(params?.ciudad || '').trim();
+  const provincia = String(params?.provincia || '').trim().slice(0, 100);
   if (!ESPECIALIDADES.includes(especialidad)) return { error: 'Elegí una especialidad de la lista.' };
   if (!ciudad || ciudad.length > 100) return { error: 'Indicá la ciudad donde querés atenderte.' };
-  return { especialidad, ciudad };
+  return { especialidad, ciudad, provincia };
 }
 
 export function validarIdDeHorario(body) {

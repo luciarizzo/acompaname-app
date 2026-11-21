@@ -23,7 +23,7 @@ npm run preview
 
 Los resultados demo están identificados en la interfaz y son ejemplos ficticios. Si una integración configurada falla, se muestra el error y no se reemplazan los datos silenciosamente.
 
-La primera visita incluye una configuración de uso de cuatro pasos: para quién se prepara la app, un nombre y perfil opcionales, la ciudad, preferencias de accesibilidad y una revisión antes de guardar. La ciudad configurada (Mendoza por defecto) se reutiliza en salidas y sedes de turnos para no volver a pedirla en cada flujo. Estos datos se guardan solo en `localStorage` de este dispositivo. La app no guarda credenciales ni medios de pago. El único dato de salud que se guarda es el turno médico reservado (especialidad, día, horario y sede), y solo si la persona inicia sesión y lo reserva; ver «API de turnos médicos».
+La primera visita incluye una configuración de uso de cuatro pasos: para quién se prepara la app, un nombre y perfil opcionales, la ciudad, preferencias de accesibilidad y una revisión antes de guardar. La ciudad se elige de la lista oficial de localidades (Georef) y se guarda con su provincia y su ubicación. Se reutiliza en salidas, turnos y viajes para no volver a pedirla: los turnos se ofrecen en una sede de esa ciudad y las direcciones de los viajes se buscan solo ahí. Si no hay ciudad configurada, esos flujos piden elegirla primero. Estos datos se guardan solo en `localStorage` de este dispositivo. La app no guarda credenciales ni medios de pago. El único dato de salud que se guarda es el turno médico reservado (especialidad, día, horario y sede), y solo si la persona inicia sesión y lo reserva; ver «API de turnos médicos».
 
 Durante el onboarding se pueden guardar hasta dos contactos de confianza, ambos opcionales. Los perfiles V1 existentes ven ese paso una sola vez. Después, la app muestra esos contactos y permite llamar desde el marcador del teléfono; sus datos quedan guardados solo en el dispositivo y la lista no ofrece agregar ni quitar contactos desde el uso diario. Abrir o cerrar esta ayuda no reinicia el flujo en curso. Al escribir una solicitud de salida que menciona “sábado”, la fecha se completa con el próximo sábado; el usuario puede cambiarla antes de buscar.
 
@@ -66,11 +66,13 @@ Netlify Functions evita exponer las llaves al navegador. `netlify.toml` configur
 
 La app tiene su propia API de turnos (`netlify/functions/turnos.mjs`) sobre Supabase. Reserva turnos en la red de consultorios **Centro Médico Acompáñame**, cargada por el equipo como datos de ejemplo para el prototipo (no corresponde a prestadores reales).
 
-**Puesta en marcha (una sola vez):** en Supabase, abrí **SQL Editor**, pegá el contenido de `supabase/migrations/20261118_turnos_medicos.sql` y tocá **Run**. Crea las tablas, un Centro Médico Acompáñame en Mendoza, Buenos Aires, Córdoba, Rosario y La Plata (un profesional por especialidad) y horarios de lunes a viernes para las próximas tres semanas. Cuando quedan pocos horarios libres, la API genera los de las semanas siguientes sola.
+**Puesta en marcha (una sola vez):** en Supabase, abrí **SQL Editor** y ejecutá, en orden, `supabase/migrations/20261118_turnos_medicos.sql` y `supabase/migrations/20261121_ciudad_del_usuario.sql`. Crean las tablas, sedes iniciales en Mendoza, Ciudad de Buenos Aires, Córdoba, Rosario y La Plata, y horarios de lunes a viernes para las próximas tres semanas.
+
+**La sede se adapta a la ciudad del perfil:** la primera vez que alguien busca turnos en una ciudad sin sede, la API crea un «Centro Médico Acompáñame» en esa ciudad, sobre una calle real del catálogo oficial Georef (por ejemplo «Av. Gral. San Martín 1430, Lanús»), con un profesional por especialidad y sus horarios. Si la ciudad no figura en el listado oficial, se pide revisarla en Mi configuración. Cuando quedan pocos horarios libres, la API genera los de las semanas siguientes sola.
 
 | Pedido | Qué hace | ¿Necesita sesión? |
 | --- | --- | --- |
-| `GET /.netlify/functions/turnos?especialidad=Cardiología&ciudad=Mendoza` | Hasta 6 horarios libres, como máximo 2 por día y con al menos 2 horas de anticipación | No |
+| `GET /.netlify/functions/turnos?especialidad=Cardiología&ciudad=Lanús&provincia=Buenos Aires` | Hasta 6 horarios libres en la ciudad del perfil, como máximo 2 por día y con al menos 2 horas de anticipación | No |
 | `POST /.netlify/functions/turnos` con `{ "slotId": "…" }` | Reserva el horario, genera un código de 6 caracteres y lo guarda en Mis gestiones | Sí |
 | `DELETE /.netlify/functions/turnos` con `{ "slotId": "…" }` | Cancela el turno, libera el horario y lo quita de Mis gestiones | Sí |
 
@@ -86,7 +88,7 @@ Reglas:
 
 «Pedir un viaje» funciona como una app de autos, con una API propia y simulada (`netlify/functions/viajes.mjs`): no hay autos ni cobros reales, y no usa ninguna marca de terceros.
 
-- **Direcciones:** `netlify/functions/search-addresses.mjs` sugiere calles con altura y lugares conocidos mientras se escribe (por ejemplo «Hospital Central»), cerca de la ciudad del perfil. Usa Photon (OpenStreetMap, gratis, sin API key) y, si no responde, Georef (catálogo oficial argentino). Para guardar una dirección hay que tocar una sugerencia: así queda ubicada en el mapa. Photon es un servicio público con límite de uso; la función guarda las búsquedas recientes y el front espera a que la persona termine de escribir para no excederlo.
+- **Direcciones:** `netlify/functions/search-addresses.mjs` sugiere calles con altura y lugares conocidos mientras se escribe (por ejemplo «Hospital Central»), **solo dentro de unos 35 km de la ciudad del perfil**: nunca muestra direcciones de otras ciudades. Usa Photon (OpenStreetMap, gratis, sin API key) y, si no responde, Georef (catálogo oficial argentino). Para guardar una dirección hay que tocar una sugerencia: así queda ubicada en el mapa. Photon es un servicio público con límite de uso; la función guarda las búsquedas recientes y el front espera a que la persona termine de escribir para no excederlo.
 - **Cotizar** (`POST {action:"estimate"}`): distancia por calles estimada desde las coordenadas, duración, precio y tiempo de llegada de «Auto» y «Auto con más espacio».
 - **Pedir** (`POST {action:"request"}`): asigna conductor, puntaje, auto, patente y PIN, y devuelve un token del viaje. La API no guarda estado: todo va en el token.
 - **Seguimiento** (`GET ?token=`): buscando conductor → en camino → llegó → en viaje → llegaste. Para poder mostrarlo en una presentación, **1 minuto simulado dura 6 segundos**.
