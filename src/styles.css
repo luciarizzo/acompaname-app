@@ -643,3 +643,29 @@ html.high-contrast .saved-card-confirming .saved-delete{
 .login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--line)}
 .field-hint{margin:8px 0 0;color:var(--muted);font-size:calc(14px * var(--text-scale, 1))}
 html.high-contrast .google-button{background:#fff;color:#000;border:2px solid #000}
+
+/* Pedir un viaje: sugerencias de direcciones y seguimiento */
+.address-suggestions button{justify-content:flex-start}
+.address-suggestions button svg{flex:0 0 auto;color:var(--green)}
+.address-suggestion-copy{display:flex;flex-direction:column;gap:2px;text-align:left!important}
+.address-suggestion-copy strong{color:var(--ink);font-size:calc(16px * var(--text-scale, 1))}
+.address-suggestion-copy small{color:#536f64;font-size:calc(14px * var(--text-scale, 1))}
+.address-selected{margin:8px 0 0;display:flex;gap:8px;align-items:center;color:#2f654c;font-weight:700;font-size:calc(15px * var(--text-scale, 1))}
+.trip-summary{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 14px;color:var(--muted);font-size:calc(15px * var(--text-scale, 1))}
+.trip-status{display:grid;gap:4px;margin:6px 0 16px}
+.trip-status h1{margin:0}
+.trip-steps{list-style:none;margin:18px 0;padding:0;display:grid;gap:10px}
+.trip-steps li{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:calc(16px * var(--text-scale, 1))}
+.trip-steps li .dot{width:22px;height:22px;border-radius:50%;border:2px solid #b7cbc4;background:#fff;flex:0 0 auto;display:grid;place-items:center}
+.trip-steps li.done{color:var(--ink)}.trip-steps li.done .dot{background:var(--green);border-color:var(--green);color:#fff}
+.trip-steps li.current{color:var(--ink);font-weight:800}.trip-steps li.current .dot{border-color:var(--green);box-shadow:0 0 0 4px #d8ece4}
+.trip-progress{height:10px;border-radius:10px;background:#e3ece8;overflow:hidden;margin:10px 0 4px}
+.trip-progress span{display:block;height:100%;background:var(--green);transition:width .6s ease}
+.driver-card{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#f8fbf9;margin:14px 0;text-align:left}
+.driver-avatar{width:52px;height:52px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:900;font-size:calc(20px * var(--text-scale, 1));flex:0 0 auto}
+.driver-card strong{display:block;font-size:calc(17px * var(--text-scale, 1))}
+.driver-card small{color:var(--muted);font-size:calc(14px * var(--text-scale, 1))}
+.plate{display:inline-block;margin-top:6px;padding:3px 9px;border:2px solid #193a37;border-radius:6px;font-family:ui-monospace,Menlo,monospace;font-weight:800;letter-spacing:.08em;background:#fff}
+.trip-pin{margin:6px 0 0;font-size:calc(15px * var(--text-scale, 1))}.trip-pin strong{font-size:calc(22px * var(--text-scale, 1));letter-spacing:.2em}
+html.high-contrast .driver-card{background:#000;color:#fff;border:2px solid #fff}
+html.high-contrast .plate{background:#fff;color:#000}

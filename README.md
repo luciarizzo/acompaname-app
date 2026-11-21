@@ -82,6 +82,18 @@ Reglas:
 - Por privacidad (Ley 25.326, los datos de salud son sensibles) no se pide obra social, motivo de consulta ni diagnóstico. Las tablas solo son accesibles desde el back (`service_role`).
 - Las tablas siguen la idea de los recursos `Schedule`, `Slot` y `Appointment` del estándar de salud FHIR, para que un prestador real pueda conectarse en el futuro sin rehacer la app.
 
+## API de viajes (simulada)
+
+«Pedir un viaje» funciona como una app de autos, con una API propia y simulada (`netlify/functions/viajes.mjs`): no hay autos ni cobros reales, y no usa ninguna marca de terceros.
+
+- **Direcciones:** `netlify/functions/search-addresses.mjs` sugiere calles con altura y lugares conocidos mientras se escribe (por ejemplo «Hospital Central»), cerca de la ciudad del perfil. Usa Photon (OpenStreetMap, gratis, sin API key) y, si no responde, Georef (catálogo oficial argentino). Para guardar una dirección hay que tocar una sugerencia: así queda ubicada en el mapa. Photon es un servicio público con límite de uso; la función guarda las búsquedas recientes y el front espera a que la persona termine de escribir para no excederlo.
+- **Cotizar** (`POST {action:"estimate"}`): distancia por calles estimada desde las coordenadas, duración, precio y tiempo de llegada de «Auto» y «Auto con más espacio».
+- **Pedir** (`POST {action:"request"}`): asigna conductor, puntaje, auto, patente y PIN, y devuelve un token del viaje. La API no guarda estado: todo va en el token.
+- **Seguimiento** (`GET ?token=`): buscando conductor → en camino → llegó → en viaje → llegaste. Para poder mostrarlo en una presentación, **1 minuto simulado dura 6 segundos**.
+- **Cancelar** (`POST {action:"cancel"}`): solo antes de subir al auto.
+
+El viaje se guarda en Mis gestiones. Las direcciones guardadas antes de este cambio no tienen ubicación: la app pide elegirlas de nuevo en la lista la primera vez que se usan.
+
 ## Estructura
 
 - `src/components`: piezas de UI reutilizables

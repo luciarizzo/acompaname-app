@@ -238,7 +238,7 @@ export function FlowPage({ kind, initialPrompt = '', city: profileCity, onBack, 
 }
 
 function AppointmentCard({ item, onChoose }: { item: AppointmentOption; onChoose: () => void }) {
-  return <article className="results-card"><div className="result-topline"><span className="result-type">{item.specialty}</span><Stethoscope size={20}/></div><p className="result-address">{item.professional}</p><p className="result-address">{item.date} · {item.time}</p><p className="result-address">{item.location}</p><button className="small-primary" onClick={onChoose}>Ver opción <ArrowRight size={17}/></button></article>;
+  return <article className="results-card"><div className="result-topline"><span className="result-type">{item.specialty} · {item.professional}</span><Stethoscope size={20}/></div><p className="result-address">{item.date} · {item.time}</p><p className="result-address">{item.location}</p><button className="small-primary" onClick={onChoose}>Ver opción <ArrowRight size={17}/></button></article>;
 }
 
 function EventCard({ item, onChoose, demo }: { item: EventResult; onChoose: () => void; demo: boolean }) {
